@@ -84,14 +84,12 @@ export async function PATCH(
       status as 'accepted' | 'declined'
     )
 
-    // If accepted, optionally mark listing as filled
+    // If accepted, you could implement additional logic here
+    // For example: send additional notifications, update availability, etc.
     if (status === 'accepted') {
-      // You might want to mark the listing as filled or reduce availability
-      // This is optional based on your business logic
-      await prisma.listing.update({
-        where: { id: application.listing.id },
-        data: { status: 'filled' }
-      })
+      // Future enhancement: Could add logic to manage listing availability
+      // For now, we'll just let the application status change
+      console.log(`Application ${id} accepted for listing ${application.listing.id}`)
     }
 
     return NextResponse.json({ application: updatedApplication })
