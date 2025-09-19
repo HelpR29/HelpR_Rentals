@@ -19,7 +19,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           className={`
             block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-            placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+            placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             bg-white text-gray-900 disabled:bg-gray-50 disabled:text-gray-500
             transition-colors duration-200 ease-in-out
             hover:border-gray-400 focus:shadow-sm
@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <p className="mt-1 text-sm text-red-600">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+          <p className="mt-1 text-sm text-gray-700">{helperText}</p>
         )}
       </div>
     )

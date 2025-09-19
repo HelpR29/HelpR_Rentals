@@ -306,7 +306,7 @@ export default function PostListingPage() {
               <select
                 value={formData.bedrooms}
                 onChange={(e) => setFormData({...formData, bedrooms: e.target.value})}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               >
                 <option value="">Select bedrooms</option>
                 <option value="0">Studio</option>
@@ -325,7 +325,7 @@ export default function PostListingPage() {
               <select
                 value={formData.bathrooms}
                 onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               >
                 <option value="">Select bathrooms</option>
                 <option value="1">1 Bathroom</option>
@@ -449,7 +449,7 @@ export default function PostListingPage() {
                 <select
                   value={formData.parkingType}
                   onChange={(e) => setFormData({...formData, parkingType: e.target.value})}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                 >
                   <option value="">Select parking type</option>
                   <option value="garage">🏠 Garage</option>
@@ -479,7 +479,7 @@ export default function PostListingPage() {
               <select
                 value={formData.laundryType}
                 onChange={(e) => setFormData({...formData, laundryType: e.target.value})}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
               >
                 <option value="">Select laundry option</option>
                 <option value="in_unit">🏠 In-Unit Washer/Dryer</option>
