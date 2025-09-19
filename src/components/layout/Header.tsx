@@ -147,9 +147,17 @@ export default function Header() {
               </Link>
             )}
             {user && (
-              <Link href="/verification" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-                Verification
-              </Link>
+              <>
+                <Link href="/verification" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  Verification
+                </Link>
+                <Link href="/verification/mobile" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 md:hidden">
+                  📱 Mobile Verify
+                </Link>
+                <Link href="/privacy" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                  Privacy
+                </Link>
+              </>
             )}
             {user?.role === 'admin' && (
               <Link href="/admin" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
