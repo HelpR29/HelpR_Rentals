@@ -59,8 +59,11 @@ export default function NotificationsPage() {
           )
         )
         
-        // Mark notifications as read in localStorage
+        // Mark notifications as read in localStorage immediately
         localStorage.setItem('notificationsLastRead', Date.now().toString())
+        
+        // Immediately clear notification indicators
+        window.dispatchEvent(new CustomEvent('clearNotifications'))
         
         // Trigger a refresh of header notifications
         window.dispatchEvent(new CustomEvent('refreshNotifications'))
@@ -85,8 +88,11 @@ export default function NotificationsPage() {
           title: 'All notifications marked as read'
         })
         
-        // Mark notifications as read in localStorage
+        // Mark notifications as read in localStorage immediately
         localStorage.setItem('notificationsLastRead', Date.now().toString())
+        
+        // Immediately clear notification indicators
+        window.dispatchEvent(new CustomEvent('clearNotifications'))
         
         // Trigger a refresh of header notifications
         window.dispatchEvent(new CustomEvent('refreshNotifications'))

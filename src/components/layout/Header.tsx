@@ -31,11 +31,11 @@ export default function Header() {
     if (user) {
       fetchNotificationCount()
       fetchMessageStatus()
-      // Set up polling to refresh count every 30 seconds
+      // Set up polling to refresh count every 5 seconds for real-time feel
       const interval = setInterval(() => {
         fetchNotificationCount()
         fetchMessageStatus()
-      }, 30000)
+      }, 5000)
       
       // Listen for manual refresh events
       const handleRefreshNotifications = () => {
@@ -43,11 +43,19 @@ export default function Header() {
         fetchMessageStatus()
       }
       
+      // Listen for immediate clear events
+      const handleClearNotifications = () => {
+        setHasNewMessages(false)
+        setNotificationCount(0)
+      }
+      
       window.addEventListener('refreshNotifications', handleRefreshNotifications)
+      window.addEventListener('clearNotifications', handleClearNotifications)
       
       return () => {
         clearInterval(interval)
         window.removeEventListener('refreshNotifications', handleRefreshNotifications)
+        window.removeEventListener('clearNotifications', handleClearNotifications)
       }
     }
   }, [user])
@@ -96,13 +104,13 @@ export default function Header() {
 
   const fetchMessageStatus = async () => {
     try {
-      // Check if user has marked notifications as read recently
+      // Check if user has marked notifications as read recently (immediate check)
       const lastReadTime = localStorage.getItem('notificationsLastRead')
       const now = Date.now()
-      const fiveMinutesAgo = now - 5 * 60 * 1000
+      const thirtySecondsAgo = now - 30 * 1000 // Very short window for immediate response
       
-      // If notifications were read within 5 minutes, don't show unread indicator
-      if (lastReadTime && parseInt(lastReadTime) > fiveMinutesAgo) {
+      // If notifications were read within 30 seconds, don't show unread indicator
+      if (lastReadTime && parseInt(lastReadTime) > thirtySecondsAgo) {
         setHasNewMessages(false)
         return
       }

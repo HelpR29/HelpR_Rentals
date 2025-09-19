@@ -23,10 +23,11 @@ interface Message {
 }
 
 interface ChatPageProps {
-  params: { userId: string }
+  params: Promise<{ userId: string }>
 }
 
 export default function ChatPage({ params }: ChatPageProps) {
+  const [userId, setUserId] = useState<string>('')
   const router = useRouter()
   const searchParams = useSearchParams()
   const { addToast } = useToast()
@@ -40,15 +41,26 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [otherUserEmail, setOtherUserEmail] = useState('')
 
   useEffect(() => {
-    fetchUser()
-    fetchMessages()
-    
-    // Get other user email from URL params
-    const email = searchParams.get('email')
-    if (email) {
-      setOtherUserEmail(decodeURIComponent(email))
+    const initializeChat = async () => {
+      const resolvedParams = await params
+      setUserId(resolvedParams.userId)
+      
+      fetchUser()
+      fetchMessages(resolvedParams.userId)
+      
+      // Get other user email from URL params
+      const email = searchParams.get('email')
+      if (email) {
+        setOtherUserEmail(decodeURIComponent(email))
+      }
+      
+      // Clear notifications when entering chat
+      localStorage.setItem('notificationsLastRead', Date.now().toString())
+      window.dispatchEvent(new CustomEvent('clearNotifications'))
     }
-  }, [params.userId])
+    
+    initializeChat()
+  }, [params, searchParams])
 
   useEffect(() => {
     scrollToBottom()
@@ -66,9 +78,9 @@ export default function ChatPage({ params }: ChatPageProps) {
     }
   }
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (chatUserId: string) => {
     try {
-      const response = await fetch(`/api/chat/${params.userId}`)
+      const response = await fetch(`/api/chat/${chatUserId}`)
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages || [])
@@ -81,11 +93,11 @@ export default function ChatPage({ params }: ChatPageProps) {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || sending) return
+    if (!newMessage.trim() || sending || !userId) return
 
     setSending(true)
     try {
-      const response = await fetch(`/api/chat/${params.userId}`, {
+      const response = await fetch(`/api/chat/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

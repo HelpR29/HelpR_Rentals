@@ -46,6 +46,7 @@ export default function InboxPage() {
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)
   const [processingApp, setProcessingApp] = useState<string | null>(null)
+  const [unreadMessages, setUnreadMessages] = useState<{[key: string]: number}>({})
 
   useEffect(() => {
     fetchUser()
@@ -54,8 +55,16 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchApplications()
+      fetchUnreadMessageCounts()
       // Mark notifications as read and refresh count when inbox is viewed
       markNotificationsAsRead()
+      
+      // Set up real-time polling for message updates
+      const interval = setInterval(() => {
+        fetchUnreadMessageCounts()
+      }, 5000) // Check every 5 seconds for real-time feel
+      
+      return () => clearInterval(interval)
     }
   }, [user])
 
@@ -105,6 +114,25 @@ export default function InboxPage() {
       console.error('Failed to fetch applications:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchUnreadMessageCounts = async () => {
+    try {
+      // For demo purposes, simulate unread message counts for different users
+      if (user?.role === 'tenant') {
+        setUnreadMessages({
+          'host_1': 2, // 2 unread messages from host_1
+          'host_2': 1  // 1 unread message from host_2
+        })
+      } else if (user?.role === 'host') {
+        setUnreadMessages({
+          'tenant_1': 1, // 1 unread message from tenant_1
+          'tenant_2': 0  // No unread messages from tenant_2
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread message counts:', error)
     }
   }
 
@@ -182,6 +210,12 @@ export default function InboxPage() {
   }
 
   const startChat = (applicantId: string, applicantEmail: string) => {
+    // Clear unread messages for this user immediately
+    setUnreadMessages(prev => ({
+      ...prev,
+      [applicantId]: 0
+    }))
+    
     // Navigate to chat with the applicant
     router.push(`/chat/${applicantId}?email=${encodeURIComponent(applicantEmail)}`)
   }
@@ -324,8 +358,14 @@ export default function InboxPage() {
                           size="sm"
                           variant="secondary"
                           onClick={() => startChat('host_1', 'host@example.com')}
+                          className="relative"
                         >
                           💬 Message Host
+                          {unreadMessages['host_1'] > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
+                              {unreadMessages['host_1']}
+                            </span>
+                          )}
                         </Button>
                         <Button
                           size="sm"
@@ -353,8 +393,14 @@ export default function InboxPage() {
                           size="sm"
                           variant="secondary"
                           onClick={() => startChat(application.applicant.id, application.applicant.email)}
+                          className="relative"
                         >
                           💬 Chat
+                          {unreadMessages[application.applicant.id] > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
+                              {unreadMessages[application.applicant.id]}
+                            </span>
+                          )}
                         </Button>
                         <Button
                           size="sm"
