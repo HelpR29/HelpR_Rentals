@@ -118,10 +118,21 @@ export default function AdminPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="mt-2 text-gray-600">
-          Review listings flagged by AI for potential scam indicators
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="mt-2 text-gray-600">
+              Review listings flagged by AI for potential scam indicators
+            </p>
+          </div>
+          <div className="flex space-x-4">
+            <Link href="/admin/ai-review">
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                🤖 AI Verification Review
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
       {loading ? (
