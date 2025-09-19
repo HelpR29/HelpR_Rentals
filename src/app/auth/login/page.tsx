@@ -53,7 +53,9 @@ function LoginContent() {
             Sign in to Helpr
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {role === 'host' ? 'Ready to list your space?' : 'Looking for a place to stay?'}
+            {role === 'host' ? 'Ready to list your space?' : 
+             role === 'admin' ? 'Admin Dashboard Access' : 
+             'Looking for a place to stay?'}
           </p>
         </div>
 
