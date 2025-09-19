@@ -153,7 +153,15 @@ export async function GET(request: NextRequest) {
       where,
       include: {
         owner: {
-          select: { id: true, email: true, role: true }
+          select: { 
+            id: true, 
+            email: true, 
+            role: true,
+            verified: true,
+            emailVerified: true,
+            phoneVerified: true,
+            idVerified: true
+          }
         },
         _count: {
           select: { applications: true }

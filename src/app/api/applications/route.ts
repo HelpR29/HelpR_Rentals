@@ -185,7 +185,15 @@ export async function GET(request: NextRequest) {
           }
         },
         applicant: {
-          select: { id: true, email: true, role: true }
+          select: { 
+            id: true, 
+            email: true, 
+            role: true,
+            verified: true,
+            emailVerified: true,
+            phoneVerified: true,
+            idVerified: true
+          }
         }
       },
       orderBy: { createdAt: 'desc' }

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
+import VerificationBadge from '@/components/ui/VerificationBadge'
 
 interface User {
   id: string
@@ -31,6 +32,10 @@ interface Application {
   applicant: {
     id: string
     email: string
+    verified?: boolean
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    idVerified?: boolean
   }
 }
 
@@ -231,7 +236,13 @@ export default function InboxPage() {
 
                   {user.role === 'host' ? (
                     <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <h4 className="font-medium text-gray-900 mb-2">Applicant Details</h4>
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-medium text-gray-900">Applicant Details</h4>
+                        <VerificationBadge 
+                          verified={application.applicant.verified || false} 
+                          size="sm"
+                        />
+                      </div>
                       <p className="text-sm text-gray-600 mb-1">
                         <strong>Email:</strong> {application.applicant.email}
                       </p>

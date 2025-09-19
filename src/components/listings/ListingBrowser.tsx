@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import VerificationBadge from '@/components/ui/VerificationBadge'
 
 interface Listing {
   id: string
@@ -21,6 +22,10 @@ interface Listing {
   owner: {
     id: string
     email: string
+    verified?: boolean
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    idVerified?: boolean
   }
   _count: {
     applications: number
@@ -216,9 +221,20 @@ export default function ListingBrowser() {
                       </div>
 
                       {/* Address */}
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-1">
+                      <p className="text-gray-600 text-sm mb-2 line-clamp-1">
                         📍 {listing.address}
                       </p>
+
+                      {/* Host Info */}
+                      <div className="flex items-center space-x-2 mb-3">
+                        <span className="text-xs text-gray-500">
+                          Hosted by {listing.owner.email.split('@')[0]}
+                        </span>
+                        <VerificationBadge 
+                          verified={listing.owner.verified || false} 
+                          size="sm"
+                        />
+                      </div>
 
                       {/* Quick Facts */}
                       <div className="flex flex-wrap gap-2 mb-3">

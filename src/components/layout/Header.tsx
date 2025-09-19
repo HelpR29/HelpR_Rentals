@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import VerificationBadge from '@/components/ui/VerificationBadge'
 
 interface User {
   id: string
   email: string
   role: string
+  verified?: boolean
+  emailVerified?: boolean
+  phoneVerified?: boolean
+  idVerified?: boolean
 }
 
 export default function Header() {
@@ -169,7 +174,13 @@ export default function Header() {
                       </span>
                     </div>
                     <div className="text-sm">
-                      <p className="text-gray-900 font-medium">{user.email.split('@')[0]}</p>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-gray-900 font-medium">{user.email.split('@')[0]}</p>
+                        <VerificationBadge 
+                          verified={user.verified || false} 
+                          size="sm"
+                        />
+                      </div>
                       <p className="text-gray-500 text-xs capitalize">{user.role}</p>
                     </div>
                   </div>
