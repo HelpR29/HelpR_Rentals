@@ -99,14 +99,24 @@ function LoginContent() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              {role === 'host' ? 'Looking for a place instead?' : 'Want to list your space?'}{' '}
+              {role === 'admin' ? 'Not an admin?' : role === 'host' ? 'Looking for a place instead?' : 'Want to list your space?'}{' '}
               <button
-                onClick={() => router.push(`/auth/login?role=${role === 'host' ? 'tenant' : 'host'}`)}
+                onClick={() => router.push(`/auth/login?role=${role === 'admin' ? 'tenant' : role === 'host' ? 'tenant' : 'host'}`)}
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                {role === 'host' ? 'I\'m Looking' : 'I\'m Hosting'}
+                {role === 'admin' ? 'I\'m Looking' : role === 'host' ? 'I\'m Looking' : 'I\'m Hosting'}
               </button>
             </p>
+            {role !== 'admin' && (
+              <p className="text-xs text-gray-500 mt-2">
+                <button
+                  onClick={() => router.push('/auth/login?role=admin')}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  Admin Access
+                </button>
+              </p>
+            )}
           </div>
         </Card>
       </div>
