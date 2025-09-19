@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         email: true,
+        name: true,
         phone: true,
         verified: true,
         emailVerified: true,
