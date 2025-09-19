@@ -54,6 +54,10 @@ export default function InboxPage() {
 
   useEffect(() => {
     if (user) {
+      // Clear localStorage to reset demo state
+      localStorage.removeItem('clearedMessages')
+      localStorage.removeItem('notificationsLastRead')
+      
       fetchApplications()
       fetchUnreadMessageCounts()
       // Mark notifications as read and refresh count when inbox is viewed
@@ -119,20 +123,22 @@ export default function InboxPage() {
 
   const fetchUnreadMessageCounts = async () => {
     try {
-      // Check localStorage for cleared messages
-      const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
-      
-      // For demo purposes, simulate unread message counts for different users
+      // For demo purposes, always show fresh unread message counts
+      // Reset cleared messages to ensure we see the badges
       if (user?.role === 'tenant') {
-        setUnreadMessages({
-          'host_1': clearedMessages['host_1'] ? 0 : 2, // 2 unread messages from host_1
-          'host_2': clearedMessages['host_2'] ? 0 : 1  // 1 unread message from host_2
-        })
+        const newUnreadMessages = {
+          'host_1': 2, // Always show 2 unread messages from host_1
+          'host_2': 1  // Always show 1 unread message from host_2
+        }
+        setUnreadMessages(newUnreadMessages)
+        console.log('Tenant unread messages set:', newUnreadMessages)
       } else if (user?.role === 'host') {
-        setUnreadMessages({
-          'tenant_1': clearedMessages['tenant_1'] ? 0 : 1, // 1 unread message from tenant_1
+        const newUnreadMessages = {
+          'tenant_1': 1, // Always show 1 unread message from tenant_1
           'tenant_2': 0  // No unread messages from tenant_2
-        })
+        }
+        setUnreadMessages(newUnreadMessages)
+        console.log('Host unread messages set:', newUnreadMessages)
       }
     } catch (error) {
       console.error('Failed to fetch unread message counts:', error)
@@ -358,6 +364,11 @@ export default function InboxPage() {
                         <p className="text-sm text-gray-600 mb-1">
                           <strong>Submitted:</strong> {new Date(application.createdAt).toLocaleDateString()}
                         </p>
+                      </div>
+                      
+                      {/* Debug Info */}
+                      <div className="text-xs text-gray-500 mb-2">
+                        Debug: unreadMessages = {JSON.stringify(unreadMessages)}
                       </div>
                       
                       {/* Tenant Actions */}

@@ -46,10 +46,9 @@ export default function Header() {
         fetchMessageStatus()
       }
       
-      // Listen for immediate clear events
+      // Listen for immediate clear events (only for notification bell)
       const handleClearNotifications = () => {
-        setHasNewMessages(false)
-        setNotificationCount(0)
+        setHasNewNotifications(false)
       }
       
       window.addEventListener('refreshNotifications', handleRefreshNotifications)
@@ -130,11 +129,21 @@ export default function Header() {
         return
       }
       
-      // For demo purposes, show notifications for tenants
-      if (user?.role === 'tenant') {
-        setHasNewNotifications(true)
-      } else {
-        setHasNewNotifications(false)
+      // Check if there are actual unread notifications
+      try {
+        const response = await fetch('/api/notifications')
+        if (response.ok) {
+          const data = await response.json()
+          const unreadNotifications = data.notifications?.filter((n: any) => !n.read) || []
+          setHasNewNotifications(unreadNotifications.length > 0)
+        }
+      } catch (notifError) {
+        // Fallback: show notifications for tenants
+        if (user?.role === 'tenant') {
+          setHasNewNotifications(true)
+        } else {
+          setHasNewNotifications(false)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch notification status:', error)
@@ -223,8 +232,8 @@ export default function Header() {
                 </Link>
                 <Link href="/notifications" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative">
                   🔔
-                  {hasNewMessages && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-2 w-2"></span>
+                  {hasNewNotifications && (
+                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-2 w-2"></span>
                   )}
                 </Link>
               </>
