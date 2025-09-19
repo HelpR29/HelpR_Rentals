@@ -15,10 +15,7 @@ export async function GET(request: NextRequest) {
     // Get listings flagged by AI as potential scams
     const flaggedListings = await prisma.listing.findMany({
       where: {
-        aiFlags: {
-          path: ['isScam'],
-          equals: true
-        }
+        flagged: true
       },
       include: {
         owner: {
@@ -76,14 +73,13 @@ export async function PATCH(request: NextRequest) {
     const updatedListing = await prisma.listing.update({
       where: { id: listingId },
       data: {
-        status: action === 'approve' ? 'active' : 'archived',
-        aiFlags: {
-          ...(listing.aiFlags as any),
+        aiFlags: JSON.stringify({
+          ...(listing.aiFlags ? JSON.parse(listing.aiFlags as string) : {}),
           adminReviewed: true,
           adminAction: action,
-          reviewedAt: new Date().toISOString(),
-          reviewedBy: user.id
-        }
+          reviewedAt: new Date().toISOString()
+        }),
+        flagged: action === 'reject' // Keep flagged if rejected, unflag if approved
       },
       include: {
         owner: {

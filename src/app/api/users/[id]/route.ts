@@ -3,11 +3,12 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const user = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         _count: {
           select: {
@@ -26,7 +27,7 @@ export async function GET(
     }
 
     const reviews = await prisma.review.findMany({
-      where: { targetId: params.id },
+      where: { targetId: id },
       include: {
         author: {
           select: {

@@ -108,24 +108,20 @@ export async function POST(request: NextRequest) {
     const message = await prisma.message.create({
       data: {
         senderId: user.id,
-        recipientId,
-        body,
-        listingId: listingId || null,
-        applicationId: applicationId || null
+        receiverId: recipientId,
+        content: body,
+        applicationId: applicationId
       },
       include: {
         sender: {
           select: { id: true, email: true, role: true }
         },
-        recipient: {
+        receiver: {
           select: { id: true, email: true, role: true }
         },
-        listing: listingId ? {
-          select: { id: true, title: true }
-        } : false,
-        application: applicationId ? {
+        application: {
           select: { id: true }
-        } : false
+        }
       }
     })
 
@@ -181,11 +177,8 @@ export async function GET(request: NextRequest) {
         sender: {
           select: { id: true, email: true, role: true }
         },
-        recipient: {
+        receiver: {
           select: { id: true, email: true, role: true }
-        },
-        listing: {
-          select: { id: true, title: true, address: true }
         },
         application: {
           select: { id: true, moveInDate: true, duration: true }

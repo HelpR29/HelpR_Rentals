@@ -46,16 +46,15 @@ async function main() {
       availableTo: new Date('2024-08-31'),
       furnished: true,
       petsAllowed: false,
-      photos: ['/uploads/sample-apartment-1.jpg'],
-      aiFlags: {
+      photos: JSON.stringify(['/uploads/sample-apartment-1.jpg']),
+      aiFlags: JSON.stringify({
         quickFacts: {
-          deposit: '$1,200',
+          deposit: '$1,500',
           furnished: 'Yes',
           utilities: 'Included',
-          pets: 'Not allowed'
+          pets: 'Small pets allowed'
         }
-      },
-      status: 'active'
+      })
     }
   })
 
@@ -70,16 +69,15 @@ async function main() {
       availableFrom: new Date('2024-03-01'),
       furnished: false,
       petsAllowed: true,
-      photos: ['/uploads/sample-house-1.jpg'],
-      aiFlags: {
+      photos: JSON.stringify(['/uploads/sample-house-1.jpg']),
+      aiFlags: JSON.stringify({
         quickFacts: {
-          deposit: '$900',
+          deposit: '$1,800',
           furnished: 'No',
-          utilities: 'Tenant pays',
-          pets: 'Allowed'
+          utilities: 'Not included',
+          pets: 'All pets welcome'
         }
-      },
-      status: 'active'
+      })
     }
   })
 
