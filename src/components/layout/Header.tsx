@@ -129,21 +129,12 @@ export default function Header() {
         return
       }
       
-      // Check if there are actual unread notifications
-      try {
-        const response = await fetch('/api/notifications')
-        if (response.ok) {
-          const data = await response.json()
-          const unreadNotifications = data.notifications?.filter((n: any) => !n.read) || []
-          setHasNewNotifications(unreadNotifications.length > 0)
-        }
-      } catch (notifError) {
-        // Fallback: show notifications for tenants
-        if (user?.role === 'tenant') {
-          setHasNewNotifications(true)
-        } else {
-          setHasNewNotifications(false)
-        }
+      // For demo purposes, only show notifications if they haven't been cleared recently
+      // This prevents the constant reappearing issue
+      if (user?.role === 'tenant' && (!lastReadTime || parseInt(lastReadTime) <= fiveMinutesAgo)) {
+        setHasNewNotifications(true)
+      } else {
+        setHasNewNotifications(false)
       }
     } catch (error) {
       console.error('Failed to fetch notification status:', error)

@@ -54,9 +54,8 @@ export default function InboxPage() {
 
   useEffect(() => {
     if (user) {
-      // Clear localStorage to reset demo state
+      // Only clear message-related localStorage, not all localStorage
       localStorage.removeItem('clearedMessages')
-      localStorage.removeItem('notificationsLastRead')
       
       fetchApplications()
       fetchUnreadMessageCounts()
@@ -364,11 +363,6 @@ export default function InboxPage() {
                         <p className="text-sm text-gray-600 mb-1">
                           <strong>Submitted:</strong> {new Date(application.createdAt).toLocaleDateString()}
                         </p>
-                      </div>
-                      
-                      {/* Debug Info */}
-                      <div className="text-xs text-gray-500 mb-2">
-                        Debug: unreadMessages = {JSON.stringify(unreadMessages)}
                       </div>
                       
                       {/* Tenant Actions */}
