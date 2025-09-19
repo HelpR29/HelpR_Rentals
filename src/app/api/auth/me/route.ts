@@ -31,10 +31,18 @@ export async function GET(request: NextRequest) {
     })
 
     if (!fullUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
+      // User doesn't exist in database, but JWT is valid
+      // This can happen after database reset - recreate the user
+      console.log('User not found in database, recreating:', user.email)
+      
+      const newUser = await prisma.user.create({
+        data: {
+          email: user.email,
+          role: user.role
+        }
+      })
+      
+      return NextResponse.json({ user: newUser })
     }
 
     return NextResponse.json({ user: fullUser })
