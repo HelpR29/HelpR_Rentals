@@ -49,12 +49,29 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchApplications()
-      // Refresh notification count when inbox is viewed
-      if (typeof window !== 'undefined' && (window as any).refreshNotificationCount) {
-        setTimeout(() => (window as any).refreshNotificationCount(), 1000)
-      }
+      // Mark notifications as read and refresh count when inbox is viewed
+      markNotificationsAsRead()
     }
   }, [user])
+
+  const markNotificationsAsRead = async () => {
+    try {
+      // Mark the current time as last inbox visit in localStorage
+      if (typeof window !== 'undefined' && user) {
+        localStorage.setItem(`lastInboxVisit_${user.id}`, new Date().toISOString())
+      }
+      
+      // Call the mark-read endpoint
+      await fetch('/api/applications/mark-read', { method: 'POST' })
+      
+      // Refresh notification count after marking as read
+      if (typeof window !== 'undefined' && (window as any).refreshNotificationCount) {
+        setTimeout(() => (window as any).refreshNotificationCount(), 500)
+      }
+    } catch (error) {
+      console.error('Failed to mark notifications as read:', error)
+    }
+  }
 
   const fetchUser = async () => {
     try {

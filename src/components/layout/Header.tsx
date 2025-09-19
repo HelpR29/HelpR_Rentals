@@ -49,7 +49,23 @@ export default function Header() {
       const response = await fetch('/api/applications/count')
       if (response.ok) {
         const data = await response.json()
-        setNotificationCount(data.count)
+        let finalCount = data.count
+
+        // For tenants, check if they've visited inbox recently
+        if (user?.role === 'tenant' && typeof window !== 'undefined') {
+          const lastInboxVisit = localStorage.getItem(`lastInboxVisit_${user.id}`)
+          if (lastInboxVisit) {
+            const lastVisitTime = new Date(lastInboxVisit)
+            const now = new Date()
+            // If they visited inbox in the last hour, don't show notifications
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+            if (lastVisitTime > oneHourAgo) {
+              finalCount = 0
+            }
+          }
+        }
+
+        setNotificationCount(finalCount)
       }
     } catch (error) {
       console.error('Failed to fetch notification count:', error)

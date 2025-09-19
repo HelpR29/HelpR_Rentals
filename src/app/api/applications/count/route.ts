@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
         }
       })
     } else if (user.role === 'tenant') {
-      // Count applications with status updates (accepted/declined) that user hasn't seen
-      // For now, we'll just count all non-submitted applications for the tenant
+      // For tenants, check for applications with status updates
+      // The client will handle filtering based on last visit time
       count = await prisma.application.count({
         where: {
           applicantId: user.id,
