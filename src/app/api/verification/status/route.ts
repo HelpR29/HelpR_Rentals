@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        name: true,
         phone: true,
         verified: true,
         emailVerified: true,
@@ -39,14 +38,27 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Parse JSON fields
-    const verificationData = userWithVerification.verificationData 
-      ? JSON.parse(userWithVerification.verificationData) 
-      : {}
+    // Parse JSON fields safely
+    let verificationData = {}
+    let verificationDocs = []
     
-    const verificationDocs = userWithVerification.verificationDocs 
-      ? JSON.parse(userWithVerification.verificationDocs) 
-      : []
+    try {
+      verificationData = userWithVerification.verificationData 
+        ? JSON.parse(userWithVerification.verificationData) 
+        : {}
+    } catch (error) {
+      console.error('Error parsing verificationData:', error)
+      verificationData = {}
+    }
+    
+    try {
+      verificationDocs = userWithVerification.verificationDocs 
+        ? JSON.parse(userWithVerification.verificationDocs) 
+        : []
+    } catch (error) {
+      console.error('Error parsing verificationDocs:', error)
+      verificationDocs = []
+    }
 
     // Calculate verification score
     const verificationTypes = [
