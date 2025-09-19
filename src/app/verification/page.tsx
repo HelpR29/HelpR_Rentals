@@ -55,6 +55,10 @@ export default function VerificationPage() {
         setUser(data.user)
       } else if (response.status === 401) {
         router.push('/auth/login')
+      } else {
+        console.error('Verification status error:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error details:', errorData)
       }
     } catch (error) {
       console.error('Failed to fetch verification status:', error)
@@ -125,7 +129,24 @@ export default function VerificationPage() {
   }
 
   if (!user) {
-    return null
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Verification Error</h1>
+            <p className="text-gray-600 mb-6">
+              Unable to load verification status. Please try refreshing the page or logging in again.
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const verificationItems: VerificationItem[] = [
