@@ -598,12 +598,12 @@ export default function PostListingPage() {
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Generated Title</h3>
-                    <p className="text-gray-700 p-3 bg-gray-50 rounded-lg">{aiPreview.title}</p>
+                    <p className="text-gray-900 p-3 bg-gray-50 rounded-lg">{aiPreview.title}</p>
                   </div>
 
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Generated Description</h3>
-                    <p className="text-gray-700 p-3 bg-gray-50 rounded-lg whitespace-pre-line">{aiPreview.description}</p>
+                    <p className="text-gray-900 p-3 bg-gray-50 rounded-lg whitespace-pre-line">{aiPreview.description}</p>
                   </div>
 
                   {Object.keys(aiPreview.quickFacts).length > 0 && (

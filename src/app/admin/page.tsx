@@ -61,10 +61,10 @@ export default function AdminPage() {
         const data = await response.json()
         setUser(data.user)
         if (data.user.role !== 'admin') {
-          router.push('/')
+          router.push('/auth/login?role=admin')
         }
       } else {
-        router.push('/auth/login')
+        router.push('/auth/login?role=admin')
       }
     } catch (error) {
       console.error('Failed to fetch user:', error)

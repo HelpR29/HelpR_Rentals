@@ -237,7 +237,7 @@ export default function ListingDetailPage() {
           <Card className="mb-6">
             <h2 className="text-xl font-semibold mb-4">Description</h2>
             <div className="prose max-w-none">
-              <p className="text-gray-700 whitespace-pre-line">{listing.description}</p>
+              <p className="text-gray-900 whitespace-pre-line">{listing.description}</p>
             </div>
           </Card>
 
@@ -250,21 +250,21 @@ export default function ListingDetailPage() {
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {listing.deposit && (
                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <dt className="text-sm font-medium text-gray-700">Deposit</dt>
+                      <dt className="text-sm font-medium text-gray-900">Deposit</dt>
                       <dd className="text-sm font-semibold text-gray-900">${listing.deposit}</dd>
                     </div>
                   )}
                   <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <dt className="text-sm font-medium text-gray-700">Furnished</dt>
+                    <dt className="text-sm font-medium text-gray-900">Furnished</dt>
                     <dd className="text-sm font-semibold text-gray-900">{listing.furnished ? 'Yes' : 'No'}</dd>
                   </div>
                   <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <dt className="text-sm font-medium text-gray-700">Pets Allowed</dt>
+                    <dt className="text-sm font-medium text-gray-900">Pets Allowed</dt>
                     <dd className="text-sm font-semibold text-gray-900">{listing.petsAllowed ? 'Yes' : 'No'}</dd>
                   </div>
                   {listing.laundryType && (
                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <dt className="text-sm font-medium text-gray-700">Laundry</dt>
+                      <dt className="text-sm font-medium text-gray-900">Laundry</dt>
                       <dd className="text-sm font-semibold text-gray-900">
                         {listing.laundryType === 'in_unit' ? '🏠 In-Unit' :
                          listing.laundryType === 'in_building' ? '🏢 In-Building' :
@@ -279,27 +279,27 @@ export default function ListingDetailPage() {
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-3">Utilities Included</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className={`flex items-center p-3 rounded-lg border ${listing.waterIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                  <div className={`flex items-center p-3 rounded-lg border ${listing.waterIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-900 border-gray-200'}`}>
                     <span className="mr-2">💧</span>
                     <span className="text-sm font-medium">Water</span>
                     {listing.waterIncluded && <span className="ml-auto text-sm font-bold">✓</span>}
                   </div>
-                  <div className={`flex items-center p-3 rounded-lg border ${listing.heatIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                  <div className={`flex items-center p-3 rounded-lg border ${listing.heatIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-900 border-gray-200'}`}>
                     <span className="mr-2">🔥</span>
                     <span className="text-sm font-medium">Heat</span>
                     {listing.heatIncluded && <span className="ml-auto text-sm font-bold">✓</span>}
                   </div>
-                  <div className={`flex items-center p-3 rounded-lg border ${listing.electricityIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                  <div className={`flex items-center p-3 rounded-lg border ${listing.electricityIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-900 border-gray-200'}`}>
                     <span className="mr-2">⚡</span>
                     <span className="text-sm font-medium">Electricity</span>
                     {listing.electricityIncluded && <span className="ml-auto text-sm font-bold">✓</span>}
                   </div>
-                  <div className={`flex items-center p-3 rounded-lg border ${listing.internetIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                  <div className={`flex items-center p-3 rounded-lg border ${listing.internetIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-900 border-gray-200'}`}>
                     <span className="mr-2">📶</span>
                     <span className="text-sm font-medium">Internet</span>
                     {listing.internetIncluded && <span className="ml-auto text-sm font-bold">✓</span>}
                   </div>
-                  <div className={`flex items-center p-3 rounded-lg border ${listing.cableIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+                  <div className={`flex items-center p-3 rounded-lg border ${listing.cableIncluded ? 'bg-green-50 text-green-800 border-green-200' : 'bg-gray-50 text-gray-900 border-gray-200'}`}>
                     <span className="mr-2">📺</span>
                     <span className="text-sm font-medium">Cable/TV</span>
                     {listing.cableIncluded && <span className="ml-auto text-sm font-bold">✓</span>}
@@ -324,7 +324,7 @@ export default function ListingDetailPage() {
                          listing.parkingType === 'street' ? 'Street Parking' : 'No Parking'}
                       </p>
                       {listing.parkingCost && (
-                        <p className="text-sm font-medium text-gray-700">${listing.parkingCost}/month</p>
+                        <p className="text-sm font-medium text-gray-900">${listing.parkingCost}/month</p>
                       )}
                     </div>
                   </div>

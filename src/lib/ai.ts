@@ -59,8 +59,8 @@ Contact us today to schedule a viewing and learn more about this fantastic oppor
           utilities: 'Contact for details',
           pets: input.petsAllowed ? 'Allowed' : 'Not allowed'
         },
-        isScam: input.rent < 500, // Simple scam detection for development
-        scamReasons: input.rent < 500 ? ['Rent suspiciously low'] : undefined
+        isScam: input.rent < 200, // Simple scam detection for development - very low threshold
+        scamReasons: input.rent < 200 ? ['Rent suspiciously low'] : undefined
       }
     }
 
