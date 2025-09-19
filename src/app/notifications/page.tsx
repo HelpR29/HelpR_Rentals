@@ -58,6 +58,12 @@ export default function NotificationsPage() {
               : notif
           )
         )
+        
+        // Mark notifications as read in localStorage
+        localStorage.setItem('notificationsLastRead', Date.now().toString())
+        
+        // Trigger a refresh of header notifications
+        window.dispatchEvent(new CustomEvent('refreshNotifications'))
       }
     } catch (error) {
       console.error('Failed to mark notification as read:', error)
@@ -78,6 +84,12 @@ export default function NotificationsPage() {
           type: 'success',
           title: 'All notifications marked as read'
         })
+        
+        // Mark notifications as read in localStorage
+        localStorage.setItem('notificationsLastRead', Date.now().toString())
+        
+        // Trigger a refresh of header notifications
+        window.dispatchEvent(new CustomEvent('refreshNotifications'))
       }
     } catch (error) {
       addToast({

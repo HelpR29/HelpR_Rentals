@@ -36,7 +36,19 @@ export default function Header() {
         fetchNotificationCount()
         fetchMessageStatus()
       }, 30000)
-      return () => clearInterval(interval)
+      
+      // Listen for manual refresh events
+      const handleRefreshNotifications = () => {
+        fetchNotificationCount()
+        fetchMessageStatus()
+      }
+      
+      window.addEventListener('refreshNotifications', handleRefreshNotifications)
+      
+      return () => {
+        clearInterval(interval)
+        window.removeEventListener('refreshNotifications', handleRefreshNotifications)
+      }
     }
   }, [user])
 
@@ -84,6 +96,17 @@ export default function Header() {
 
   const fetchMessageStatus = async () => {
     try {
+      // Check if user has marked notifications as read recently
+      const lastReadTime = localStorage.getItem('notificationsLastRead')
+      const now = Date.now()
+      const fiveMinutesAgo = now - 5 * 60 * 1000
+      
+      // If notifications were read within 5 minutes, don't show unread indicator
+      if (lastReadTime && parseInt(lastReadTime) > fiveMinutesAgo) {
+        setHasNewMessages(false)
+        return
+      }
+      
       const response = await fetch('/api/messages/unread-count')
       if (response.ok) {
         const data = await response.json()
