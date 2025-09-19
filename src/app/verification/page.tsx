@@ -1,0 +1,476 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import VerificationBadge from '@/components/ui/VerificationBadge'
+import { useToast } from '@/components/ui/Toast'
+
+interface User {
+  id: string
+  email: string
+  name: string | null
+  phone: string | null
+  verified: boolean
+  emailVerified: boolean
+  phoneVerified: boolean
+  idVerified: boolean
+  addressVerified: boolean
+  incomeVerified: boolean
+  backgroundVerified: boolean
+  verificationScore: number
+  completedVerifications: number
+  totalVerifications: number
+  verificationData: any
+}
+
+interface VerificationItem {
+  type: string
+  title: string
+  description: string
+  icon: string
+  required: boolean
+  verified: boolean
+}
+
+export default function VerificationPage() {
+  const router = useRouter()
+  const { addToast } = useToast()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState<string | null>(null)
+  const [formData, setFormData] = useState<any>({})
+
+  useEffect(() => {
+    fetchVerificationStatus()
+  }, [])
+
+  const fetchVerificationStatus = async () => {
+    try {
+      const response = await fetch('/api/verification/status')
+      if (response.ok) {
+        const data = await response.json()
+        setUser(data.user)
+      } else if (response.status === 401) {
+        router.push('/auth/login')
+      }
+    } catch (error) {
+      console.error('Failed to fetch verification status:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerificationSubmit = async (verificationType: string, data: any) => {
+    setSubmitting(verificationType)
+    try {
+      const response = await fetch('/api/verification/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          verificationType,
+          data,
+          documents: [] // In a real app, you'd handle file uploads here
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        addToast({
+          type: 'success',
+          title: 'Verification Submitted!',
+          message: `Your ${verificationType} verification has been ${result.status === 'approved' ? 'approved' : 'submitted for review'}.`
+        })
+        fetchVerificationStatus() // Refresh status
+        setFormData({ ...formData, [verificationType]: {} }) // Clear form
+      } else {
+        const error = await response.json()
+        addToast({
+          type: 'error',
+          title: 'Verification Failed',
+          message: error.error || 'Failed to submit verification. Please try again.'
+        })
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to submit verification. Please check your connection and try again.'
+      })
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-48 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
+  const verificationItems: VerificationItem[] = [
+    {
+      type: 'email',
+      title: 'Email Verification',
+      description: 'Verify your email address to secure your account',
+      icon: '📧',
+      required: true,
+      verified: user.emailVerified
+    },
+    {
+      type: 'phone',
+      title: 'Phone Verification',
+      description: 'Add and verify your phone number for better security',
+      icon: '📱',
+      required: true,
+      verified: user.phoneVerified
+    },
+    {
+      type: 'id',
+      title: 'Government ID',
+      description: 'Upload a government-issued photo ID (driver\'s license, passport, etc.)',
+      icon: '🆔',
+      required: true,
+      verified: user.idVerified
+    },
+    {
+      type: 'address',
+      title: 'Address Verification',
+      description: 'Verify your current address with a utility bill or bank statement',
+      icon: '🏠',
+      required: false,
+      verified: user.addressVerified
+    },
+    {
+      type: 'income',
+      title: 'Income Verification',
+      description: 'Verify your income with pay stubs or employment letter',
+      icon: '💰',
+      required: false,
+      verified: user.incomeVerified
+    },
+    {
+      type: 'background',
+      title: 'Background Check',
+      description: 'Complete a background check for additional trust',
+      icon: '🛡️',
+      required: false,
+      verified: user.backgroundVerified
+    }
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Account Verification</h1>
+              <p className="mt-2 text-gray-600">
+                Verify your identity to build trust with other users
+              </p>
+            </div>
+            <div className="text-right">
+              <VerificationBadge 
+                verified={user.verified} 
+                verificationScore={user.verificationScore}
+                size="lg"
+                showScore={true}
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                {user.completedVerifications} of {user.totalVerifications} completed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <Card className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Verification Progress</h3>
+            <span className="text-sm font-medium text-gray-600">{user.verificationScore}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${user.verificationScore}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-500 mt-2">
+            Complete more verifications to increase your trustworthiness score
+          </p>
+        </Card>
+
+        {/* Verification Items */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {verificationItems.map((item) => (
+            <Card key={item.type} className={`relative ${item.verified ? 'border-green-200 bg-green-50' : ''}`}>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                      <span>{item.title}</span>
+                      {item.required && (
+                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Required</span>
+                      )}
+                    </h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  </div>
+                </div>
+                {item.verified && (
+                  <div className="flex-shrink-0">
+                    <VerificationBadge verified={true} size="md" />
+                  </div>
+                )}
+              </div>
+
+              {!item.verified && (
+                <div className="space-y-4">
+                  {item.type === 'email' && (
+                    <div>
+                      <Input
+                        label="Email Address"
+                        type="email"
+                        value={formData.email?.email || user.email}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          email: { email: e.target.value }
+                        })}
+                        disabled={true}
+                        helperText="This is your registered email address"
+                      />
+                      <Button
+                        className="mt-3 w-full"
+                        onClick={() => handleVerificationSubmit('email', { email: user.email })}
+                        loading={submitting === 'email'}
+                      >
+                        Verify Email
+                      </Button>
+                    </div>
+                  )}
+
+                  {item.type === 'phone' && (
+                    <div>
+                      <Input
+                        label="Phone Number"
+                        type="tel"
+                        placeholder="+1 (555) 123-4567"
+                        value={formData.phone?.phone || user.phone || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          phone: { phone: e.target.value }
+                        })}
+                        helperText="We'll send you a verification code"
+                      />
+                      <Button
+                        className="mt-3 w-full"
+                        onClick={() => handleVerificationSubmit('phone', formData.phone || { phone: user.phone })}
+                        loading={submitting === 'phone'}
+                        disabled={!formData.phone?.phone && !user.phone}
+                      >
+                        Verify Phone
+                      </Button>
+                    </div>
+                  )}
+
+                  {item.type === 'id' && (
+                    <div>
+                      <Input
+                        label="ID Type"
+                        value={formData.id?.idType || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          id: { ...formData.id, idType: e.target.value }
+                        })}
+                        placeholder="Driver's License, Passport, etc."
+                        helperText="What type of government ID are you submitting?"
+                      />
+                      <Input
+                        label="ID Number"
+                        value={formData.id?.idNumber || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          id: { ...formData.id, idNumber: e.target.value }
+                        })}
+                        placeholder="Enter your ID number"
+                        helperText="Your ID number (will be encrypted)"
+                      />
+                      <Button
+                        className="mt-3 w-full"
+                        onClick={() => handleVerificationSubmit('id', formData.id)}
+                        loading={submitting === 'id'}
+                        disabled={!formData.id?.idType || !formData.id?.idNumber}
+                      >
+                        Submit ID Verification
+                      </Button>
+                    </div>
+                  )}
+
+                  {item.type === 'address' && (
+                    <div>
+                      <Input
+                        label="Street Address"
+                        value={formData.address?.street || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          address: { ...formData.address, street: e.target.value }
+                        })}
+                        placeholder="123 Main St"
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          label="City"
+                          value={formData.address?.city || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            address: { ...formData.address, city: e.target.value }
+                          })}
+                          placeholder="City"
+                        />
+                        <Input
+                          label="Postal Code"
+                          value={formData.address?.postalCode || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            address: { ...formData.address, postalCode: e.target.value }
+                          })}
+                          placeholder="12345"
+                        />
+                      </div>
+                      <Button
+                        className="mt-3 w-full"
+                        onClick={() => handleVerificationSubmit('address', formData.address)}
+                        loading={submitting === 'address'}
+                        disabled={!formData.address?.street || !formData.address?.city || !formData.address?.postalCode}
+                      >
+                        Verify Address
+                      </Button>
+                    </div>
+                  )}
+
+                  {item.type === 'income' && (
+                    <div>
+                      <Input
+                        label="Annual Income"
+                        type="number"
+                        value={formData.income?.amount || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          income: { ...formData.income, amount: e.target.value }
+                        })}
+                        placeholder="50000"
+                        helperText="Enter your annual income in CAD"
+                      />
+                      <Input
+                        label="Employment Status"
+                        value={formData.income?.employment || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          income: { ...formData.income, employment: e.target.value }
+                        })}
+                        placeholder="Full-time, Part-time, Self-employed, etc."
+                      />
+                      <Button
+                        className="mt-3 w-full"
+                        onClick={() => handleVerificationSubmit('income', formData.income)}
+                        loading={submitting === 'income'}
+                        disabled={!formData.income?.amount || !formData.income?.employment}
+                      >
+                        Verify Income
+                      </Button>
+                    </div>
+                  )}
+
+                  {item.type === 'background' && (
+                    <div>
+                      <p className="text-sm text-gray-600 mb-4">
+                        By clicking "Start Background Check", you consent to a background check being performed.
+                        This may include criminal history, credit check, and reference verification.
+                      </p>
+                      <Button
+                        className="w-full"
+                        onClick={() => handleVerificationSubmit('background', { consent: true, requestedAt: new Date().toISOString() })}
+                        loading={submitting === 'background'}
+                      >
+                        Start Background Check
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {item.verified && (
+                <div className="bg-green-100 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-sm font-medium text-green-800">Verified</span>
+                  </div>
+                  <p className="text-sm text-green-700 mt-1">
+                    Your {item.title.toLowerCase()} has been successfully verified.
+                  </p>
+                </div>
+              )}
+            </Card>
+          ))}
+        </div>
+
+        {/* Benefits Section */}
+        <Card className="mt-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits of Verification</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <h4 className="font-medium text-gray-900">Build Trust</h4>
+              <p className="text-sm text-gray-600">Verified users are more trusted by hosts and tenants</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h4 className="font-medium text-gray-900">Faster Approvals</h4>
+              <p className="text-sm text-gray-600">Verified users get priority in application reviews</p>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h4 className="font-medium text-gray-900">Enhanced Security</h4>
+              <p className="text-sm text-gray-600">Protect your account and personal information</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  )
+}

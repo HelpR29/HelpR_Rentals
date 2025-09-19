@@ -1,0 +1,142 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const { verificationType, data, documents } = await request.json()
+
+    // Validate verification type
+    const validTypes = ['email', 'phone', 'id', 'address', 'income', 'background']
+    if (!validTypes.includes(verificationType)) {
+      return NextResponse.json(
+        { error: 'Invalid verification type' },
+        { status: 400 }
+      )
+    }
+
+    // Get current user data
+    const currentUser = await prisma.user.findUnique({
+      where: { id: user.id }
+    })
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      )
+    }
+
+    // Parse existing verification data
+    const existingData = currentUser.verificationData 
+      ? JSON.parse(currentUser.verificationData) 
+      : {}
+    
+    const existingDocs = currentUser.verificationDocs 
+      ? JSON.parse(currentUser.verificationDocs) 
+      : []
+
+    // Update verification data
+    const updatedData = {
+      ...existingData,
+      [verificationType]: {
+        ...data,
+        submittedAt: new Date().toISOString(),
+        status: 'pending' // pending | approved | rejected
+      }
+    }
+
+    // Update documents if provided
+    const updatedDocs = documents ? [...existingDocs, ...documents] : existingDocs
+
+    // For development, auto-approve certain verifications
+    const updateFields: any = {
+      verificationData: JSON.stringify(updatedData),
+      verificationDocs: JSON.stringify(updatedDocs)
+    }
+
+    // Auto-approve email verification if it matches the user's email
+    if (verificationType === 'email' && data.email === user.email) {
+      updateFields.emailVerified = true
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    // Auto-approve phone verification in development (in production, you'd send SMS)
+    if (verificationType === 'phone' && data.phone) {
+      updateFields.phoneVerified = true
+      updateFields.phone = data.phone
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    // For other verifications, mark as pending (would require admin approval)
+    if (verificationType === 'id') {
+      // In production, this would require document review
+      updateFields.idVerified = true // Auto-approve for development
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    if (verificationType === 'address') {
+      updateFields.addressVerified = true // Auto-approve for development
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    if (verificationType === 'income') {
+      updateFields.incomeVerified = true // Auto-approve for development
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    if (verificationType === 'background') {
+      updateFields.backgroundVerified = true // Auto-approve for development
+      updatedData[verificationType].status = 'approved'
+      updatedData[verificationType].approvedAt = new Date().toISOString()
+    }
+
+    // Update verification data with new status
+    updateFields.verificationData = JSON.stringify(updatedData)
+
+    // Check if user should be marked as overall verified
+    const verificationChecks = [
+      updateFields.emailVerified ?? currentUser.emailVerified,
+      updateFields.phoneVerified ?? currentUser.phoneVerified,
+      updateFields.idVerified ?? currentUser.idVerified
+    ]
+    
+    // User is verified if they have at least email, phone, and ID verified
+    if (verificationChecks.every(Boolean)) {
+      updateFields.verified = true
+    }
+
+    // Update user in database
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: updateFields
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `${verificationType} verification submitted successfully`,
+      verificationType,
+      status: updatedData[verificationType].status
+    })
+
+  } catch (error) {
+    console.error('Submit verification error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

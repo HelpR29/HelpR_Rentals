@@ -22,7 +22,20 @@ model User {
   bio       String?
   avatar    String?
   phone     String?
-  verified  Boolean  @default(false)
+  verified  Boolean  @default(false) // Overall verification status
+  
+  // Detailed verification fields
+  emailVerified    Boolean @default(false)
+  phoneVerified    Boolean @default(false)
+  idVerified       Boolean @default(false)
+  addressVerified  Boolean @default(false)
+  incomeVerified   Boolean @default(false)
+  backgroundVerified Boolean @default(false)
+  
+  // Verification metadata (JSON strings)
+  verificationData String? // JSON object with verification details
+  verificationDocs String? // JSON array of uploaded document URLs
+  
   createdAt DateTime @default(now())
   listings  Listing[]
   apps      Application[]

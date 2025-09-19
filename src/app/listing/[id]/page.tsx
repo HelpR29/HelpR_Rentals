@@ -8,6 +8,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
 import { AverageRating } from '@/components/ui/StarRating'
+import VerificationBadge from '@/components/ui/VerificationBadge'
 import Link from 'next/link'
 
 interface Listing {
@@ -37,6 +38,10 @@ interface Listing {
     id: string
     email: string
     role: string
+    verified?: boolean
+    emailVerified?: boolean
+    phoneVerified?: boolean
+    idVerified?: boolean
   }
   applications: any[]
   _count: {
@@ -398,9 +403,15 @@ export default function ListingDetailPage() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {listing.owner.email.split('@')[0]}
-                    </p>
+                    <div className="flex items-center space-x-2">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {listing.owner.email.split('@')[0]}
+                      </p>
+                      <VerificationBadge 
+                        verified={listing.owner.verified || false} 
+                        size="sm"
+                      />
+                    </div>
                     <p className="text-xs text-gray-700 capitalize">
                       {listing.owner.role}
                     </p>
