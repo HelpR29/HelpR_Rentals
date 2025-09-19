@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
     }
 
     // In production, would query database for unread messages
-    // For now, simulate some unread messages based on user activity
-    const hasUnread = Math.random() > 0.7 // 30% chance of having unread messages
-    const unreadCount = hasUnread ? Math.floor(Math.random() * 5) + 1 : 0
+    // For demo purposes, show unread messages for tenants
+    const hasUnread = user.role === 'tenant' // Tenants have unread messages
+    const unreadCount = hasUnread ? 2 : 0 // Show 2 unread messages for tenants
 
     return NextResponse.json({
       hasUnread,

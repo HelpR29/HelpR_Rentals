@@ -327,21 +327,60 @@ export default function VerificationPage() {
                         placeholder="Driver's License, Passport, etc."
                         helperText="What type of government ID are you submitting?"
                       />
-                      <Input
-                        label="ID Number"
-                        value={formData.id?.idNumber || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          id: { ...formData.id, idNumber: e.target.value }
-                        })}
-                        placeholder="Enter your ID number"
-                        helperText="Your ID number (will be encrypted)"
-                      />
+                      
+                      {/* Document Upload Options */}
+                      <div className="mt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700">Upload Document:</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Button
+                            variant="secondary"
+                            onClick={() => router.push('/verification/mobile')}
+                            className="w-full"
+                          >
+                            📱 Use Mobile Camera
+                          </Button>
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              const input = document.createElement('input')
+                              input.type = 'file'
+                              input.accept = 'image/*,.pdf'
+                              input.onchange = (e) => {
+                                const file = (e.target as HTMLInputElement).files?.[0]
+                                if (file) {
+                                  setFormData({
+                                    ...formData,
+                                    id: { ...formData.id, document: file }
+                                  })
+                                  addToast({
+                                    type: 'success',
+                                    title: 'Document uploaded',
+                                    message: `${file.name} ready for verification`
+                                  })
+                                }
+                              }
+                              input.click()
+                            }}
+                            className="w-full"
+                          >
+                            📄 Upload File
+                          </Button>
+                        </div>
+                        
+                        {formData.id?.document && (
+                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm text-green-800">
+                              ✅ Document ready: {formData.id.document.name || 'Mobile capture'}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                      
                       <Button
-                        className="mt-3 w-full"
+                        className="mt-4 w-full"
                         onClick={() => handleVerificationSubmit('id', formData.id)}
                         loading={submitting === 'id'}
-                        disabled={!formData.id?.idType || !formData.id?.idNumber}
+                        disabled={!formData.id?.idType || (!formData.id?.document && !formData.id?.idNumber)}
                       >
                         Submit ID Verification
                       </Button>

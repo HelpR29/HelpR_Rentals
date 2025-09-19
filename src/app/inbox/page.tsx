@@ -304,17 +304,44 @@ export default function InboxPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <h4 className="font-medium text-gray-900 mb-2">Your Application</h4>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Move-in Date:</strong> {new Date(application.moveInDate).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Duration:</strong> {application.duration}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Submitted:</strong> {new Date(application.createdAt).toLocaleDateString()}
-                      </p>
+                    <div className="space-y-4">
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <h4 className="font-medium text-gray-900 mb-2">Your Application</h4>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Move-in Date:</strong> {new Date(application.moveInDate).toLocaleDateString()}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Duration:</strong> {application.duration}
+                        </p>
+                        <p className="text-sm text-gray-600 mb-1">
+                          <strong>Submitted:</strong> {new Date(application.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      
+                      {/* Tenant Actions */}
+                      <div className="flex space-x-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => startChat('host_1', 'host@example.com')}
+                        >
+                          💬 Message Host
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => router.push('/verification')}
+                        >
+                          📄 Upload Documents
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => router.push('/notifications')}
+                        >
+                          🔔 View Updates
+                        </Button>
+                      </div>
                     </div>
                   )}
 

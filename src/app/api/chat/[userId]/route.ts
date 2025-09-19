@@ -35,7 +35,32 @@ export async function GET(
     const chatId = [user.id, otherUserId].sort().join('_')
     
     // Get messages for this chat
-    const messages = mockMessages[chatId] || []
+    let messages = mockMessages[chatId] || []
+    
+    // For demo purposes, add sample messages if none exist
+    if (messages.length === 0 && user.role === 'tenant') {
+      messages = [
+        {
+          id: 'msg_1',
+          senderId: otherUserId,
+          receiverId: user.id,
+          content: 'Hi! Thank you for your application. I have a few questions about your background.',
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          read: false,
+          type: 'text'
+        },
+        {
+          id: 'msg_2',
+          senderId: otherUserId,
+          receiverId: user.id,
+          content: 'Could you please provide additional references? I would like to verify your rental history.',
+          timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
+          read: false,
+          type: 'text'
+        }
+      ]
+      mockMessages[chatId] = messages
+    }
     
     // Mark messages as read for the current user
     messages.forEach(message => {
