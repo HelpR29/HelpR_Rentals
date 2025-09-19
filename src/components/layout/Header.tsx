@@ -20,6 +20,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [notificationCount, setNotificationCount] = useState(0)
+  const [hasNewMessages, setHasNewMessages] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -29,8 +30,12 @@ export default function Header() {
   useEffect(() => {
     if (user) {
       fetchNotificationCount()
+      fetchMessageStatus()
       // Set up polling to refresh count every 30 seconds
-      const interval = setInterval(fetchNotificationCount, 30000)
+      const interval = setInterval(() => {
+        fetchNotificationCount()
+        fetchMessageStatus()
+      }, 30000)
       return () => clearInterval(interval)
     }
   }, [user])
@@ -74,6 +79,18 @@ export default function Header() {
       }
     } catch (error) {
       console.error('Failed to fetch notification count:', error)
+    }
+  }
+
+  const fetchMessageStatus = async () => {
+    try {
+      const response = await fetch('/api/messages/unread-count')
+      if (response.ok) {
+        const data = await response.json()
+        setHasNewMessages(data.hasUnread)
+      }
+    } catch (error) {
+      console.error('Failed to fetch message status:', error)
     }
   }
 
@@ -139,9 +156,9 @@ export default function Header() {
             {user && (
               <Link href="/inbox" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative">
                 Inbox
-                {notificationCount > 0 && (
+                {(notificationCount > 0 || hasNewMessages) && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
-                    {notificationCount > 99 ? '99+' : notificationCount}
+                    {notificationCount > 0 ? (notificationCount > 99 ? '99+' : notificationCount) : '•'}
                   </span>
                 )}
               </Link>
@@ -156,6 +173,12 @@ export default function Header() {
                 </Link>
                 <Link href="/privacy" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
                   Privacy
+                </Link>
+                <Link href="/notifications" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative">
+                  🔔
+                  {hasNewMessages && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-2 w-2"></span>
+                  )}
                 </Link>
               </>
             )}

@@ -145,6 +145,47 @@ export default function InboxPage() {
     }
   }
 
+  const requestDocuments = async (applicationId: string, documentTypes: string[]) => {
+    setProcessingApp(applicationId)
+    try {
+      const response = await fetch(`/api/applications/${applicationId}/request-documents`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ documentTypes }),
+      })
+
+      if (response.ok) {
+        addToast({
+          type: 'success',
+          title: 'Documents Requested',
+          message: 'The applicant has been notified to provide the requested documents.'
+        })
+        fetchApplications()
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Request Failed',
+          message: 'Failed to request documents. Please try again.'
+        })
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to request documents. Please try again.'
+      })
+    } finally {
+      setProcessingApp(null)
+    }
+  }
+
+  const startChat = (applicantId: string, applicantEmail: string) => {
+    // Navigate to chat with the applicant
+    router.push(`/chat/${applicantId}?email=${encodeURIComponent(applicantEmail)}`)
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'accepted':
@@ -277,25 +318,55 @@ export default function InboxPage() {
                     </div>
                   )}
 
-                  {user.role === 'host' && application.status === 'submitted' && (
-                    <div className="flex space-x-3">
-                      <Button
-                        size="sm"
-                        onClick={() => handleApplicationAction(application.id, 'accepted')}
-                        loading={processingApp === application.id}
-                        disabled={processingApp !== null}
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() => handleApplicationAction(application.id, 'declined')}
-                        loading={processingApp === application.id}
-                        disabled={processingApp !== null}
-                      >
-                        Decline
-                      </Button>
+                  {user.role === 'host' && (
+                    <div className="space-y-3">
+                      {/* Chat and Document Request Actions */}
+                      <div className="flex space-x-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => startChat(application.applicant.id, application.applicant.email)}
+                        >
+                          💬 Chat
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => requestDocuments(application.id, ['references', 'id', 'income'])}
+                          loading={processingApp === application.id}
+                          disabled={processingApp !== null}
+                        >
+                          📄 Request Docs
+                        </Button>
+                        <Link href={`/profile/${application.applicant.id}`}>
+                          <Button size="sm" variant="secondary">
+                            👤 View Profile
+                          </Button>
+                        </Link>
+                      </div>
+                      
+                      {/* Accept/Decline Actions */}
+                      {application.status === 'submitted' && (
+                        <div className="flex space-x-3">
+                          <Button
+                            size="sm"
+                            onClick={() => handleApplicationAction(application.id, 'accepted')}
+                            loading={processingApp === application.id}
+                            disabled={processingApp !== null}
+                          >
+                            ✅ Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={() => handleApplicationAction(application.id, 'declined')}
+                            loading={processingApp === application.id}
+                            disabled={processingApp !== null}
+                          >
+                            ❌ Decline
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

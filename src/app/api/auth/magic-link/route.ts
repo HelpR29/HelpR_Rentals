@@ -16,8 +16,10 @@ export async function POST(request: NextRequest) {
     // Generate magic link token
     const token = await generateMagicToken(email)
     
-    // Create magic link URL
-    const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+    // Create magic link URL - use request host or fallback
+    const host = request.headers.get('host') || 'localhost:3001'
+    const protocol = host.includes('localhost') ? 'http' : 'https'
+    const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`
     const magicLink = `${baseUrl}/api/auth/callback?token=${token}&role=${role}`
 
     // Send email
