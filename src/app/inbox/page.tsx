@@ -49,6 +49,10 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchApplications()
+      // Refresh notification count when inbox is viewed
+      if (typeof window !== 'undefined' && (window as any).refreshNotificationCount) {
+        setTimeout(() => (window as any).refreshNotificationCount(), 1000)
+      }
     }
   }, [user])
 

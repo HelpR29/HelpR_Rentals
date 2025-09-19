@@ -14,11 +14,21 @@ interface User {
 export default function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [notificationCount, setNotificationCount] = useState(0)
   const router = useRouter()
 
   useEffect(() => {
     fetchUser()
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      fetchNotificationCount()
+      // Set up polling to refresh count every 30 seconds
+      const interval = setInterval(fetchNotificationCount, 30000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
 
   const fetchUser = async () => {
     try {
@@ -34,15 +44,42 @@ export default function Header() {
     }
   }
 
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await fetch('/api/applications/count')
+      if (response.ok) {
+        const data = await response.json()
+        setNotificationCount(data.count)
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification count:', error)
+    }
+  }
+
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' })
       setUser(null)
+      setNotificationCount(0)
       router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
     }
   }
+
+  // Function to refresh notification count (can be called from other components)
+  const refreshNotificationCount = () => {
+    if (user) {
+      fetchNotificationCount()
+    }
+  }
+
+  // Expose refresh function globally for other components to use
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).refreshNotificationCount = refreshNotificationCount
+    }
+  }, [user])
 
   return (
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50">
@@ -81,7 +118,11 @@ export default function Header() {
             {user && (
               <Link href="/inbox" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative">
                 Inbox
-                {/* You could add notification badge here later */}
+                {notificationCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
+                    {notificationCount > 99 ? '99+' : notificationCount}
+                  </span>
+                )}
               </Link>
             )}
             {user?.role === 'admin' && (
