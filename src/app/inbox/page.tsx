@@ -119,15 +119,18 @@ export default function InboxPage() {
 
   const fetchUnreadMessageCounts = async () => {
     try {
+      // Check localStorage for cleared messages
+      const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
+      
       // For demo purposes, simulate unread message counts for different users
       if (user?.role === 'tenant') {
         setUnreadMessages({
-          'host_1': 2, // 2 unread messages from host_1
-          'host_2': 1  // 1 unread message from host_2
+          'host_1': clearedMessages['host_1'] ? 0 : 2, // 2 unread messages from host_1
+          'host_2': clearedMessages['host_2'] ? 0 : 1  // 1 unread message from host_2
         })
       } else if (user?.role === 'host') {
         setUnreadMessages({
-          'tenant_1': 1, // 1 unread message from tenant_1
+          'tenant_1': clearedMessages['tenant_1'] ? 0 : 1, // 1 unread message from tenant_1
           'tenant_2': 0  // No unread messages from tenant_2
         })
       }
@@ -215,6 +218,11 @@ export default function InboxPage() {
       ...prev,
       [applicantId]: 0
     }))
+    
+    // Persist cleared state in localStorage
+    const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
+    clearedMessages[applicantId] = true
+    localStorage.setItem('clearedMessages', JSON.stringify(clearedMessages))
     
     // Navigate to chat with the applicant
     router.push(`/chat/${applicantId}?email=${encodeURIComponent(applicantEmail)}`)

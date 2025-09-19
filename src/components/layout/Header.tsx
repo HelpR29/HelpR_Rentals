@@ -21,6 +21,7 @@ export default function Header() {
   const [loading, setLoading] = useState(true)
   const [notificationCount, setNotificationCount] = useState(0)
   const [hasNewMessages, setHasNewMessages] = useState(false)
+  const [hasNewNotifications, setHasNewNotifications] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -31,10 +32,12 @@ export default function Header() {
     if (user) {
       fetchNotificationCount()
       fetchMessageStatus()
+      fetchNotificationStatus()
       // Set up polling to refresh count every 5 seconds for real-time feel
       const interval = setInterval(() => {
         fetchNotificationCount()
         fetchMessageStatus()
+        fetchNotificationStatus()
       }, 5000)
       
       // Listen for manual refresh events
@@ -104,17 +107,6 @@ export default function Header() {
 
   const fetchMessageStatus = async () => {
     try {
-      // Check if user has marked notifications as read recently (immediate check)
-      const lastReadTime = localStorage.getItem('notificationsLastRead')
-      const now = Date.now()
-      const thirtySecondsAgo = now - 30 * 1000 // Very short window for immediate response
-      
-      // If notifications were read within 30 seconds, don't show unread indicator
-      if (lastReadTime && parseInt(lastReadTime) > thirtySecondsAgo) {
-        setHasNewMessages(false)
-        return
-      }
-      
       const response = await fetch('/api/messages/unread-count')
       if (response.ok) {
         const data = await response.json()
@@ -122,6 +114,30 @@ export default function Header() {
       }
     } catch (error) {
       console.error('Failed to fetch message status:', error)
+    }
+  }
+
+  const fetchNotificationStatus = async () => {
+    try {
+      // Check if user has marked notifications as read recently (persistent check)
+      const lastReadTime = localStorage.getItem('notificationsLastRead')
+      const now = Date.now()
+      const fiveMinutesAgo = now - 5 * 60 * 1000 // 5 minute window for persistent clearing
+      
+      // If notifications were read within 5 minutes, don't show unread indicator
+      if (lastReadTime && parseInt(lastReadTime) > fiveMinutesAgo) {
+        setHasNewNotifications(false)
+        return
+      }
+      
+      // For demo purposes, show notifications for tenants
+      if (user?.role === 'tenant') {
+        setHasNewNotifications(true)
+      } else {
+        setHasNewNotifications(false)
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification status:', error)
     }
   }
 
