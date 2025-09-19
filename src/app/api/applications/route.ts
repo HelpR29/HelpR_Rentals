@@ -191,7 +191,16 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json({ applications })
+    // Parse JSON fields for response
+    const parsedApplications = applications.map(application => ({
+      ...application,
+      listing: {
+        ...application.listing,
+        photos: application.listing.photos ? JSON.parse(application.listing.photos) : []
+      }
+    }))
+
+    return NextResponse.json({ applications: parsedApplications })
 
   } catch (error) {
     console.error('Get applications error:', error)
