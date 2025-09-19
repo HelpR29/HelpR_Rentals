@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyMagicToken, findOrCreateUser, createSessionToken } from '@/lib/auth'
-import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,18 +23,22 @@ export async function GET(request: NextRequest) {
     // Create session token
     const sessionToken = await createSessionToken(user)
 
-    // Set session cookie
-    const cookieStore = await cookies()
-    cookieStore.set('session', sessionToken, {
+    // Redirect to appropriate page based on role
+    const redirectUrl = user.role === 'host' ? '/post' : '/'
+    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+
+    // Set session cookie on the response to ensure browser persists it
+    response.cookies.set({
+      name: 'session',
+      value: sessionToken,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: 60 * 60 * 24 * 7 // 7 days
     })
 
-    // Redirect to appropriate page based on role
-    const redirectUrl = user.role === 'host' ? '/post' : '/'
-    return NextResponse.redirect(new URL(redirectUrl, request.url))
+    return response
 
   } catch (error) {
     console.error('Auth callback error:', error)
