@@ -131,6 +131,11 @@ export default function AdminPage() {
                 🤖 AI Verification Review
               </Button>
             </Link>
+            <Link href="/admin/analytics">
+              <Button className="bg-green-600 hover:bg-green-700">
+                📊 Analytics Dashboard
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
