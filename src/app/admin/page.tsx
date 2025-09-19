@@ -219,7 +219,7 @@ export default function AdminPage() {
                   {/* Description Preview */}
                   <div className="mb-4">
                     <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-sm text-gray-700 line-clamp-3">
+                    <p className="text-sm text-gray-900 line-clamp-3">
                       {listing.description}
                     </p>
                   </div>

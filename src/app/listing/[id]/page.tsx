@@ -339,19 +339,19 @@ export default function ListingDetailPage() {
           <Card className="sticky top-4">
             <div className="text-center mb-6">
               <div className="text-3xl font-bold text-blue-600 mb-2">
-                ${listing.rent}<span className="text-lg text-gray-500">/month</span>
+                ${listing.rent}<span className="text-lg text-gray-700">/month</span>
               </div>
               {listing.deposit && (
-                <p className="text-sm text-gray-600">${listing.deposit} deposit</p>
+                <p className="text-sm text-gray-800">${listing.deposit} deposit</p>
               )}
             </div>
 
             <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-1">Available from</p>
+              <p className="text-sm text-gray-800 mb-1">Available from</p>
               <p className="font-medium">{new Date(listing.availableFrom).toLocaleDateString()}</p>
               {listing.availableTo && (
                 <>
-                  <p className="text-sm text-gray-600 mb-1 mt-2">Available until</p>
+                  <p className="text-sm text-gray-800 mb-1 mt-2">Available until</p>
                   <p className="font-medium">{new Date(listing.availableTo).toLocaleDateString()}</p>
                 </>
               )}
@@ -378,13 +378,13 @@ export default function ListingDetailPage() {
                 Sign In to Apply
               </Button>
             ) : user.id === listing.owner.id ? (
-              <p className="text-center text-gray-500 text-sm">This is your listing</p>
+              <p className="text-center text-gray-800 text-sm">This is your listing</p>
             ) : (
-              <p className="text-center text-gray-500 text-sm">Host account required to apply</p>
+              <p className="text-center text-gray-800 text-sm">Host account required to apply</p>
             )}
 
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-4">
+              <p className="text-sm text-gray-800 mb-4">
                 {listing._count.applications} application{listing._count.applications !== 1 ? 's' : ''} received
               </p>
               
@@ -401,7 +401,7 @@ export default function ListingDetailPage() {
                     <p className="text-sm font-medium text-gray-900 truncate">
                       {listing.owner.email.split('@')[0]}
                     </p>
-                    <p className="text-xs text-gray-500 capitalize">
+                    <p className="text-xs text-gray-700 capitalize">
                       {listing.owner.role}
                     </p>
                     {/* Add rating display when available */}

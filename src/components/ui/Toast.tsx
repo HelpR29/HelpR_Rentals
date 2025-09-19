@@ -46,7 +46,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
 function ToastContainer({ toasts, onRemove }: { toasts: Toast[], onRemove: (id: string) => void }) {
   return (
-    <div className="fixed top-4 right-4 z-[9999] space-y-2 pointer-events-none max-w-sm">
+    <div className="fixed top-4 right-4 left-4 sm:left-auto z-[9999] space-y-2 pointer-events-none w-auto sm:w-80 max-w-sm">
       {toasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -117,6 +117,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast, onRemove: (id: string) =
         ${isVisible ? 'translate-x-0 opacity-100 scale-100' : 'translate-x-full opacity-0 scale-95'}
         ${getToastStyles()}
       `}
+      style={{ maxWidth: '100%', wordBreak: 'break-word' }}
     >
       <div className="flex items-start">
         <div className="flex-shrink-0">
