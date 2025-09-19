@@ -300,7 +300,7 @@ export default function PostListingPage() {
           {/* Room Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Bedrooms
               </label>
               <select
@@ -319,7 +319,7 @@ export default function PostListingPage() {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Bathrooms
               </label>
               <select
@@ -373,7 +373,7 @@ export default function PostListingPage() {
             
             {/* Included Utilities */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 Utilities Included in Rent
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -443,7 +443,7 @@ export default function PostListingPage() {
             {/* Parking */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Parking Type
                 </label>
                 <select
@@ -473,7 +473,7 @@ export default function PostListingPage() {
 
             {/* Laundry */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-900 mb-1">
                 Laundry
               </label>
               <select
@@ -492,7 +492,7 @@ export default function PostListingPage() {
 
           {/* Photos */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Photos * (minimum 1, maximum 10)
             </label>
             

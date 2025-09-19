@@ -443,7 +443,7 @@ export default function ListingDetailPage() {
               />
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-900 mb-1">
                   Why are you interested in this rental?
                 </label>
                 <textarea

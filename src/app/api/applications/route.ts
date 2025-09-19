@@ -46,7 +46,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (listing.status !== 'active') {
+    // Check if listing is flagged (not available for applications)
+    if (listing.flagged) {
       return NextResponse.json(
         { error: 'Listing is not available for applications' },
         { status: 400 }
