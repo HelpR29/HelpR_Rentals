@@ -25,7 +25,13 @@ export async function PATCH(
     // Mark specific notification as read
     const success = NotificationService.markAsRead(user.id, notificationId)
 
-    console.log(`Marking notification ${notificationId} as read for user ${user.id}`)
+    console.log(`Marking notification ${notificationId} as read for user ${user.id} - Success: ${success}`)
+
+    if (!success) {
+      return NextResponse.json({
+        error: 'Notification not found or already read'
+      }, { status: 404 })
+    }
 
     return NextResponse.json({
       success: true,
