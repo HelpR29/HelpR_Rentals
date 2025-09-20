@@ -200,13 +200,75 @@ export async function GET(request: NextRequest) {
     })
 
     // Parse JSON fields for response
-    const parsedApplications = applications.map(application => ({
+    let parsedApplications = applications.map(application => ({
       ...application,
       listing: {
         ...application.listing,
         photos: application.listing.photos ? JSON.parse(application.listing.photos) : []
       }
     }))
+
+    // If no applications found, provide demo data for testing
+    if (parsedApplications.length === 0 && user.role === 'tenant') {
+      parsedApplications = [
+        {
+          id: 'demo-app-1',
+          listingId: 'demo-listing-1',
+          applicantId: user.id,
+          status: 'declined',
+          moveInDate: new Date('2025-09-28'),
+          duration: '1 year',
+          reason: 'Looking for a comfortable place near downtown with good transportation links.',
+          createdAt: new Date('2025-09-19'),
+          aiSummary: 'Strong applicant with stable income and good references.',
+          listing: {
+            id: 'demo-listing-1',
+            title: 'Furnished Rental at 31 mitchell',
+            address: '31 mitchell',
+            rent: 1000,
+            photos: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop'],
+            owner: { id: 'host_1', email: 'host@example.com' }
+          },
+          applicant: {
+            id: user.id,
+            email: user.email,
+            role: 'tenant',
+            verified: false,
+            emailVerified: false,
+            phoneVerified: false,
+            idVerified: false
+          }
+        },
+        {
+          id: 'demo-app-2',
+          listingId: 'demo-listing-2',
+          applicantId: user.id,
+          status: 'declined',
+          moveInDate: new Date('2025-09-28'),
+          duration: '5 months',
+          reason: 'Need temporary housing while relocating for work.',
+          createdAt: new Date('2025-09-19'),
+          aiSummary: 'Reliable tenant with corporate backing.',
+          listing: {
+            id: 'demo-listing-2',
+            title: 'Furnished Rental at 1080 wellington avenue',
+            address: '1080 wellington avenue',
+            rent: 1500,
+            photos: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop'],
+            owner: { id: 'host_1', email: 'host@example.com' }
+          },
+          applicant: {
+            id: user.id,
+            email: user.email,
+            role: 'tenant',
+            verified: false,
+            emailVerified: false,
+            phoneVerified: false,
+            idVerified: false
+          }
+        }
+      ]
+    }
 
     return NextResponse.json({ applications: parsedApplications })
 

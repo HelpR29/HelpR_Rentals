@@ -118,23 +118,32 @@ export default function Header() {
 
   const fetchNotificationStatus = async () => {
     try {
-      // Check if user has marked notifications as read recently (persistent check)
+      // Check if ALL notifications have been marked as read recently
       const lastReadTime = localStorage.getItem('notificationsLastRead')
       const now = Date.now()
-      const fiveMinutesAgo = now - 5 * 60 * 1000 // 5 minute window for persistent clearing
+      const thirtyMinutesAgo = now - 30 * 60 * 1000 // 30 minute window for persistent clearing
       
-      // If notifications were read within 5 minutes, don't show unread indicator
-      if (lastReadTime && parseInt(lastReadTime) > fiveMinutesAgo) {
+      // If ALL notifications were marked as read within 30 minutes, don't show indicator
+      if (lastReadTime && parseInt(lastReadTime) > thirtyMinutesAgo) {
         setHasNewNotifications(false)
         return
       }
       
-      // For demo purposes, only show notifications if they haven't been cleared recently
-      // This prevents the constant reappearing issue
-      if (user?.role === 'tenant' && (!lastReadTime || parseInt(lastReadTime) <= fiveMinutesAgo)) {
-        setHasNewNotifications(true)
-      } else {
-        setHasNewNotifications(false)
+      // Check actual notifications API for unread count
+      try {
+        const response = await fetch('/api/notifications')
+        if (response.ok) {
+          const data = await response.json()
+          const unreadNotifications = data.notifications?.filter((n: any) => !n.read) || []
+          setHasNewNotifications(unreadNotifications.length > 0)
+        }
+      } catch (notifError) {
+        // Fallback: show notifications for tenants if no recent clearing
+        if (user?.role === 'tenant' && (!lastReadTime || parseInt(lastReadTime) <= thirtyMinutesAgo)) {
+          setHasNewNotifications(true)
+        } else {
+          setHasNewNotifications(false)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch notification status:', error)

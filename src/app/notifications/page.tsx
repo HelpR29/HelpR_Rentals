@@ -59,13 +59,8 @@ export default function NotificationsPage() {
           )
         )
         
-        // Mark notifications as read in localStorage immediately
-        localStorage.setItem('notificationsLastRead', Date.now().toString())
-        
-        // Immediately clear notification indicators
-        window.dispatchEvent(new CustomEvent('clearNotifications'))
-        
-        // Trigger a refresh of header notifications
+        // Don't clear all notifications when marking individual ones as read
+        // Only trigger a refresh to check if there are still unread notifications
         window.dispatchEvent(new CustomEvent('refreshNotifications'))
       }
     } catch (error) {

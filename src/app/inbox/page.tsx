@@ -122,22 +122,25 @@ export default function InboxPage() {
 
   const fetchUnreadMessageCounts = async () => {
     try {
-      // For demo purposes, always show fresh unread message counts
-      // Reset cleared messages to ensure we see the badges
+      // Check localStorage for cleared messages with timestamps
+      const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
+      const now = Date.now()
+      const oneHourAgo = now - 60 * 60 * 1000 // 1 hour window for cleared messages
+      
       if (user?.role === 'tenant') {
         const newUnreadMessages = {
-          'host_1': 2, // Always show 2 unread messages from host_1
-          'host_2': 1  // Always show 1 unread message from host_2
+          'host_1': (clearedMessages['host_1'] && clearedMessages['host_1'] > oneHourAgo) ? 0 : 2,
+          'host_2': (clearedMessages['host_2'] && clearedMessages['host_2'] > oneHourAgo) ? 0 : 1
         }
         setUnreadMessages(newUnreadMessages)
-        console.log('Tenant unread messages set:', newUnreadMessages)
+        console.log('Tenant unread messages set:', newUnreadMessages, 'Cleared:', clearedMessages)
       } else if (user?.role === 'host') {
         const newUnreadMessages = {
-          'tenant_1': 1, // Always show 1 unread message from tenant_1
-          'tenant_2': 0  // No unread messages from tenant_2
+          'tenant_1': (clearedMessages['tenant_1'] && clearedMessages['tenant_1'] > oneHourAgo) ? 0 : 1,
+          'tenant_2': 0
         }
         setUnreadMessages(newUnreadMessages)
-        console.log('Host unread messages set:', newUnreadMessages)
+        console.log('Host unread messages set:', newUnreadMessages, 'Cleared:', clearedMessages)
       }
     } catch (error) {
       console.error('Failed to fetch unread message counts:', error)
@@ -218,16 +221,21 @@ export default function InboxPage() {
   }
 
   const startChat = (applicantId: string, applicantEmail: string) => {
-    // Clear unread messages for this user immediately
+    // Clear unread messages for this user immediately and persistently
     setUnreadMessages(prev => ({
       ...prev,
       [applicantId]: 0
     }))
     
-    // Persist cleared state in localStorage
+    // Persist cleared state in localStorage with timestamp
     const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
-    clearedMessages[applicantId] = true
+    clearedMessages[applicantId] = Date.now() // Store timestamp instead of boolean
     localStorage.setItem('clearedMessages', JSON.stringify(clearedMessages))
+    
+    console.log('Clearing messages for:', applicantId, 'New state:', {
+      ...unreadMessages,
+      [applicantId]: 0
+    })
     
     // Navigate to chat with the applicant
     router.push(`/chat/${applicantId}?email=${encodeURIComponent(applicantEmail)}`)
