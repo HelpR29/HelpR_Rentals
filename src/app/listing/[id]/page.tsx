@@ -258,23 +258,23 @@ export default function ListingDetailPage() {
                 <h3 className="text-lg font-medium text-gray-900 mb-3">Basic Information</h3>
                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {listing.deposit && (
-                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <dt className="text-sm font-medium text-gray-900">Deposit</dt>
-                      <dd className="text-sm font-semibold text-gray-900">${listing.deposit}</dd>
+                    <div className="p-3 bg-gray-100 rounded-lg border border-gray-300">
+                      <dt className="text-sm font-semibold text-gray-800">Deposit</dt>
+                      <dd className="text-sm font-bold text-gray-900">${listing.deposit}</dd>
                     </div>
                   )}
-                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <dt className="text-sm font-medium text-gray-900">Furnished</dt>
-                    <dd className="text-sm font-semibold text-gray-900">{listing.furnished ? 'Yes' : 'No'}</dd>
+                  <div className="p-3 bg-gray-100 rounded-lg border border-gray-300">
+                    <dt className="text-sm font-semibold text-gray-800">Furnished</dt>
+                    <dd className="text-sm font-bold text-gray-900">{listing.furnished ? 'Yes' : 'No'}</dd>
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <dt className="text-sm font-medium text-gray-900">Pets Allowed</dt>
-                    <dd className="text-sm font-semibold text-gray-900">{listing.petsAllowed ? 'Yes' : 'No'}</dd>
+                  <div className="p-3 bg-gray-100 rounded-lg border border-gray-300">
+                    <dt className="text-sm font-semibold text-gray-800">Pets Allowed</dt>
+                    <dd className="text-sm font-bold text-gray-900">{listing.petsAllowed ? 'Yes' : 'No'}</dd>
                   </div>
                   {listing.laundryType && (
-                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <dt className="text-sm font-medium text-gray-900">Laundry</dt>
-                      <dd className="text-sm font-semibold text-gray-900">
+                    <div className="p-3 bg-gray-100 rounded-lg border border-gray-300">
+                      <dt className="text-sm font-semibold text-gray-800">Laundry</dt>
+                      <dd className="text-sm font-bold text-gray-900">
                         {listing.laundryType === 'in_unit' ? '🏠 In-Unit' :
                          listing.laundryType === 'in_building' ? '🏢 In-Building' :
                          listing.laundryType === 'nearby' ? '📍 Nearby' : 'None'}
