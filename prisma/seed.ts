@@ -46,7 +46,7 @@ async function main() {
       availableTo: new Date('2024-08-31'),
       furnished: true,
       petsAllowed: false,
-      photos: JSON.stringify(['/uploads/sample-apartment-1.jpg']),
+      photos: JSON.stringify(['/uploads/1758269979990-m15zwst1xqc.jpeg']),
       aiFlags: JSON.stringify({
         quickFacts: {
           deposit: '$1,500',
@@ -69,7 +69,7 @@ async function main() {
       availableFrom: new Date('2024-03-01'),
       furnished: false,
       petsAllowed: true,
-      photos: JSON.stringify(['/uploads/sample-house-1.jpg']),
+      photos: JSON.stringify(['/uploads/1758269932761-755x52u3im7.webp']),
       aiFlags: JSON.stringify({
         quickFacts: {
           deposit: '$1,800',

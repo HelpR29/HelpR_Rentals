@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { NotificationService, type Notification } from '@/lib/notification-service'
 
+// Export the service for other files to use the same instance
+export { NotificationService }
+
 /**
  * GET /api/notifications - Get notifications for current user
  */

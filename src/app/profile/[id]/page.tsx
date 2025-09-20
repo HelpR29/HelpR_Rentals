@@ -13,7 +13,7 @@ interface User {
   email: string
   name?: string
   bio?: string
-  avatar?: string
+  avatar?: string | null
   phone?: string
   role: string
   verified: boolean
@@ -55,6 +55,7 @@ export default function ProfilePage() {
     comment: '',
     type: 'host_review'
   })
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -132,6 +133,82 @@ export default function ProfilePage() {
     }
   }
 
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setUploadingPhoto(true)
+    try {
+      const formData = new FormData()
+      formData.append('photo', file)
+
+      const response = await fetch('/api/users/profile-photo', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
+        setCurrentUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
+        addToast({
+          type: 'success',
+          title: 'Photo Updated!',
+          message: 'Your profile photo has been updated successfully.'
+        })
+      } else {
+        const data = await response.json()
+        addToast({
+          type: 'error',
+          title: 'Upload Failed',
+          message: data.error || 'Failed to upload photo.'
+        })
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to upload photo. Please try again.'
+      })
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  const handleRemovePhoto = async () => {
+    setUploadingPhoto(true)
+    try {
+      const response = await fetch('/api/users/profile-photo', {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUser(prev => prev ? { ...prev, avatar: null } : null)
+        setCurrentUser(prev => prev ? { ...prev, avatar: null } : null)
+        addToast({
+          type: 'success',
+          title: 'Photo Removed!',
+          message: 'Your profile photo has been removed successfully.'
+        })
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Remove Failed',
+          message: 'Failed to remove photo.'
+        })
+      }
+    } catch (error) {
+      addToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to remove photo. Please try again.'
+      })
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
   const getAverageRating = () => {
     if (reviews.length === 0) return 0
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0)
@@ -173,20 +250,59 @@ export default function ProfilePage() {
         {/* Profile Header */}
         <Card className="mb-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 relative">
               {user.avatar ? (
                 <Image
                   src={user.avatar}
                   alt={user.name || user.email}
                   width={120}
                   height={120}
-                  className="rounded-full"
+                  className="rounded-full object-cover"
                 />
               ) : (
                 <div className="w-30 h-30 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-4xl font-bold">
                     {(user.name || user.email).charAt(0).toUpperCase()}
                   </span>
+                </div>
+              )}
+              
+              {/* Photo upload controls - only show for current user */}
+              {currentUser && currentUser.id === user.id && (
+                <div className="absolute -bottom-2 -right-2">
+                  <div className="flex space-x-1">
+                    <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        disabled={uploadingPhoto}
+                      />
+                    </label>
+                    
+                    {user.avatar && (
+                      <button
+                        onClick={handleRemovePhoto}
+                        disabled={uploadingPhoto}
+                        className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                  
+                  {uploadingPhoto && (
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

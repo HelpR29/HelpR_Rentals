@@ -10,6 +10,7 @@ interface User {
   id: string
   email: string
   role: string
+  avatar?: string | null
   verified?: boolean
   emailVerified?: boolean
   phoneVerified?: boolean
@@ -260,11 +261,19 @@ export default function Header() {
               <div className="flex items-center space-x-3">
                 <Link href={`/profile/${user.id}`} className="hidden sm:block">
                   <div className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg p-2 transition-colors">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-semibold">
-                        {user.email.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar}
+                        alt={user.email}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold">
+                          {user.email.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                     <div className="text-sm">
                       <div className="flex items-center space-x-2">
                         <p className="text-gray-900 font-medium">{user.email.split('@')[0]}</p>
