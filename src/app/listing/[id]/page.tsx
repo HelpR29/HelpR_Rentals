@@ -38,10 +38,14 @@ interface Listing {
     id: string
     email: string
     role: string
+    avatar?: string | null
     verified?: boolean
     emailVerified?: boolean
     phoneVerified?: boolean
     idVerified?: boolean
+    _count?: {
+      receivedReviews: number
+    }
   }
   applications: any[]
   _count: {
@@ -397,11 +401,19 @@ export default function ListingDetailPage() {
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-900">Hosted by</h3>
                 <Link href={`/profile/${listing.owner.id}`} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-lg font-semibold">
-                      {listing.owner.email.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
+                  {listing.owner.avatar ? (
+                    <img
+                      src={listing.owner.avatar}
+                      alt={listing.owner.email}
+                      className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-lg font-semibold">
+                        {listing.owner.email.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
                       <p className="text-sm font-medium text-gray-900 truncate">
@@ -415,10 +427,12 @@ export default function ListingDetailPage() {
                     <p className="text-xs text-gray-700 capitalize">
                       {listing.owner.role}
                     </p>
-                    {/* Add rating display when available */}
-                    <div className="mt-1">
-                      <AverageRating rating={4.8} count={12} size="sm" />
-                    </div>
+                    {/* Show rating only if host has reviews */}
+                    {listing.owner._count?.receivedReviews && listing.owner._count.receivedReviews > 0 && (
+                      <div className="mt-1">
+                        <AverageRating rating={4.8} count={listing.owner._count.receivedReviews} size="sm" />
+                      </div>
+                    )}
                   </div>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

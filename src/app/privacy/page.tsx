@@ -64,7 +64,8 @@ export default function PrivacyPage() {
       await loadPrivacyData()
       addToast({ 
         type: 'success', 
-        title: `Consent ${granted ? 'granted' : 'withdrawn'}` 
+        title: `Consent ${granted ? 'granted' : 'denied'}`,
+        message: `Your consent for ${consentType.replace('_', ' ')} has been ${granted ? 'granted' : 'denied'}.`
       })
     } catch (error) {
       addToast({ type: 'error', title: 'Failed to update consent' })

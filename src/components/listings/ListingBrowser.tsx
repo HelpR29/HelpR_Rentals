@@ -22,10 +22,14 @@ interface Listing {
   owner: {
     id: string
     email: string
+    avatar?: string | null
     verified?: boolean
     emailVerified?: boolean
     phoneVerified?: boolean
     idVerified?: boolean
+    _count?: {
+      receivedReviews: number
+    }
   }
   _count: {
     applications: number

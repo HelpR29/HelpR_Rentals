@@ -157,10 +157,14 @@ export async function GET(request: NextRequest) {
             id: true, 
             email: true, 
             role: true,
+            avatar: true,
             verified: true,
             emailVerified: true,
             phoneVerified: true,
-            idVerified: true
+            idVerified: true,
+            _count: {
+              select: { receivedReviews: true }
+            }
           }
         },
         _count: {

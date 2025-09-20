@@ -72,6 +72,9 @@ export interface DataBreachRecord {
 /**
  * Consent Management Service
  */
+// In-memory storage for development (in production, use database)
+const consentStorage: { [userId: string]: ConsentRecord[] } = {}
+
 export class ConsentManagementService {
   async recordConsent(
     userId: string,
@@ -101,7 +104,17 @@ export class ConsentManagementService {
       consent.expiresAt = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000) // 2 years
     }
 
-    // In production, would save to database
+    // Store in memory for development
+    if (!consentStorage[userId]) {
+      consentStorage[userId] = []
+    }
+    
+    // Remove any existing consent for this type
+    consentStorage[userId] = consentStorage[userId].filter(c => c.consentType !== consentType)
+    
+    // Add the new consent record
+    consentStorage[userId].push(consent)
+    
     console.log('Consent recorded:', consent)
     
     return consent
@@ -112,14 +125,30 @@ export class ConsentManagementService {
     consentType: ConsentRecord['consentType']
   ): Promise<boolean> {
     try {
-      // In production, would update database
-      const withdrawalRecord: Partial<ConsentRecord> = {
+      // Create withdrawal record
+      const withdrawalRecord: ConsentRecord = {
+        id: `consent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         userId,
         consentType,
         granted: false,
         withdrawnAt: new Date(),
-        timestamp: new Date()
+        timestamp: new Date(),
+        ipAddress: '192.168.1.1',
+        userAgent: 'Browser',
+        version: '1.0',
+        legalBasis: 'consent'
       }
+
+      // Store in memory for development
+      if (!consentStorage[userId]) {
+        consentStorage[userId] = []
+      }
+      
+      // Remove any existing consent for this type
+      consentStorage[userId] = consentStorage[userId].filter(c => c.consentType !== consentType)
+      
+      // Add the withdrawal record
+      consentStorage[userId].push(withdrawalRecord)
 
       console.log('Consent withdrawn:', withdrawalRecord)
       
@@ -137,36 +166,62 @@ export class ConsentManagementService {
     userId: string,
     consentType?: ConsentRecord['consentType']
   ): Promise<ConsentRecord[]> {
-    // In production, would query database
-    // Mock response for development
-    const mockConsents: ConsentRecord[] = [
-      {
-        id: 'consent_1',
-        userId,
-        consentType: 'data_processing',
-        granted: true,
-        timestamp: new Date(),
-        ipAddress: '192.168.1.1',
-        userAgent: 'Mozilla/5.0...',
-        version: '1.0',
-        legalBasis: 'consent'
-      },
-      {
-        id: 'consent_2',
-        userId,
-        consentType: 'verification_data',
-        granted: true,
-        timestamp: new Date(),
-        ipAddress: '192.168.1.1',
-        userAgent: 'Mozilla/5.0...',
-        version: '1.0',
-        legalBasis: 'contract'
-      }
-    ]
+    // Get stored consents or initialize with defaults
+    if (!consentStorage[userId]) {
+      // Initialize with default consents for first-time users
+      consentStorage[userId] = [
+        {
+          id: 'consent_1',
+          userId,
+          consentType: 'data_processing',
+          granted: true,
+          timestamp: new Date(),
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          version: '1.0',
+          legalBasis: 'consent'
+        },
+        {
+          id: 'consent_2',
+          userId,
+          consentType: 'marketing',
+          granted: false,
+          timestamp: new Date(),
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          version: '1.0',
+          legalBasis: 'consent'
+        },
+        {
+          id: 'consent_3',
+          userId,
+          consentType: 'analytics',
+          granted: false,
+          timestamp: new Date(),
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          version: '1.0',
+          legalBasis: 'consent'
+        },
+        {
+          id: 'consent_4',
+          userId,
+          consentType: 'third_party_sharing',
+          granted: false,
+          timestamp: new Date(),
+          ipAddress: '192.168.1.1',
+          userAgent: 'Mozilla/5.0...',
+          version: '1.0',
+          legalBasis: 'consent'
+        }
+      ]
+    }
 
+    const userConsents = consentStorage[userId] || []
+    
     return consentType 
-      ? mockConsents.filter(c => c.consentType === consentType)
-      : mockConsents
+      ? userConsents.filter(c => c.consentType === consentType)
+      : userConsents
   }
 
   private async processConsentWithdrawal(

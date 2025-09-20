@@ -17,10 +17,14 @@ export async function GET(
             id: true, 
             email: true, 
             role: true,
+            avatar: true,
             verified: true,
             emailVerified: true,
             phoneVerified: true,
-            idVerified: true
+            idVerified: true,
+            _count: {
+              select: { receivedReviews: true }
+            }
           }
         },
         applications: {
