@@ -6,10 +6,13 @@
 const twilio = {
   verify: {
     v2: {
-      services: () => ({
+      services: (serviceSid: string) => ({
         verifications: {
-          create: async () => ({ status: 'pending' }),
-          fetch: async () => ({ status: 'approved' })
+          create: async (params: any) => ({ status: 'pending' }),
+          fetch: async (sid: string) => ({ status: 'approved' })
+        },
+        verificationChecks: {
+          create: async (params: any) => ({ status: 'approved' })
         }
       })
     }
