@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
-import { NotificationService } from '@/lib/notification-service'
+import { NotificationService } from '../../route'
 
 /**
  * PATCH /api/notifications/[id]/read - Mark a specific notification as read
