@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth'
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -34,7 +34,8 @@ export async function POST(
       )
     }
 
-    const applicationId = params.id
+    const resolvedParams = await params
+    const applicationId = resolvedParams.id
 
     // In production, would:
     // 1. Verify the application belongs to the host

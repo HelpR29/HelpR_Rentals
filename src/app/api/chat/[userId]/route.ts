@@ -19,7 +19,7 @@ const mockMessages: { [chatId: string]: Message[] } = {}
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -31,7 +31,8 @@ export async function GET(
       )
     }
 
-    const otherUserId = params.userId
+    const resolvedParams = await params
+    const otherUserId = resolvedParams.userId
     const chatId = [user.id, otherUserId].sort().join('_')
     
     // Get messages for this chat
@@ -89,7 +90,7 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -110,7 +111,8 @@ export async function POST(
       )
     }
 
-    const otherUserId = params.userId
+    const resolvedParams = await params
+    const otherUserId = resolvedParams.userId
     const chatId = [user.id, otherUserId].sort().join('_')
     
     // Create new message

@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth'
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUser()
@@ -18,7 +18,8 @@ export async function PATCH(
       )
     }
 
-    const notificationId = params.id
+    const resolvedParams = await params
+    const notificationId = resolvedParams.id
 
     // In production, would update database
     // For now, simulate marking as read

@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
 
         const consentResult = granted 
           ? await consentManagement.recordConsent(user.id, consentType, true, {
-              ipAddress: request.ip || 'unknown',
+              ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
               userAgent: request.headers.get('user-agent') || 'unknown',
               legalBasis
             })

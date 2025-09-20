@@ -259,9 +259,9 @@ export default function MobileVerificationPage() {
           {/* Document Type Selection */}
           <div className="space-y-3">
             {documentTypes.map((type) => (
-              <Card
+              <div
                 key={type.id}
-                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="p-4 cursor-pointer hover:bg-gray-50 transition-colors border rounded-lg"
                 onClick={() => selectDocumentType(type.id)}
               >
                 <div className="flex items-center space-x-4">
@@ -272,7 +272,7 @@ export default function MobileVerificationPage() {
                   </div>
                   <div className="text-gray-400">→</div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
 

@@ -95,8 +95,7 @@ export class MobileCameraService {
         video: {
           facingMode: this.currentCamera === 'back' ? 'environment' : 'user',
           width: { ideal: options.quality === 'ultra' ? 3840 : 1920 },
-          height: { ideal: options.quality === 'ultra' ? 2160 : 1080 },
-          focusMode: 'auto'
+          height: { ideal: options.quality === 'ultra' ? 2160 : 1080 }
         }
       }
 
