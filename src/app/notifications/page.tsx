@@ -51,6 +51,7 @@ export default function NotificationsPage() {
       })
       
       if (response.ok) {
+        // Update local state immediately
         setNotifications(prev => 
           prev.map(notif => 
             notif.id === notificationId 
@@ -59,12 +60,29 @@ export default function NotificationsPage() {
           )
         )
         
-        // Don't clear all notifications when marking individual ones as read
-        // Only trigger a refresh to check if there are still unread notifications
+        // Also refresh from server to ensure consistency
+        fetchNotifications()
+        
+        // Trigger header notification refresh
         window.dispatchEvent(new CustomEvent('refreshNotifications'))
+        
+        console.log(`Successfully marked notification ${notificationId} as read`)
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to mark notification as read:', errorData)
+        addToast({
+          type: 'error',
+          title: 'Failed to mark as read',
+          message: errorData.error || 'Please try again'
+        })
       }
     } catch (error) {
       console.error('Failed to mark notification as read:', error)
+      addToast({
+        type: 'error',
+        title: 'Network Error',
+        message: 'Unable to mark notification as read'
+      })
     }
   }
 
