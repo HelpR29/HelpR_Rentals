@@ -134,10 +134,15 @@ export default function Header() {
         const response = await fetch('/api/notifications')
         if (response.ok) {
           const data = await response.json()
-          const unreadNotifications = data.notifications?.filter((n: any) => !n.read) || []
+          const unreadNotifications = data.notifications?.filter((n: { read: boolean }) => !n.read) || []
           setHasNewNotifications(unreadNotifications.length > 0)
+          console.log('Notification status updated:', { 
+            unreadCount: unreadNotifications.length, 
+            hasNew: unreadNotifications.length > 0 
+          })
         }
       } catch (notifError) {
+        console.error('Failed to fetch notifications:', notifError)
         // Fallback: show notifications for tenants if no recent clearing
         if (user?.role === 'tenant' && (!lastReadTime || parseInt(lastReadTime) <= thirtyMinutesAgo)) {
           setHasNewNotifications(true)

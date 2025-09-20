@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { NotificationService } from '@/lib/notification-service'
 
 /**
  * PATCH /api/notifications/[id]/read - Mark a specific notification as read
@@ -21,8 +22,9 @@ export async function PATCH(
     const resolvedParams = await params
     const notificationId = resolvedParams.id
 
-    // In production, would update database
-    // For now, simulate marking as read
+    // Mark specific notification as read
+    const success = NotificationService.markAsRead(user.id, notificationId)
+
     console.log(`Marking notification ${notificationId} as read for user ${user.id}`)
 
     return NextResponse.json({

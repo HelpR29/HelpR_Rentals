@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { NotificationService } from '@/lib/notification-service'
 
 /**
  * PATCH /api/notifications/mark-all-read - Mark all notifications as read for current user
@@ -15,8 +16,9 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    // In production, would update all notifications in database
-    // For now, simulate marking all as read
+    // Mark all notifications as read for this user
+    const success = NotificationService.markAllAsRead(user.id)
+
     console.log(`Marking all notifications as read for user ${user.id}`)
 
     return NextResponse.json({
