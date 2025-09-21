@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { generateApplicationSummary } from '@/lib/ai'
 import { sendApplicationNotification } from '@/lib/email'
+import { NotificationService } from '@/lib/notification-service'
 
 export async function POST(request: NextRequest) {
   try {
@@ -115,6 +116,23 @@ export async function POST(request: NextRequest) {
       aiSummary,
       reviewLink
     )
+
+    // Create notification for the host in the notification service
+    NotificationService.addNotification(listing.ownerId, {
+      type: 'application_update',
+      title: 'New Application',
+      message: `You have received a new rental application for ${listing.title}.`,
+      read: false,
+      actionUrl: '/inbox',
+      actionText: 'Review Application',
+      fromUser: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    })
+
+    console.log('🔔 Created notification for host:', listing.owner.email)
 
     return NextResponse.json({ application })
 
