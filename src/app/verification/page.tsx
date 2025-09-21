@@ -46,8 +46,21 @@ export default function VerificationPage() {
   const [phonePendingCode, setPhonePendingCode] = useState(false);
 
   useEffect(() => {
-    fetchVerificationStatus()
-  }, [])
+    fetchVerificationStatus();
+
+    // Set up a poller if a background check is pending.
+    const isPending = user?.verificationData?.background?.status === 'pending';
+
+    if (isPending) {
+      const intervalId = setInterval(() => {
+        console.log('Polling for background check status...');
+        fetchVerificationStatus();
+      }, 5000); // Poll every 5 seconds
+
+      // Cleanup function to clear the interval when the component unmounts or the status changes.
+      return () => clearInterval(intervalId);
+    }
+  }, [user?.verificationData?.background?.status]);
 
   const fetchVerificationStatus = async () => {
     try {
