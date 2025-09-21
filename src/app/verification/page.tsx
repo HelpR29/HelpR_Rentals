@@ -329,7 +329,20 @@ export default function VerificationPage() {
                         </div>
                         {formData.id?.document && (
                           <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">✅ Document ready: {formData.id.document.name || 'Mobile capture'}</p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm text-green-800">✅ Document ready: {formData.id.document.name || 'Mobile capture'}</p>
+                              <Button 
+                                variant="secondary" 
+                                size="sm"
+                                onClick={() => {
+                                  setFormData({ ...formData, id: { ...formData.id, document: undefined } });
+                                  addToast({ type: 'info', title: 'Document Removed', message: 'You can upload a new document.' });
+                                }}
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                              >
+                                🗑️ Remove
+                              </Button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -352,7 +365,20 @@ export default function VerificationPage() {
                         <Button variant="secondary" onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,.pdf'; input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) { setFormData({ ...formData, income_address: { ...formData.income_address, document: file } }); addToast({ type: 'success', title: 'Document Selected', message: `${file.name} ready for verification.` }); } }; input.click(); }} className="w-full">📄 Upload Document</Button>
                         {formData.income_address?.document && (
                           <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">✅ Document ready: {formData.income_address.document.name}</p>
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm text-green-800">✅ Document ready: {formData.income_address.document.name}</p>
+                              <Button 
+                                variant="secondary" 
+                                size="sm"
+                                onClick={() => {
+                                  setFormData({ ...formData, income_address: { ...formData.income_address, document: undefined } });
+                                  addToast({ type: 'info', title: 'Document Removed', message: 'You can upload a new document.' });
+                                }}
+                                className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                              >
+                                🗑️ Remove
+                              </Button>
+                            </div>
                           </div>
                         )}
                       </div>
