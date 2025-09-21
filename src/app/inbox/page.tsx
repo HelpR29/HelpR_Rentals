@@ -28,6 +28,10 @@ interface Application {
     address: string
     rent: number
     photos: string[]
+    owner: {
+      id: string
+      email: string
+    }
   }
   applicant: {
     id: string
@@ -378,13 +382,13 @@ export default function InboxPage() {
                         <Button
                           size="sm"
                           variant="secondary"
-                          onClick={() => startChat('host_1', 'host@example.com')}
+                          onClick={() => startChat(application.listing.owner.id, application.listing.owner.email)}
                           className="relative"
                         >
                           💬 Message Host
-                          {unreadMessages['host_1'] > 0 && (
+                          {unreadMessages[application.listing.owner.id] > 0 && (
                             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
-                              {unreadMessages['host_1']}
+                              {unreadMessages[application.listing.owner.id]}
                             </span>
                           )}
                         </Button>

@@ -16,15 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     // In production, would query database for unread messages
-    // For demo purposes, check if notifications have been marked as read
-    // Use a simple timestamp check to simulate read status
-    const lastReadTime = request.headers.get('x-last-read') || '0'
-    const currentTime = Date.now()
-    const timeSinceLastRead = currentTime - parseInt(lastReadTime)
+    // For clean testing, return no unread messages
+    const hasUnread = false
+    const unreadCount = 0
     
-    // If user visited notifications recently (within 5 minutes), consider messages read
-    const hasUnread = user.role === 'tenant' && timeSinceLastRead > 5 * 60 * 1000
-    const unreadCount = hasUnread ? 2 : 0
+    console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount })
 
     return NextResponse.json({
       hasUnread,
