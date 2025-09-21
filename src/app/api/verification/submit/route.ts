@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
 import { sendVerificationEmail } from '@/lib/send-verification-email';
+import { uploadImage } from '@/lib/storage';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -13,7 +14,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { verificationType, data, documents } = await request.json()
+        const formData = await request.formData();
+    const verificationType = formData.get('verificationType') as string;
+    const data = JSON.parse(formData.get('data') as string);
+    const documentFile = formData.get('document') as File | null;
 
     // Validate verification type
     const validTypes = ['email', 'phone', 'id', 'address', 'income', 'background']
@@ -55,13 +59,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Update documents if provided
-    const updatedDocs = documents ? [...existingDocs, ...documents] : existingDocs
 
     // For development, auto-approve certain verifications
     const updateFields: any = {
-      verificationData: JSON.stringify(updatedData),
-      verificationDocs: JSON.stringify(updatedDocs)
+      verificationData: JSON.stringify(updatedData)
     }
 
     // For email, send a verification link instead of auto-approving
@@ -126,12 +127,13 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // For other verifications, mark as pending (would require admin approval)
     if (verificationType === 'id') {
-      // In production, this would require document review
-      updateFields.idVerified = true // Auto-approve for development
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+      if (documentFile) {
+        const uploadResult = await uploadImage(documentFile);
+        updatedData[verificationType].documentUrl = uploadResult.url;
+      }
+      // ID verification should always be pending manual review
+      updatedData[verificationType].status = 'pending';
     }
 
     if (verificationType === 'address') {

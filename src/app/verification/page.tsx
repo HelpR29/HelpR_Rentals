@@ -42,7 +42,8 @@ export default function VerificationPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState<string | null>(null)
     const [formData, setFormData] = useState<any>({});
-  const [emailPending, setEmailPending] = useState(false);
+    const [emailPending, setEmailPending] = useState(false);
+  const [phonePendingCode, setPhonePendingCode] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus()
@@ -68,25 +69,27 @@ export default function VerificationPage() {
     }
   }
 
-  const handleVerificationSubmit = async (verificationType: string, data: any) => {
+  const handleVerificationSubmit = async (verificationType: string, data: any, documentFile?: File) => {
     setSubmitting(verificationType)
     try {
+      const formDataBody = new FormData();
+      formDataBody.append('verificationType', verificationType);
+      formDataBody.append('data', JSON.stringify(data));
+      if (documentFile) {
+        formDataBody.append('document', documentFile);
+      }
+
       const response = await fetch('/api/verification/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          verificationType,
-          data,
-          documents: [] // In a real app, you'd handle file uploads here
-        }),
-      })
+        body: formDataBody,
+      });
 
             if (response.ok) {
         const result = await response.json();
-        if (result.status === 'pending_email') {
+                if (result.status === 'pending_email') {
           setEmailPending(true);
+        } else if (result.status === 'pending_code' && verificationType === 'phone') {
+          setPhonePendingCode(true);
         }
         addToast({
           type: 'success',
@@ -301,6 +304,8 @@ export default function VerificationPage() {
                   )}
 
                   {item.type === 'phone' && (
+                    <>
+                      {!phonePendingCode ? (
                     <div>
                       <Input
                         label="Phone Number"
@@ -319,9 +324,55 @@ export default function VerificationPage() {
                         loading={submitting === 'phone'}
                         disabled={!formData.phone?.phone && !user.phone}
                       >
-                        Verify Phone
+                        Send Verification Code
                       </Button>
                     </div>
+                      ) : (
+                        <div>
+                          <Input
+                            label="Verification Code"
+                            type="text"
+                            maxLength={6}
+                            placeholder="123456"
+                            value={formData.phone?.code || ''}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              phone: { ...formData.phone, code: e.target.value }
+                            })}
+                            helperText="Enter the 6-digit code we sent you."
+                          />
+                          <Button
+                            className="mt-3 w-full"
+                            onClick={async () => {
+                              setSubmitting('phone_code');
+                              try {
+                                const response = await fetch('/api/verification/confirm-phone', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ code: formData.phone?.code })
+                                });
+                                if (response.ok) {
+                                  addToast({ type: 'success', title: 'Phone Verified!', message: 'Your phone number has been successfully verified.' });
+                                  setPhonePendingCode(false);
+                                  fetchVerificationStatus();
+                                } else {
+                                  const err = await response.json();
+                                  addToast({ type: 'error', title: 'Verification Failed', message: err.error || 'Invalid code.' });
+                                }
+                              } catch (e) {
+                                addToast({ type: 'error', title: 'Network Error', message: 'Could not verify code.' });
+                              } finally {
+                                setSubmitting(null);
+                              }
+                            }}
+                            loading={submitting === 'phone_code'}
+                            disabled={!formData.phone?.code || formData.phone.code.length !== 6}
+                          >
+                            Confirm Code
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {item.type === 'id' && (
@@ -387,7 +438,7 @@ export default function VerificationPage() {
                       
                       <Button
                         className="mt-4 w-full"
-                        onClick={() => handleVerificationSubmit('id', formData.id)}
+                        onClick={() => handleVerificationSubmit('id', formData.id, formData.id?.document)}
                         loading={submitting === 'id'}
                         disabled={!formData.id?.idType || (!formData.id?.document && !formData.id?.idNumber)}
                       >
