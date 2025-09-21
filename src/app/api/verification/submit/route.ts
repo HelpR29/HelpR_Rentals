@@ -90,12 +90,40 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Auto-approve phone verification in development (in production, you'd send SMS)
+    // For phone, generate a code and mark as pending
     if (verificationType === 'phone' && data.phone) {
-      updateFields.phoneVerified = true
-      updateFields.phone = data.phone
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+      const phoneCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const codeExpires = new Date(Date.now() + 10 * 60 * 1000); // Code valid for 10 minutes
+
+      updatedData[verificationType] = {
+        ...updatedData[verificationType],
+        phone: data.phone,
+        status: 'pending_code',
+        phoneCode,
+        codeExpires: codeExpires.toISOString()
+      };
+
+      // In production, you would send this code via SMS
+      console.log(`
+=== PHONE VERIFICATION (Development Mode) ===`);
+      console.log(`To: ${data.phone}`);
+      console.log(`Verification Code: ${phoneCode}`);
+      console.log(`=========================================\n`);
+
+      updateFields.verificationData = JSON.stringify(updatedData);
+      updateFields.phone = data.phone; // Update the phone number on the user record
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: updateFields
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Verification code sent to your phone.',
+        verificationType,
+        status: 'pending_code'
+      });
     }
 
     // For other verifications, mark as pending (would require admin approval)
