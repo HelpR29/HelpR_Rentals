@@ -7,7 +7,7 @@ import { processBackgroundCheckWebhook } from './webhook-processor';
 const MOCK_API_DELAY = 15000; // 15 seconds to simulate the time a real check takes
 
 class BackgroundCheckService {
-  async initiateCheck(userId: string): Promise<{ status: string; checkId: string }> {
+    async initiateCheck(userId: string, currentUser: any): Promise<{ status: string; checkId: string }> {
         console.log(`
 ✅ [BackgroundCheckService] ENTERING initiateCheck for user: ${userId}
 `);
@@ -20,20 +20,18 @@ class BackgroundCheckService {
     const mockCheckId = `check_${Date.now()}`;
 
     // 3. Update our database to show the check is in progress.
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (user && user.verificationData) {
-      const verificationData = JSON.parse(user.verificationData);
-      verificationData.background = {
-        ...verificationData.background,
-        status: 'pending',
-        checkId: mockCheckId,
-        submittedAt: new Date().toISOString(),
-      };
-      await prisma.user.update({
-        where: { id: userId },
-        data: { verificationData: JSON.stringify(verificationData) },
-      });
-    }
+    const verificationData = currentUser.verificationData ? JSON.parse(currentUser.verificationData) : {};
+    verificationData.background = {
+      ...(verificationData.background || {}),
+      status: 'pending',
+      checkId: mockCheckId,
+      submittedAt: new Date().toISOString(),
+    };
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { verificationData: JSON.stringify(verificationData) },
+    });
 
     // 4. Simulate the webhook callback after a delay.
         console.log(`[BackgroundCheckService] Setting a ${MOCK_API_DELAY / 1000}s timer to simulate webhook...`);

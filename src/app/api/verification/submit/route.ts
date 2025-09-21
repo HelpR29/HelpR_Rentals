@@ -150,8 +150,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (verificationType === 'background' && data.consent) {
-      await backgroundCheckService.initiateCheck(user.id);
-      updatedData[verificationType].status = 'pending'; // The webhook will update this later
+      // The initiateCheck service now handles its own state updates.
+            await backgroundCheckService.initiateCheck(user.id, currentUser);
+      // We don't need to modify updatedData here anymore for this type.
+      // The response will be sent, and the webhook will handle the final status.
     }
 
     // Update verification data with new status
