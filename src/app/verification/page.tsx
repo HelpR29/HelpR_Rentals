@@ -279,431 +279,71 @@ export default function VerificationPage() {
                   <div className="flex-shrink-0">
                     <VerificationBadge verified={true} size="md" />
                   </div>
-                )}
-              </div>
 
-              {!item.verified && (
-                <div className="space-y-4">
-                  {item.type === 'email' && (
-                    <>
-                      {!emailPending ? (
-                        <div>
-                          <Input
-                            label="Email Address"
-                            type="email"
-                            value={user.email}
-                            disabled={true}
-                            helperText="This is your registered email address"
-                          />
-                          <Button
-                            className="mt-3 w-full"
-                            onClick={() => handleVerificationSubmit('email', { email: user.email })}
-                            loading={submitting === 'email'}
-                          >
-                            Send Verification Email
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                          <p className="text-sm font-medium text-blue-800">Verification email sent!</p>
-                          <p className="text-sm text-blue-700 mt-1">Please check your inbox and click the link to complete verification.</p>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {item.type === 'phone' && (
-                    <>
-                      {!phonePendingCode ? (
-                    <div>
-                      <Input
-                        label="Phone Number"
-                        type="tel"
-                        placeholder="+1 (555) 123-4567"
-                        value={formData.phone?.phone || user.phone || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          phone: { phone: e.target.value }
-                        })}
-                        helperText="We'll send you a verification code"
-                      />
-                      <Button
-                        className="mt-3 w-full"
-                        onClick={() => handleVerificationSubmit('phone', formData.phone || { phone: user.phone })}
-                        loading={submitting === 'phone'}
-                        disabled={!formData.phone?.phone && !user.phone}
-                      >
-                        Send Verification Code
-                      </Button>
-                    </div>
-                      ) : (
-                        <div>
-                          <Input
-                            label="Verification Code"
-                            type="text"
-                            maxLength={6}
-                            placeholder="123456"
-                            value={formData.phone?.code || ''}
-                            onChange={(e) => setFormData({
-                              ...formData,
-                              phone: { ...formData.phone, code: e.target.value }
-                            })}
-                            helperText="Enter the 6-digit code we sent you."
-                          />
-                          <Button
-                            className="mt-3 w-full"
-                            onClick={async () => {
-                              setSubmitting('phone_code');
-                              try {
-                                const response = await fetch('/api/verification/confirm-phone', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ code: formData.phone?.code })
-                                });
-                                if (response.ok) {
-                                  addToast({ type: 'success', title: 'Phone Verified!', message: 'Your phone number has been successfully verified.' });
-                                  setPhonePendingCode(false);
-                                  fetchVerificationStatus();
-                                } else {
-                                  const err = await response.json();
-                                  addToast({ type: 'error', title: 'Verification Failed', message: err.error || 'Invalid code.' });
-                                }
-                              } catch (e) {
-                                addToast({ type: 'error', title: 'Network Error', message: 'Could not verify code.' });
-                              } finally {
-                                setSubmitting(null);
-                              }
-                            }}
-                            loading={submitting === 'phone_code'}
-                            disabled={!formData.phone?.code || formData.phone.code.length !== 6}
-                          >
-                            Confirm Code
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {item.type === 'id' && (
-                    <div>
-                      <Input
-                        label="ID Type"
-                        value={formData.id?.idType || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          id: { ...formData.id, idType: e.target.value }
-                        })}
-                        placeholder="Driver's License, Passport, etc."
-                        helperText="What type of government ID are you submitting?"
-                      />
-                      
-                      {/* Document Upload Options */}
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Upload Document:</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <Button
-                            variant="secondary"
-                            onClick={() => router.push('/verification/mobile')}
-                            className="w-full"
-                          >
-                            📱 Use Mobile Camera
-                          </Button>
-                          <Button
-                            variant="secondary"
-                            onClick={() => {
-                              const input = document.createElement('input')
-                              input.type = 'file'
-                              input.accept = 'image/*,.pdf'
-                              input.onchange = (e) => {
-                                const file = (e.target as HTMLInputElement).files?.[0]
-                                if (file) {
-                                  setFormData({
-                                    ...formData,
-                                    id: { ...formData.id, document: file }
-                                  })
-                                  addToast({
-                                    type: 'success',
-                                    title: 'Document uploaded',
-                                    message: `${file.name} ready for verification`
-                                  })
-                                }
-                              }
-                              input.click()
-                            }}
-                            className="w-full"
-                          >
-                            📄 Upload File
-                          </Button>
-                        </div>
-                        
-                        {formData.id?.document && (
-                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">
-                              ✅ Document ready: {formData.id.document.name || 'Mobile capture'}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <Button
-                        className="mt-4 w-full"
-                        onClick={() => handleVerificationSubmit('id', formData.id, formData.id?.document)}
-                        loading={submitting === 'id'}
-                        disabled={!formData.id?.idType || (!formData.id?.document && !formData.id?.idNumber)}
-                      >
-                        Submit ID Verification
-                      </Button>
-                    </div>
-                  )}
-
-                  {item.type === 'income_address' && (
-                    <div>
-                      <Input
-                        label="Street Address"
-                        value={formData.address?.street || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          address: { ...formData.address, street: e.target.value }
-                        })}
-                        placeholder="123 Main St"
-                      />
-                      <div className="grid grid-cols-2 gap-3">
-                        <Input
-                          label="City"
-                          value={formData.address?.city || ''}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            address: { ...formData.address, city: e.target.value }
-                          })}
-                          placeholder="City"
-                        />
-                        <Input
-                          label="Postal Code"
-                          value={formData.address?.postalCode || ''}
-                          onChange={(e) => setFormData({
-                            ...formData,
-                            address: { ...formData.address, postalCode: e.target.value }
-                          })}
-                          placeholder="12345"
-                        />
-                      </div>
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Upload Proof of Address:</p>
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*,.pdf';
-                            input.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) {
-                                setFormData({
-                                  ...formData,
-                                  address: { ...formData.address, document: file },
-                                });
-                                addToast({
-                                  type: 'success',
-                                  title: 'Document Selected',
-                                  message: `${file.name} ready for verification.`,
-                                });
-                              }
-                            };
-                            input.click();
-                          }}
-                          className="w-full"
-                        >
-                          📄 Upload Utility Bill or Bank Statement
-                        </Button>
-                        {formData.address?.document && (
-                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">
-                              ✅ Document ready: {formData.address.document.name}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      {/* Income Fields */}
-                      <Input
-                        label="Annual Income"
-                        type="number"
-                        value={formData.income_address?.amount || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          income_address: { ...formData.income_address, amount: e.target.value }
-                        })}
-                        placeholder="50000"
-                        helperText="Enter your annual income in CAD"
-                      />
-                      <Input
-                        label="Employment Status"
-                        value={formData.income_address?.employment || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          income_address: { ...formData.income_address, employment: e.target.value }
-                        })}
-                        placeholder="Full-time, Part-time, Self-employed, etc."
-                      />
-
-                      {/* Document Upload */}
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Upload Pay Stub or Utility Bill:</p>
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*,.pdf';
-                            input.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) {
-                                setFormData({
-                                  ...formData,
-                                  income_address: { ...formData.income_address, document: file },
-                                });
-                                addToast({
-                                  type: 'success',
-                                  title: 'Document Selected',
-                                  message: `${file.name} ready for verification.`,
-                                });
-                              }
-                            };
-                            input.click();
-                          }}
-                          className="w-full"
-                        >
-                          📄 Upload Document
-                        </Button>
-                        {formData.income_address?.document && (
-                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">
-                              ✅ Document ready: {formData.income_address.document.name}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      <Button
-                        className="mt-4 w-full"
-                        onClick={() => handleVerificationSubmit('income_address', formData.income_address, formData.income_address?.document)}
-                        loading={submitting === 'income_address'}
-                        disabled={!formData.income_address?.street || !formData.income_address?.city || !formData.income_address?.postalCode || !formData.income_address?.amount || !formData.income_address?.document}
-                      >
-                        Submit for Analysis
-                      </Button>
-                    </div>
-                  )}
-                    <div>
-                      <Input
-                        label="Annual Income"
-                        type="number"
-                        value={formData.income?.amount || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          income: { ...formData.income, amount: e.target.value }
-                        })}
-                        placeholder="50000"
-                        helperText="Enter your annual income in CAD"
-                      />
-                      <Input
-                        label="Employment Status"
-                        value={formData.income?.employment || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          income: { ...formData.income, employment: e.target.value }
-                        })}
-                        placeholder="Full-time, Part-time, Self-employed, etc."
-                      />
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Upload Pay Stub or Employment Letter:</p>
-                        <Button
-                          variant="secondary"
-                          onClick={() => {
-                            const input = document.createElement('input');
-                            input.type = 'file';
-                            input.accept = 'image/*,.pdf';
-                            input.onchange = (e) => {
-                              const file = (e.target as HTMLInputElement).files?.[0];
-                              if (file) {
-                                setFormData({
-                                  ...formData,
-                                  income: { ...formData.income, document: file },
-                                });
-                                addToast({
-                                  type: 'success',
-                                  title: 'Document Selected',
-                                  message: `${file.name} ready for verification.`,
-                                });
-                              }
-                            };
-                            input.click();
-                          }}
-                          className="w-full"
-                        >
-                          📄 Upload Document
-                        </Button>
-                        {formData.income?.document && (
-                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <p className="text-sm text-green-800">
-                              ✅ Document ready: {formData.income.document.name}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                  {item.type === 'background' && (
-                    <>
-                      {user.verificationData?.background?.status === 'pending' || user.verificationData?.background?.status === 'rejected' ? (
-                        <div className={`p-4 rounded-lg text-center ${user.verificationData?.background?.status === 'rejected' ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
-                          {user.verificationData?.background?.status === 'rejected' ? (
-                            <>
-                              <p className="text-sm font-medium text-red-800">Background Check Reviewed</p>
-                              <p className="text-sm text-red-700 mt-1">We were unable to approve the background check at this time. Please contact support for more information.</p>
-                            </>
-                          ) : (
-                            <>
-                              <p className="text-sm font-medium text-yellow-800">Background check in progress...</p>
-                              <p className="text-sm text-yellow-700 mt-1">This may take a few minutes. We'll notify you when it's complete.</p>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-sm text-gray-600 mb-4">
-                            By clicking "Start Background Check", you consent to a background check being performed.
-                            This may include criminal history, credit check, and reference verification.
-                          </p>
-                          <Button
-                            className="w-full"
-                            onClick={() => handleVerificationSubmit('background', { consent: true, requestedAt: new Date().toISOString() })}
-                            loading={submitting === 'background'}
-                          >
-                            Start Background Check
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {item.verified && (
-                <div className="bg-green-100 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-sm font-medium text-green-800">Verified</span>
-                  </div>
-                  <p className="text-sm text-green-700 mt-1">
-                    Your {item.title.toLowerCase()} has been successfully verified.
-                  </p>
-                </div>
-              )}
-            </Card>
-          ))}
+return (
+  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Account Verification</h1>
+            <p className="mt-2 text-gray-600">
+              Verify your identity to build trust with other users
+            </p>
+          </div>
+          <div className="text-right">
+            <VerificationBadge 
+              verified={user.verified} 
+              verificationScore={user.verificationScore}
+              size="lg"
+              showScore={true}
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              {user.completedVerifications} of {user.totalVerifications} completed
+            </p>
+          </div>
         </div>
+      </div>
 
+      {/* Progress Bar */}
+      <Card className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Verification Progress</h3>
+          <span className="text-sm font-medium text-gray-600">{user.verificationScore}%</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-3">
+          <div 
+            className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
+            style={{ width: `${user.verificationScore}%` }}
+          ></div>
+        </div>
+        <p className="text-sm text-gray-500 mt-2">
+          Complete more verifications to increase your trustworthiness score
+        </p>
+      </Card>
+
+      {/* Verification Items */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {verificationItems.map((item) => (
+          <Card key={item.type} className={`relative ${item.verified ? 'border-green-200 bg-green-50' : ''}`}>
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <span className="text-2xl">{item.icon}</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+                    <span>{item.title}</span>
+                    {item.required && (
+                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Required</span>
+                    )}
+                  </h3>
+                  <p className="text-sm text-gray-600">{item.description}</p>
+                </div>
+              </div>
+              {item.verified && (
+                <div className="flex-shrink-0">
+                  <VerificationBadge verified={true} size="md" />
+                </div>
+              )}
         {/* Benefits Section */}
         <Card className="mt-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits of Verification</h3>
