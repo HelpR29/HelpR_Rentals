@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Create application
+    console.log('📝 Creating application with reason:', reason)
     const application = await prisma.application.create({
       data: {
         listingId,
@@ -209,72 +210,17 @@ export async function GET(request: NextRequest) {
     }))
 
     // Debug: Log the applications found
-    console.log('Applications found:', parsedApplications.length, 'for user:', user.email, 'role:', user.role)
+    console.log('🔍 Applications found:', parsedApplications.length, 'for user:', user.email, 'role:', user.role)
     if (parsedApplications.length > 0) {
-      console.log('First application:', JSON.stringify(parsedApplications[0], null, 2))
+      console.log('📄 First application details:')
+      console.log('- ID:', parsedApplications[0].id)
+      console.log('- Reason:', parsedApplications[0].reason)
+      console.log('- Status:', parsedApplications[0].status)
+      console.log('- Listing:', parsedApplications[0].listing?.title)
     }
     
-    // If no applications found, provide demo data for testing (only for tenants with no real applications)
-    if (parsedApplications.length === 0 && user.role === 'tenant') {
-      parsedApplications = [
-        {
-          id: 'demo-app-1',
-          listingId: 'demo-listing-1',
-          applicantId: user.id,
-          status: 'declined',
-          moveInDate: new Date('2025-09-28'),
-          duration: '1 year',
-          reason: 'Looking for a comfortable place near downtown with good transportation links.',
-          createdAt: new Date('2025-09-19'),
-          aiSummary: 'Strong applicant with stable income and good references.',
-          listing: {
-            id: 'demo-listing-1',
-            title: 'Furnished Rental at 31 mitchell',
-            address: '31 mitchell',
-            rent: 1000,
-            photos: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop'],
-            owner: { id: 'host_1', email: 'host@example.com' }
-          },
-          applicant: {
-            id: user.id,
-            email: user.email,
-            role: 'tenant',
-            verified: false,
-            emailVerified: false,
-            phoneVerified: false,
-            idVerified: false
-          }
-        },
-        {
-          id: 'demo-app-2',
-          listingId: 'demo-listing-2',
-          applicantId: user.id,
-          status: 'declined',
-          moveInDate: new Date('2025-09-28'),
-          duration: '5 months',
-          reason: 'Need temporary housing while relocating for work.',
-          createdAt: new Date('2025-09-19'),
-          aiSummary: 'Reliable tenant with corporate backing.',
-          listing: {
-            id: 'demo-listing-2',
-            title: 'Furnished Rental at 1080 wellington avenue',
-            address: '1080 wellington avenue',
-            rent: 1500,
-            photos: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&h=300&fit=crop'],
-            owner: { id: 'host_1', email: 'host@example.com' }
-          },
-          applicant: {
-            id: user.id,
-            email: user.email,
-            role: 'tenant',
-            verified: false,
-            emailVerified: false,
-            phoneVerified: false,
-            idVerified: false
-          }
-        }
-      ]
-    }
+    // No demo data - return only real applications
+    console.log('📤 Returning applications:', parsedApplications.length)
 
     return NextResponse.json({ applications: parsedApplications })
 
