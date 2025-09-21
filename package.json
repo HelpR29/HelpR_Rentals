@@ -14,8 +14,10 @@
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.10",
     "@prisma/client": "^6.16.2",
     "@sendgrid/mail": "^8.1.6",
+    "@types/google.maps": "^3.58.1",
     "bcryptjs": "^3.0.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
