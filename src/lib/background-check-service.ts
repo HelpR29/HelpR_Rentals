@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { processBackgroundCheckWebhook } from './webhook-processor';
 
 // This is a mock service that simulates a third-party background check provider like Checkr.
 // In a real application, this would make API calls to the provider.
@@ -64,12 +65,9 @@ class BackgroundCheckService {
 `);
 
     try {
-            const host = (process.env.NEXTAUTH_URL || 'http://localhost:3010').replace('localhost', '127.0.0.1');
-      await fetch(`${host}/api/webhooks/background-check`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      // Instead of a network request, we now call the processor directly.
+      // This is more reliable for local simulation.
+      await processBackgroundCheckWebhook(payload);
     } catch (error) {
             console.error('❌ [BackgroundCheckService] CRITICAL: Error sending simulated webhook:', error);
     }

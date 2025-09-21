@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { processBackgroundCheckWebhook } from '@/lib/webhook-processor';
 
 // This endpoint simulates receiving a webhook from a third-party background check provider.
 export async function POST(request: NextRequest) {
@@ -13,44 +13,7 @@ export async function POST(request: NextRequest) {
     //   return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     // }
 
-    if (payload.type === 'report.completed') {
-      const checkId = payload.data.object.id;
-      const result = payload.data.object.status; // 'clear' or 'consider'
-
-      console.log(`[Webhook] Received background check result for ${checkId}: ${result}`);
-
-      // Find the user with this checkId
-      const users = await prisma.user.findMany();
-      const userToUpdate = users.find(user => {
-        if (!user.verificationData) return false;
-        const data = JSON.parse(user.verificationData);
-        return data.background?.checkId === checkId;
-      });
-
-      if (userToUpdate) {
-        const verificationData = JSON.parse(userToUpdate.verificationData!);
-        const isClear = result === 'clear';
-
-        verificationData.background = {
-          ...verificationData.background,
-          status: isClear ? 'approved' : 'rejected',
-          result: result,
-          completedAt: new Date().toISOString(),
-        };
-
-        await prisma.user.update({
-          where: { id: userToUpdate.id },
-          data: {
-            verificationData: JSON.stringify(verificationData),
-            backgroundVerified: isClear,
-          },
-        });
-
-        console.log(`[Webhook] User ${userToUpdate.email} background check status updated to ${result}.`);
-      } else {
-        console.warn(`[Webhook] Could not find user for check ID: ${checkId}`);
-      }
-    }
+    await processBackgroundCheckWebhook(payload);
 
     return NextResponse.json({ received: true });
 
