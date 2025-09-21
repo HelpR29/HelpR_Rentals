@@ -17,6 +17,9 @@ const mockMessages: { [chatId: string]: Message[] } = {}
 // Track unread message notifications per user
 const unreadNotifications: { [userId: string]: number } = {}
 
+// Export for use by other APIs
+export { unreadNotifications }
+
 // Clear all messages on server restart for clean testing
 console.log('🧹 Chat storage cleared for fresh testing')
 
@@ -46,12 +49,16 @@ export async function GET(
     
     console.log('💬 Chat GET - User:', user.email, 'ChatId:', chatId, 'Messages:', messages.length)
     
-    // Mark messages as read for the current user
+    // Mark messages as read for the current user and clear notifications
     messages.forEach(message => {
       if (message.receiverId === user.id) {
         message.read = true
       }
     })
+    
+    // Clear unread notifications for this user
+    unreadNotifications[user.id] = 0
+    console.log('🔔 Cleared notifications for user:', user.email)
 
     return NextResponse.json({
       messages: messages.sort((a, b) => 
@@ -114,6 +121,10 @@ export async function POST(
       mockMessages[chatId] = []
     }
     mockMessages[chatId].push(message)
+
+    // Create notification for the receiver
+    unreadNotifications[otherUserId] = (unreadNotifications[otherUserId] || 0) + 1
+    console.log('🔔 Created notification for user:', otherUserId, 'Count:', unreadNotifications[otherUserId])
 
     // Log message for development
     console.log('💬 NEW MESSAGE SENT')

@@ -16,20 +16,11 @@ export async function GET(request: NextRequest) {
     }
 
     // In production, would query database for unread messages
-    // For now, check if there are any chat messages for this user
-    // This is a simplified approach - in production you'd track read status properly
+    // For now, return no unread messages - notifications will be handled by the chat system
+    const hasUnread = false
+    const unreadCount = 0
     
-    // Import the mock messages from the chat API
-    // For now, we'll use a simple heuristic: if user hasn't visited recently, assume unread
-    const lastVisit = request.headers.get('x-last-visit') || '0'
-    const timeSinceLastVisit = Date.now() - parseInt(lastVisit)
-    
-    // If user hasn't visited in the last 30 seconds, and there might be messages, show notification
-    // This is a simple demo approach
-    const hasUnread = timeSinceLastVisit > 30000 && user.role === 'tenant'
-    const unreadCount = hasUnread ? 1 : 0
-    
-    console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount, timeSinceLastVisit })
+    console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount })
 
     return NextResponse.json({
       hasUnread,
