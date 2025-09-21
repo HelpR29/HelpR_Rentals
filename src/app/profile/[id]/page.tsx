@@ -152,6 +152,12 @@ export default function ProfilePage() {
         const data = await response.json()
         setUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
         setCurrentUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
+        
+        // Refresh header user info
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('refreshUser'))
+        }
+        
         addToast({
           type: 'success',
           title: 'Photo Updated!',

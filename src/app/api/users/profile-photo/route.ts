@@ -8,14 +8,17 @@ import { prisma } from '@/lib/prisma'
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('📸 Profile photo upload request received')
     const user = await getCurrentUser()
     if (!user) {
+      console.log('❌ Profile photo upload: Unauthorized')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
+    console.log('👤 Profile photo upload for user:', user.email)
     const formData = await request.formData()
     const file = formData.get('photo') as File
 

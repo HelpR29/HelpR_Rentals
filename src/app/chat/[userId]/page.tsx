@@ -95,6 +95,7 @@ export default function ChatPage({ params }: ChatPageProps) {
   const sendMessage = async () => {
     if (!newMessage.trim() || sending || !userId) return
 
+    console.log('💬 Sending message to userId:', userId, 'content:', newMessage.trim())
     setSending(true)
     try {
       const response = await fetch(`/api/chat/${userId}`, {
@@ -110,6 +111,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Message sent successfully:', data.message)
         setMessages(prev => [...prev, data.message])
         setNewMessage('')
         addToast({
@@ -117,12 +119,16 @@ export default function ChatPage({ params }: ChatPageProps) {
           title: 'Message sent'
         })
       } else {
+        console.error('❌ Failed to send message:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Error details:', errorData)
         addToast({
           type: 'error',
           title: 'Failed to send message'
         })
       }
     } catch (error) {
+      console.error('💥 Network error sending message:', error)
       addToast({
         type: 'error',
         title: 'Network error'
