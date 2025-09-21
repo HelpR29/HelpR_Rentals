@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
 import { sendVerificationEmail } from '@/lib/send-verification-email';
 import { uploadFile } from '@/lib/storage';
+import { backgroundCheckService } from '@/lib/background-check-service';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -148,10 +149,9 @@ export async function POST(request: NextRequest) {
       updatedData[verificationType].approvedAt = new Date().toISOString()
     }
 
-    if (verificationType === 'background') {
-      updateFields.backgroundVerified = true // Auto-approve for development
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+    if (verificationType === 'background' && data.consent) {
+      await backgroundCheckService.initiateCheck(user.id);
+      updatedData[verificationType].status = 'pending'; // The webhook will update this later
     }
 
     // Update verification data with new status

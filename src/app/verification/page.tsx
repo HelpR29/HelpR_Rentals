@@ -526,19 +526,28 @@ export default function VerificationPage() {
                   )}
 
                   {item.type === 'background' && (
-                    <div>
-                      <p className="text-sm text-gray-600 mb-4">
-                        By clicking "Start Background Check", you consent to a background check being performed.
-                        This may include criminal history, credit check, and reference verification.
-                      </p>
-                      <Button
-                        className="w-full"
-                        onClick={() => handleVerificationSubmit('background', { consent: true, requestedAt: new Date().toISOString() })}
-                        loading={submitting === 'background'}
-                      >
-                        Start Background Check
-                      </Button>
-                    </div>
+                    <>
+                      {user.verificationData?.background?.status === 'pending' ? (
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+                          <p className="text-sm font-medium text-yellow-800">Background check in progress...</p>
+                          <p className="text-sm text-yellow-700 mt-1">This may take a few minutes. We'll notify you when it's complete.</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm text-gray-600 mb-4">
+                            By clicking "Start Background Check", you consent to a background check being performed.
+                            This may include criminal history, credit check, and reference verification.
+                          </p>
+                          <Button
+                            className="w-full"
+                            onClick={() => handleVerificationSubmit('background', { consent: true, requestedAt: new Date().toISOString() })}
+                            loading={submitting === 'background'}
+                          >
+                            Start Background Check
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
