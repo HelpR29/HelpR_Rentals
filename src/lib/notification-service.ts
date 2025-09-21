@@ -1,6 +1,6 @@
 interface Notification {
   id: string
-  type: 'document_request' | 'message' | 'application_update' | 'system'
+  type: 'document_request' | 'message' | 'application_update' | 'system' | 'review'
   title: string
   message: string
   read: boolean

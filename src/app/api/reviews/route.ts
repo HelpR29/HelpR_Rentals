@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma';
+import { NotificationService } from '@/lib/notification-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,7 +90,22 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ review })
+    // Create a notification for the user who was reviewed
+    NotificationService.addNotification(review.targetId, {
+      type: 'review',
+      title: 'You received a new review!',
+      message: `${review.author.email} left you a ${review.rating}-star review.`,
+      read: false,
+      actionUrl: `/profile/${review.targetId}`,
+      actionText: 'View Review',
+      fromUser: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+    return NextResponse.json({ review });
 
   } catch (error) {
     console.error('Create review error:', error)
