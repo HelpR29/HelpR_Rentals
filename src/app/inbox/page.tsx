@@ -150,8 +150,8 @@ export default function InboxPage() {
         
         applications.forEach(app => {
           const hostId = app.listing.owner.id
-          // Show notification if user hasn't checked messages in last 2 minutes (same as header)
-          newUnreadMessages[hostId] = timeSinceLastCheck > 2 * 60 * 1000 ? 1 : 0
+          // For clean testing, don't show fake notifications
+          newUnreadMessages[hostId] = 0
         })
         setUnreadMessages(newUnreadMessages)
         console.log('📬 Inbox: Tenant unread messages set:', newUnreadMessages)

@@ -19,62 +19,9 @@ const mockNotifications: { [userId: string]: Notification[] } = {}
 
 export class NotificationService {
   static getNotifications(userId: string, userRole: string): Notification[] {
+    // For clean testing, return empty notifications until real ones are created
     if (!mockNotifications[userId]) {
-      // Create role-specific sample notifications for demo
-      if (userRole === 'tenant') {
-        mockNotifications[userId] = [
-          {
-            id: 'notif_1',
-            type: 'document_request',
-            title: 'Documents Requested',
-            message: 'A host has requested additional documents for your application.',
-            read: false,
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-            actionUrl: '/verification',
-            actionText: 'Upload Documents',
-            fromUser: {
-              id: 'host_1',
-              email: 'host@example.com',
-              role: 'host'
-            }
-          },
-          {
-            id: 'notif_2',
-            type: 'message',
-            title: 'New Message',
-            message: 'You have received a new message from a host.',
-            read: false,
-            createdAt: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-            actionUrl: '/inbox',
-            actionText: 'View Message',
-            fromUser: {
-              id: 'host_2',
-              email: 'landlord@example.com',
-              role: 'host'
-            }
-          }
-        ]
-      } else if (userRole === 'host') {
-        mockNotifications[userId] = [
-          {
-            id: 'notif_host_1',
-            type: 'application_update',
-            title: 'New Application',
-            message: 'You have received a new rental application.',
-            read: false,
-            createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
-            actionUrl: '/inbox',
-            actionText: 'Review Application',
-            fromUser: {
-              id: 'tenant_1',
-              email: 'tenant@example.com',
-              role: 'tenant'
-            }
-          }
-        ]
-      } else {
-        mockNotifications[userId] = []
-      }
+      mockNotifications[userId] = []
     }
 
     return mockNotifications[userId] || []
