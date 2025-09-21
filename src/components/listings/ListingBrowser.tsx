@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import VerificationBadge from '@/components/ui/VerificationBadge'
+import PropertyMap from '@/components/ui/PropertyMap'
 
 interface Listing {
   id: string
@@ -53,6 +54,8 @@ export default function ListingBrowser() {
     petsAllowed: ''
   })
   const [showFilters, setShowFilters] = useState(false)
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [selectedListing, setSelectedListing] = useState<string | undefined>()
 
   useEffect(() => {
     fetchListings()
