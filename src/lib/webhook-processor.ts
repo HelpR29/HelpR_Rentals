@@ -7,11 +7,14 @@ export async function processBackgroundCheckWebhook(payload: any) {
 
     console.log(`[WebhookProcessor] Processing background check result for ${checkId}: ${result}`);
 
-    const users = await prisma.user.findMany();
-    const userToUpdate = users.find(user => {
-      if (!user.verificationData) return false;
-      const data = JSON.parse(user.verificationData);
-      return data.background?.checkId === checkId;
+    // Use a more robust direct query with JSON filtering to find the user.
+    // This is more efficient and resilient to state inconsistencies than fetching all users.
+    const userToUpdate = await prisma.user.findFirst({
+      where: {
+        verificationData: {
+          contains: `"checkId":"${checkId}"`
+        }
+      }
     });
 
     if (userToUpdate) {
