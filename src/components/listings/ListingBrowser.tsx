@@ -243,8 +243,8 @@ export default function ListingBrowser() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {listings.map((listing) => (
-            <Card key={listing.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer group" padding={false}>
-              <Link href={`/listing/${listing.id}`} className="block">
+                <Card key={listing.id} className="hover:shadow-lg transition-all duration-200 cursor-pointer group" padding={false}>
+                  <Link href={`/listing/${listing.id}`} className="block">
                 <div className="flex flex-col sm:flex-row">
                   {/* Photo */}
                   <div className="relative h-48 sm:h-32 sm:w-48 flex-shrink-0">
