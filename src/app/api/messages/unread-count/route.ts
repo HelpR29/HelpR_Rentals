@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth';
-import { unreadNotifications } from '../chat/[userId]/route';
+import { unreadNotifications } from '@/lib/chat-store';
 
 /**
  * GET /api/messages/unread-count - Get count of unread messages for current user
