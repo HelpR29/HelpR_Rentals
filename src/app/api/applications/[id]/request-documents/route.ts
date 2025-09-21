@@ -78,27 +78,29 @@ export async function POST(
     }
 
     // Create notification for the tenant
-    NotificationService.addNotification(application.applicantId, {
-      type: 'document_request',
-      title: 'Documents Requested',
-      message: `${user.email} has requested additional documents: ${documentTypes.join(', ')}`,
-      read: false,
-      actionUrl: '/verification',
-      actionText: 'Upload Documents',
-      fromUser: {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      }
-    })
-
-    console.log('=== DOCUMENT REQUEST NOTIFICATION ===')
-    console.log(`Application ID: ${applicationId}`)
-    console.log(`Requested Documents: ${documentTypes.join(', ')}`)
-    console.log(`Host: ${user.email}`)
-    console.log(`Tenant: ${application.applicant.email}`)
-    console.log('🔔 Created notification for tenant:', application.applicant.email)
-    console.log('=====================================')
+    try {
+      console.log('🔔 Attempting to create document request notification for tenant:', application.applicant.email, 'Tenant ID:', application.applicantId);
+      const notificationPayload = {
+        type: 'document_request' as const,
+        title: 'Documents Requested',
+        message: `${user.email} has requested additional documents: ${documentTypes.join(', ')}`,
+        read: false,
+        actionUrl: '/verification',
+        actionText: 'Upload Documents',
+        fromUser: {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        }
+      };
+      console.log('🔔 Document Request Notification Payload:', JSON.stringify(notificationPayload, null, 2));
+      
+      const notification = NotificationService.addNotification(application.applicantId, notificationPayload);
+      
+      console.log('🔔 ✅ Successfully created document request notification:', notification.id, 'for tenant:', application.applicant.email);
+    } catch (notificationError) {
+      console.error('🔔 ❌ Failed to create document request notification:', notificationError);
+    }
 
     return NextResponse.json({
       success: true,

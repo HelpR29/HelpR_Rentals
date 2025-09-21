@@ -54,14 +54,14 @@ export class NotificationService {
       ...notification,
       id: `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       createdAt: new Date()
-    }
+    };
 
     if (!mockNotifications[userId]) {
-      mockNotifications[userId] = []
+      mockNotifications[userId] = [];
     }
     
-    mockNotifications[userId].unshift(newNotification)
-    return newNotification
+    mockNotifications[userId].unshift(newNotification);
+    return newNotification;
   }
 
   static getUnreadCount(userId: string): number {
