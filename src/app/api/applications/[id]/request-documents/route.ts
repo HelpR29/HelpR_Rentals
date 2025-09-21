@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { NotificationService } from '@/lib/notification-service'
 
 /**
  * POST /api/applications/[id]/request-documents - Request documents from applicant
@@ -37,13 +39,34 @@ export async function POST(
     const resolvedParams = await params
     const applicationId = resolvedParams.id
 
-    // In production, would:
-    // 1. Verify the application belongs to the host
-    // 2. Create document request records
-    // 3. Send notification to applicant
-    // 4. Update application status
+    // Get the application to find the tenant
+    const application = await prisma.application.findUnique({
+      where: { id: applicationId },
+      include: {
+        applicant: true,
+        listing: {
+          include: {
+            owner: true
+          }
+        }
+      }
+    })
 
-    // Mock implementation
+    if (!application) {
+      return NextResponse.json(
+        { error: 'Application not found' },
+        { status: 404 }
+      )
+    }
+
+    // Verify the application belongs to the current host
+    if (application.listing.ownerId !== user.id) {
+      return NextResponse.json(
+        { error: 'Not authorized to request documents for this application' },
+        { status: 403 }
+      )
+    }
+
     const documentRequest = {
       id: `req_${Date.now()}`,
       applicationId,
@@ -54,11 +77,27 @@ export async function POST(
       message: `Please provide the following documents: ${documentTypes.join(', ')}`
     }
 
-    // Simulate sending notification to applicant
+    // Create notification for the tenant
+    NotificationService.addNotification(application.applicantId, {
+      type: 'document_request',
+      title: 'Documents Requested',
+      message: `${user.email} has requested additional documents: ${documentTypes.join(', ')}`,
+      read: false,
+      actionUrl: '/verification',
+      actionText: 'Upload Documents',
+      fromUser: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    })
+
     console.log('=== DOCUMENT REQUEST NOTIFICATION ===')
     console.log(`Application ID: ${applicationId}`)
     console.log(`Requested Documents: ${documentTypes.join(', ')}`)
     console.log(`Host: ${user.email}`)
+    console.log(`Tenant: ${application.applicant.email}`)
+    console.log('🔔 Created notification for tenant:', application.applicant.email)
     console.log('=====================================')
 
     return NextResponse.json({

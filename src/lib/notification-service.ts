@@ -17,25 +17,6 @@ interface Notification {
 // Mock notifications storage (in production, use database)
 const mockNotifications: { [userId: string]: Notification[] } = {}
 
-// Add a test notification for the host (temporary for debugging)
-mockNotifications['cmftzh1c400013rfat8zh1t2v'] = [
-  {
-    id: 'test_notif_1',
-    type: 'application_update',
-    title: 'New Application',
-    message: 'You have received a new rental application.',
-    read: false,
-    createdAt: new Date(),
-    actionUrl: '/inbox',
-    actionText: 'Review Application',
-    fromUser: {
-      id: 'cmftzh1bv00003rfarlf5zlhq',
-      email: 'tenant@example.com',
-      role: 'tenant'
-    }
-  }
-]
-
 export class NotificationService {
   static getNotifications(userId: string, userRole: string): Notification[] {
     // For clean testing, return empty notifications until real ones are created
