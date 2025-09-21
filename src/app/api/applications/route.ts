@@ -118,21 +118,27 @@ export async function POST(request: NextRequest) {
     )
 
     // Create notification for the host in the notification service
-    NotificationService.addNotification(listing.ownerId, {
-      type: 'application_update',
-      title: 'New Application',
-      message: `You have received a new rental application for ${listing.title}.`,
-      read: false,
-      actionUrl: '/inbox',
-      actionText: 'Review Application',
-      fromUser: {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      }
-    })
-
-    console.log('🔔 Created notification for host:', listing.owner.email)
+    try {
+      console.log('🔔 Attempting to create notification for host:', listing.owner.email, 'Host ID:', listing.ownerId)
+      
+      const notification = NotificationService.addNotification(listing.ownerId, {
+        type: 'application_update',
+        title: 'New Application',
+        message: `You have received a new rental application for ${listing.title}.`,
+        read: false,
+        actionUrl: '/inbox',
+        actionText: 'Review Application',
+        fromUser: {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        }
+      })
+      
+      console.log('🔔 ✅ Successfully created notification:', notification.id, 'for host:', listing.owner.email)
+    } catch (notificationError) {
+      console.error('🔔 ❌ Failed to create notification:', notificationError)
+    }
 
     return NextResponse.json({ application })
 
