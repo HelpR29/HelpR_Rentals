@@ -208,6 +208,9 @@ export async function GET(request: NextRequest) {
       }
     }))
 
+    // Debug: Log the applications found
+    console.log('Applications found:', parsedApplications.length, 'for user:', user.email, 'role:', user.role)
+    
     // If no applications found, provide demo data for testing
     if (parsedApplications.length === 0 && user.role === 'tenant') {
       parsedApplications = [

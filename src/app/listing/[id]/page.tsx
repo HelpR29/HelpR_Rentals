@@ -231,12 +231,12 @@ export default function ListingDetailPage() {
             
             <div className="flex flex-wrap gap-2 mb-4">
               {listing.furnished && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-200 text-green-900 border border-green-300">
                   Furnished
                 </span>
               )}
               {listing.petsAllowed && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-900 border border-blue-300">
                   Pets Allowed
                 </span>
               )}
@@ -244,7 +244,7 @@ export default function ListingDetailPage() {
           </div>
 
           <Card className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Description</h2>
             <div className="prose max-w-none">
               <p className="text-gray-900 whitespace-pre-line">{listing.description}</p>
             </div>
@@ -351,17 +351,17 @@ export default function ListingDetailPage() {
                 ${listing.rent}<span className="text-lg text-gray-700">/month</span>
               </div>
               {listing.deposit && (
-                <p className="text-sm text-gray-800">${listing.deposit} deposit</p>
+                <p className="text-sm font-semibold text-gray-900">${listing.deposit} deposit</p>
               )}
             </div>
 
             <div className="mb-6">
-              <p className="text-sm text-gray-800 mb-1">Available from</p>
-              <p className="font-medium">{new Date(listing.availableFrom).toLocaleDateString()}</p>
+              <p className="text-sm font-semibold text-gray-800 mb-1">Available from</p>
+              <p className="font-bold text-gray-900">{new Date(listing.availableFrom).toLocaleDateString()}</p>
               {listing.availableTo && (
                 <>
-                  <p className="text-sm text-gray-800 mb-1 mt-2">Available until</p>
-                  <p className="font-medium">{new Date(listing.availableTo).toLocaleDateString()}</p>
+                  <p className="text-sm font-semibold text-gray-800 mb-1 mt-2">Available until</p>
+                  <p className="font-bold text-gray-900">{new Date(listing.availableTo).toLocaleDateString()}</p>
                 </>
               )}
             </div>
@@ -387,13 +387,13 @@ export default function ListingDetailPage() {
                 Sign In to Apply
               </Button>
             ) : user.id === listing.owner.id ? (
-              <p className="text-center text-gray-800 text-sm">This is your listing</p>
+              <p className="text-center font-semibold text-gray-900 text-sm">This is your listing</p>
             ) : (
-              <p className="text-center text-gray-800 text-sm">Host account required to apply</p>
+              <p className="text-center font-semibold text-gray-900 text-sm">Host account required to apply</p>
             )}
 
             <div className="mt-4 pt-4 border-t border-gray-200">
-              <p className="text-sm text-gray-800 mb-4">
+              <p className="text-sm font-semibold text-gray-900 mb-4">
                 {listing._count.applications} application{listing._count.applications !== 1 ? 's' : ''} received
               </p>
               
