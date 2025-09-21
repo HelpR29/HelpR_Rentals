@@ -134,17 +134,7 @@ export default function Header() {
 
   const fetchNotificationStatus = async () => {
     try {
-      // Check if ALL notifications have been marked as read recently
-      const lastReadTime = localStorage.getItem('notificationsLastRead');
-      const now = Date.now();
-      const thirtyMinutesAgo = now - 30 * 60 * 1000; // 30 minute window
-
-      if (lastReadTime && parseInt(lastReadTime) > thirtyMinutesAgo) {
-        setHasNewNotifications(false);
-        return;
-      }
-
-      // If not recently cleared, check the API for actual unread notifications
+      // Always check the API for the most up-to-date notification status
       const response = await fetch('/api/notifications');
       if (response.ok) {
         const data = await response.json();
