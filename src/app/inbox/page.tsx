@@ -208,8 +208,10 @@ export default function InboxPage() {
   }
 
   const requestDocuments = async (applicationId: string, documentTypes: string[]) => {
+    console.log('📄 Request Documents clicked for application:', applicationId, 'Documents:', documentTypes)
     setProcessingApp(applicationId)
     try {
+      console.log('📄 Sending request to API...')
       const response = await fetch(`/api/applications/${applicationId}/request-documents`, {
         method: 'POST',
         headers: {
@@ -217,6 +219,7 @@ export default function InboxPage() {
         },
         body: JSON.stringify({ documentTypes }),
       })
+      console.log('📄 API response status:', response.status)
 
       if (response.ok) {
         addToast({
