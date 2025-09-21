@@ -73,11 +73,9 @@ export default function Header() {
 
   const fetchUser = async () => {
     try {
-      console.log('👤 Header fetching user data...')
       const response = await fetch('/api/auth/me')
       if (response.ok) {
         const data = await response.json()
-        console.log('✅ Header user data updated:', data.user.avatar ? 'has avatar' : 'no avatar')
         setUser(data.user)
       }
     } catch (error) {
@@ -128,7 +126,6 @@ export default function Header() {
       if (response.ok) {
         const data = await response.json()
         setHasNewMessages(data.hasUnread)
-        console.log('📬 Header message status:', data.hasUnread ? 'HAS UNREAD' : 'no unread')
       }
     } catch (error) {
       console.error('Failed to fetch message status:', error)
@@ -137,51 +134,27 @@ export default function Header() {
 
   const fetchNotificationStatus = async () => {
     try {
-      console.log('🔔 fetchNotificationStatus called for user:', user?.email)
       // Check if ALL notifications have been marked as read recently
-      const lastReadTime = localStorage.getItem('notificationsLastRead')
-      const now = Date.now()
-      const thirtyMinutesAgo = now - 30 * 60 * 1000 // 30 minute window for persistent clearing
-      
-      console.log('🔔 Last read time:', lastReadTime, 'Now:', now, 'Thirty minutes ago:', thirtyMinutesAgo)
-      
-      // If ALL notifications were marked as read within 30 minutes, don't show indicator
-      // TEMPORARILY DISABLED FOR DEBUGGING - Let's always check the API
-      // if (lastReadTime && parseInt(lastReadTime) > thirtyMinutesAgo) {
-      //   console.log('🔔 Notifications recently cleared, not showing indicator')
-      //   setHasNewNotifications(false)
-      //   return
-      // }
-      console.log('🔔 Checking notifications API (bypass recent clearing logic for debugging)')
-      
-      // Check actual notifications API for unread count
-      try {
-        console.log('🔔 Fetching notifications from API...')
-        const response = await fetch('/api/notifications')
-        console.log('🔔 Notifications API response:', response.status)
-        if (response.ok) {
-          const data = await response.json()
-          console.log('🔔 Notifications data:', data)
-          const unreadNotifications = data.notifications?.filter((n: { read: boolean }) => !n.read) || []
-          setHasNewNotifications(unreadNotifications.length > 0)
-          console.log('🔔 Notification status updated:', { 
-            unreadCount: unreadNotifications.length, 
-            hasNew: unreadNotifications.length > 0 
-          })
-        }
-      } catch (notifError) {
-        console.error('🔔 Failed to fetch notifications:', notifError)
-        // Fallback: show notifications for tenants if no recent clearing
-        if (user?.role === 'tenant' && (!lastReadTime || parseInt(lastReadTime) <= thirtyMinutesAgo)) {
-          setHasNewNotifications(true)
-        } else {
-          setHasNewNotifications(false)
-        }
+      const lastReadTime = localStorage.getItem('notificationsLastRead');
+      const now = Date.now();
+      const thirtyMinutesAgo = now - 30 * 60 * 1000; // 30 minute window
+
+      if (lastReadTime && parseInt(lastReadTime) > thirtyMinutesAgo) {
+        setHasNewNotifications(false);
+        return;
+      }
+
+      // If not recently cleared, check the API for actual unread notifications
+      const response = await fetch('/api/notifications');
+      if (response.ok) {
+        const data = await response.json();
+        const unreadCount = data.notifications?.filter((n: { read: boolean }) => !n.read).length || 0;
+        setHasNewNotifications(unreadCount > 0);
       }
     } catch (error) {
-      console.error('🔔 Failed to fetch notification status:', error)
+      console.error('Failed to fetch notification status:', error);
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {

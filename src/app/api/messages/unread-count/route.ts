@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth';
+import { unreadNotifications } from '../chat/[userId]/route';
 
 /**
  * GET /api/messages/unread-count - Get count of unread messages for current user
@@ -15,10 +16,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // In production, would query database for unread messages
-    // For clean testing, return no unread messages until real messages exist
-    const hasUnread = false
-    const unreadCount = 0
+    // Check the in-memory store for unread notifications
+    const unreadCount = unreadNotifications[user.id] || 0;
+    const hasUnread = unreadCount > 0;
     
     console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount })
 

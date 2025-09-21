@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser } from '@/lib/auth';
+import { mockMessages, unreadNotifications } from '@/lib/chat-store';
 
 interface Message {
   id: string
@@ -11,17 +12,6 @@ interface Message {
   type: 'text' | 'document_request' | 'system'
 }
 
-// Mock message storage (in production, use database) - cleared for fresh testing
-const mockMessages: { [chatId: string]: Message[] } = {}
-
-// Track unread message notifications per user
-const unreadNotifications: { [userId: string]: number } = {}
-
-// Export for use by other APIs
-export { unreadNotifications }
-
-// Clear all messages on server restart for clean testing
-console.log('🧹 Chat storage cleared for fresh testing')
 
 /**
  * GET /api/chat/[userId] - Get chat messages between current user and specified user
