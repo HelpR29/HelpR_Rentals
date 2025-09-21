@@ -41,75 +41,72 @@ export default function MobileVerificationPage() {
   const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
-    checkPWASupport()
-    
+    checkPWASupport();
+
     return () => {
-      // Cleanup camera when component unmounts
-      mobileVerificationWorkflow.cleanup()
-    }
-  }, [])
+      mobileVerificationWorkflow.cleanup();
+    };
+  }, []);
+
+  useEffect(() => {
+    const initializeCamera = async () => {
+      if (state.step === 'camera' && videoRef.current && canvasRef.current) {
+        setState(prev => ({ ...prev, isProcessing: true }));
+        try {
+          const result = await mobileVerificationWorkflow.startVerificationFlow(
+            state.documentType,
+            videoRef.current,
+            canvasRef.current
+          );
+
+          if (!result.initialized) {
+            throw new Error('Failed to initialize camera');
+          }
+
+          setState(prev => ({
+            ...prev,
+            capabilities: result.capabilities,
+            guides: result.guides,
+            step: 'capture',
+            isProcessing: false
+          }));
+
+          addToast({
+            type: 'success',
+            title: 'Camera ready',
+            message: 'Position your document in the frame'
+          });
+        } catch (error) {
+          console.error('Camera initialization error:', error);
+          addToast({
+            type: 'error',
+            title: 'Camera initialization failed',
+            message: error instanceof Error ? error.message : 'Unknown error'
+          });
+          setState(prev => ({ ...prev, step: 'select', isProcessing: false }));
+        }
+      }
+    };
+
+    initializeCamera();
+  }, [state.step, state.documentType]);
 
   const checkPWASupport = async () => {
-    const support = await pwaDocumentCapture.checkPWASupport()
-    setPwaSupport(support)
-    
+    const support = await pwaDocumentCapture.checkPWASupport();
+    setPwaSupport(support);
+
     if (!support.supportsCamera) {
       addToast({
         type: 'error',
         title: 'Camera not supported',
         message: 'Your device does not support camera access'
-      })
+      });
     }
-  }
+  };
 
-    useEffect(() => {
-    if (state.step === 'camera') {
-      initializeCamera();
-    }
-  }, [state.step]);
-
-  const initializeCamera = async () => {
-        setState(prev => ({ ...prev, documentType, step: 'camera', isProcessing: true }));
-
-    try {
-      if (!videoRef.current || !canvasRef.current) {
-        throw new Error('Video or canvas element not available')
-      }
-
-      const result = await mobileVerificationWorkflow.startVerificationFlow(
-        documentType,
-        videoRef.current,
-        canvasRef.current
-      )
-
-      if (!result.initialized) {
-        throw new Error('Failed to initialize camera')
-      }
-
-      setState(prev => ({
-        ...prev,
-        capabilities: result.capabilities,
-        guides: result.guides,
-        step: 'capture',
-        isProcessing: false
-      }))
-
-      addToast({
-        type: 'success',
-        title: 'Camera ready',
-        message: 'Position your document in the frame'
-      })
-
-    } catch (error) {
-      console.error('Camera initialization error:', error)
-      addToast({
-        type: 'error',
-        title: 'Camera initialization failed',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      })
-      setState(prev => ({ ...prev, step: 'select', isProcessing: false }))
-    }
-  }
+  const selectDocumentType = (documentType: string) => {
+    setState(prev => ({ ...prev, documentType, step: 'camera' }));
+  };
 
   const captureDocument = async () => {
     setState(prev => ({ ...prev, isProcessing: true }))
