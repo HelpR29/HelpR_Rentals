@@ -47,17 +47,24 @@ export default function Header() {
         fetchMessageStatus()
       }
       
+      // Listen for user profile refresh events
+      const handleRefreshUser = () => {
+        fetchUser()
+      }
+      
       // Listen for immediate clear events (only for notification bell)
       const handleClearNotifications = () => {
         setHasNewNotifications(false)
       }
       
       window.addEventListener('refreshNotifications', handleRefreshNotifications)
+      window.addEventListener('refreshUser', handleRefreshUser)
       window.addEventListener('clearNotifications', handleClearNotifications)
       
       return () => {
         clearInterval(interval)
         window.removeEventListener('refreshNotifications', handleRefreshNotifications)
+        window.removeEventListener('refreshUser', handleRefreshUser)
         window.removeEventListener('clearNotifications', handleClearNotifications)
       }
     }
