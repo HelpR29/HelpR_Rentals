@@ -64,7 +64,7 @@ class BackgroundCheckService {
 `);
 
     try {
-      const host = process.env.NEXTAUTH_URL || 'http://localhost:3010';
+            const host = (process.env.NEXTAUTH_URL || 'http://localhost:3010').replace('localhost', '127.0.0.1');
       await fetch(`${host}/api/webhooks/background-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
