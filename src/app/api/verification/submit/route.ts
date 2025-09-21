@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/auth'
+import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
+import { sendVerificationEmail } from '@/lib/send-verification-email';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -63,11 +64,30 @@ export async function POST(request: NextRequest) {
       verificationDocs: JSON.stringify(updatedDocs)
     }
 
-    // Auto-approve email verification if it matches the user's email
+    // For email, send a verification link instead of auto-approving
     if (verificationType === 'email' && data.email === user.email) {
-      updateFields.emailVerified = true
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+      const token = await generateEmailVerificationToken(user.id, user.email);
+      const host = request.headers.get('host')!;
+      const protocol = host.includes('localhost') ? 'http' : 'https';
+      const baseUrl = `${protocol}://${host}`;
+      
+      await sendVerificationEmail(user.email, token, baseUrl);
+
+      // Don't auto-approve, just mark as pending
+      updatedData[verificationType].status = 'pending';
+      
+      // Update user data without changing verification status yet
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { verificationData: JSON.stringify(updatedData) }
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Verification email sent! Please check your inbox.',
+        verificationType,
+        status: 'pending_email'
+      });
     }
 
     // Auto-approve phone verification in development (in production, you'd send SMS)

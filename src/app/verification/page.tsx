@@ -41,7 +41,8 @@ export default function VerificationPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState<string | null>(null)
-  const [formData, setFormData] = useState<any>({})
+    const [formData, setFormData] = useState<any>({});
+  const [emailPending, setEmailPending] = useState(false);
 
   useEffect(() => {
     fetchVerificationStatus()
@@ -82,8 +83,11 @@ export default function VerificationPage() {
         }),
       })
 
-      if (response.ok) {
-        const result = await response.json()
+            if (response.ok) {
+        const result = await response.json();
+        if (result.status === 'pending_email') {
+          setEmailPending(true);
+        }
         addToast({
           type: 'success',
           title: 'Verification Submitted!',
@@ -269,26 +273,31 @@ export default function VerificationPage() {
               {!item.verified && (
                 <div className="space-y-4">
                   {item.type === 'email' && (
-                    <div>
-                      <Input
-                        label="Email Address"
-                        type="email"
-                        value={formData.email?.email || user.email}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          email: { email: e.target.value }
-                        })}
-                        disabled={true}
-                        helperText="This is your registered email address"
-                      />
-                      <Button
-                        className="mt-3 w-full"
-                        onClick={() => handleVerificationSubmit('email', { email: user.email })}
-                        loading={submitting === 'email'}
-                      >
-                        Verify Email
-                      </Button>
-                    </div>
+                    <>
+                      {!emailPending ? (
+                        <div>
+                          <Input
+                            label="Email Address"
+                            type="email"
+                            value={user.email}
+                            disabled={true}
+                            helperText="This is your registered email address"
+                          />
+                          <Button
+                            className="mt-3 w-full"
+                            onClick={() => handleVerificationSubmit('email', { email: user.email })}
+                            loading={submitting === 'email'}
+                          >
+                            Send Verification Email
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                          <p className="text-sm font-medium text-blue-800">Verification email sent!</p>
+                          <p className="text-sm text-blue-700 mt-1">Please check your inbox and click the link to complete verification.</p>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {item.type === 'phone' && (

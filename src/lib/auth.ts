@@ -3,10 +3,12 @@ import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { prisma } from './prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET is not defined in the environment variables');
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in the environment variables');
+  }
+  return secret;
 }
 
 export interface AuthUser {
@@ -16,17 +18,17 @@ export interface AuthUser {
 }
 
 export async function generateMagicToken(email: string): Promise<string> {
-  const token = jwt.sign(
+    const token = jwt.sign(
     { email, type: 'magic-link' },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '15m' }
-  )
+  );
   return token
 }
 
 export async function verifyMagicToken(token: string): Promise<string | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { type: string; email: string }
+        const decoded = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
     if (decoded.type === 'magic-link' && decoded.email) {
       return decoded.email
     }
@@ -37,17 +39,17 @@ export async function verifyMagicToken(token: string): Promise<string | null> {
 }
 
 export async function createSessionToken(user: AuthUser): Promise<string> {
-  const token = jwt.sign(
+    const token = jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '7d' }
-  )
+  );
   return token
 }
 
 export async function verifySessionToken(token: string): Promise<AuthUser | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string }
+        const decoded = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
     return {
       id: decoded.userId,
       email: decoded.email,
@@ -68,9 +70,9 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 }
 
 export async function generateEmailVerificationToken(userId: string, email: string): Promise<string> {
-  const token = jwt.sign(
+    const token = jwt.sign(
     { userId, email, type: 'email-verification' },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '1h' } // Verification link is valid for 1 hour
   );
   return token;
@@ -78,9 +80,9 @@ export async function generateEmailVerificationToken(userId: string, email: stri
 
 export async function verifyEmailVerificationToken(token: string): Promise<{ userId: string; email: string } | null> {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string };
+        const decoded = jwt.verify(token, getJwtSecret()) as jwt.JwtPayload;
     if (decoded.type === 'email-verification' && decoded.userId && decoded.email) {
-      return { userId: decoded.userId, email: decoded.email };
+            return { userId: decoded.userId as string, email: decoded.email as string };
     }
     return null;
   } catch {
