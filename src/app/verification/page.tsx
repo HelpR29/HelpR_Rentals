@@ -74,7 +74,10 @@ export default function VerificationPage() {
     try {
       const formDataBody = new FormData();
       formDataBody.append('verificationType', verificationType);
-      formDataBody.append('data', JSON.stringify(data));
+            // Exclude the file object from the JSON data to avoid serialization errors
+      const cleanData = { ...data };
+      delete cleanData.document;
+      formDataBody.append('data', JSON.stringify(cleanData));
       if (documentFile) {
         formDataBody.append('document', documentFile);
       }
