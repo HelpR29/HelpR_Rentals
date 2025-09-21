@@ -67,6 +67,27 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   return verifySessionToken(token)
 }
 
+export async function generateEmailVerificationToken(userId: string, email: string): Promise<string> {
+  const token = jwt.sign(
+    { userId, email, type: 'email-verification' },
+    JWT_SECRET,
+    { expiresIn: '1h' } // Verification link is valid for 1 hour
+  );
+  return token;
+}
+
+export async function verifyEmailVerificationToken(token: string): Promise<{ userId: string; email: string } | null> {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; type: string };
+    if (decoded.type === 'email-verification' && decoded.userId && decoded.email) {
+      return { userId: decoded.userId, email: decoded.email };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export async function findOrCreateUser(email: string, role: string = 'tenant'): Promise<AuthUser> {
   let user = await prisma.user.findUnique({
     where: { email }

@@ -69,7 +69,7 @@ export async function sendApplicationNotification(
     </div>
   `
 
-  return await sendEmail(hostEmail, subject, html)
+    return await sendEmail({ to: hostEmail, subject, html })
 }
 
 export async function sendApplicationStatusNotification(
@@ -87,18 +87,19 @@ export async function sendApplicationStatusNotification(
     </div>
   `
 
-  return await sendEmail(tenantEmail, subject, html)
+    return await sendEmail({ to: tenantEmail, subject, html })
 }
 
-async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
+interface EmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export async function sendEmail({ to, subject, html }: EmailOptions): Promise<boolean> {
   if (SENDGRID_API_KEY) {
     try {
-      await sgMail.send({
-        to,
-        from: FROM_EMAIL,
-        subject,
-        html
-      })
+            await sgMail.send({ to, from: FROM_EMAIL, subject, html });
       return true
     } catch (error) {
       console.error('SendGrid error:', error)
