@@ -58,13 +58,17 @@ export default function InboxPage() {
 
   useEffect(() => {
     if (user) {
-      // Only clear message-related localStorage, not all localStorage
-      localStorage.removeItem('clearedMessages')
+      const initializeInbox = async () => {
+        // Only clear message-related localStorage, not all localStorage
+        localStorage.removeItem('clearedMessages')
+        
+        await fetchApplications()
+        fetchUnreadMessageCounts()
+        // Mark notifications as read and refresh count when inbox is viewed
+        markNotificationsAsRead()
+      }
       
-      fetchApplications()
-      fetchUnreadMessageCounts()
-      // Mark notifications as read and refresh count when inbox is viewed
-      markNotificationsAsRead()
+      initializeInbox()
       
       // Set up real-time polling for message updates
       const interval = setInterval(() => {
@@ -74,6 +78,13 @@ export default function InboxPage() {
       return () => clearInterval(interval)
     }
   }, [user])
+
+  // Update unread messages when applications change
+  useEffect(() => {
+    if (user && applications.length > 0) {
+      fetchUnreadMessageCounts()
+    }
+  }, [applications, user])
 
   const markNotificationsAsRead = async () => {
     try {
