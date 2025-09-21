@@ -49,6 +49,7 @@ export default function Header() {
       
       // Listen for user profile refresh events
       const handleRefreshUser = () => {
+        console.log('🔄 Header received refresh user event')
         fetchUser()
       }
       
@@ -72,9 +73,11 @@ export default function Header() {
 
   const fetchUser = async () => {
     try {
+      console.log('👤 Header fetching user data...')
       const response = await fetch('/api/auth/me')
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Header user data updated:', data.user.avatar ? 'has avatar' : 'no avatar')
         setUser(data.user)
       }
     } catch (error) {

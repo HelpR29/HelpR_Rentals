@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
         id: true,
         email: true,
         role: true,
+        avatar: true,
         verified: true,
         emailVerified: true,
         phoneVerified: true,

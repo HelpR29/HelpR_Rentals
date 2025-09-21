@@ -136,26 +136,38 @@ export default function ProfilePage() {
 
   const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (!file) return
+    if (!file) {
+      console.log('❌ No file selected for upload')
+      return
+    }
 
+    console.log('📸 Starting photo upload:', file.name, file.size, 'bytes')
     setUploadingPhoto(true)
     try {
       const formData = new FormData()
       formData.append('photo', file)
 
+      console.log('📤 Sending photo upload request...')
       const response = await fetch('/api/users/profile-photo', {
         method: 'POST',
         body: formData,
       })
 
+      console.log('📥 Upload response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('✅ Photo upload successful:', data.user.avatar)
         setUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
         setCurrentUser(prev => prev ? { ...prev, avatar: data.user.avatar } : null)
         
         // Refresh header user info
+        console.log('🔄 Triggering header refresh...')
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new Event('refreshUser'))
+          // Dispatch the event after a small delay to ensure the DOM is ready
+          setTimeout(() => {
+            window.dispatchEvent(new Event('refreshUser'))
+            console.log('📡 Header refresh event dispatched')
+          }, 100)
         }
         
         addToast({
@@ -165,6 +177,7 @@ export default function ProfilePage() {
         })
       } else {
         const data = await response.json()
+        console.error('❌ Photo upload failed:', response.status, data)
         addToast({
           type: 'error',
           title: 'Upload Failed',
@@ -172,6 +185,7 @@ export default function ProfilePage() {
         })
       }
     } catch (error) {
+      console.error('💥 Photo upload network error:', error)
       addToast({
         type: 'error',
         title: 'Network Error',
