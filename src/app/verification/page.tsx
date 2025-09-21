@@ -540,10 +540,19 @@ export default function VerificationPage() {
 
                   {item.type === 'background' && (
                     <>
-                      {user.verificationData?.background?.status === 'pending' ? (
-                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
-                          <p className="text-sm font-medium text-yellow-800">Background check in progress...</p>
-                          <p className="text-sm text-yellow-700 mt-1">This may take a few minutes. We'll notify you when it's complete.</p>
+                      {user.verificationData?.background?.status === 'pending' || user.verificationData?.background?.status === 'rejected' ? (
+                        <div className={`p-4 rounded-lg text-center ${user.verificationData?.background?.status === 'rejected' ? 'bg-red-50 border border-red-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+                          {user.verificationData?.background?.status === 'rejected' ? (
+                            <>
+                              <p className="text-sm font-medium text-red-800">Background Check Reviewed</p>
+                              <p className="text-sm text-red-700 mt-1">We were unable to approve the background check at this time. Please contact support for more information.</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-sm font-medium text-yellow-800">Background check in progress...</p>
+                              <p className="text-sm text-yellow-700 mt-1">This may take a few minutes. We'll notify you when it's complete.</p>
+                            </>
+                          )}
                         </div>
                       ) : (
                         <div>
