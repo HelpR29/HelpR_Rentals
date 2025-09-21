@@ -62,8 +62,14 @@ export default function MobileVerificationPage() {
     }
   }
 
-  const selectDocumentType = async (documentType: string) => {
-    setState(prev => ({ ...prev, documentType, step: 'camera', isProcessing: true }))
+    useEffect(() => {
+    if (state.step === 'camera') {
+      initializeCamera();
+    }
+  }, [state.step]);
+
+  const initializeCamera = async () => {
+        setState(prev => ({ ...prev, documentType, step: 'camera', isProcessing: true }));
 
     try {
       if (!videoRef.current || !canvasRef.current) {

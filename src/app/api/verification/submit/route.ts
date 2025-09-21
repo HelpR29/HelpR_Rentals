@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
 import { sendVerificationEmail } from '@/lib/send-verification-email';
-import { uploadImage } from '@/lib/storage';
+import { uploadFile } from '@/lib/storage';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 
     if (verificationType === 'id') {
       if (documentFile) {
-        const uploadResult = await uploadImage(documentFile);
+                const uploadResult = await uploadFile(documentFile);
         updatedData[verificationType].documentUrl = uploadResult.url;
       }
       // ID verification should always be pending manual review

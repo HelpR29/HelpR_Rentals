@@ -4,7 +4,8 @@ import sharp from 'sharp'
 
 const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads')
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_DOC_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 
 export interface UploadResult {
   url: string
@@ -12,9 +13,46 @@ export interface UploadResult {
   size: number
 }
 
+export async function uploadFile(file: File): Promise<UploadResult> {
+  // Validate file
+  if (![...ALLOWED_IMAGE_TYPES, 'application/pdf'].includes(file.type)) {
+    throw new Error('Invalid file type. Only images and PDFs are allowed.');
+  }
+
+  if (file.size > MAX_FILE_SIZE) {
+    throw new Error('File too large. Maximum size is 5MB.');
+  }
+
+  // Ensure upload directory exists
+  await mkdir(UPLOAD_DIR, { recursive: true });
+
+  // Generate unique filename
+  const timestamp = Date.now();
+  const randomString = Math.random().toString(36).substring(2, 15);
+  const extension = file.name.split('.').pop();
+  const filename = `${timestamp}-${randomString}.${extension}`;
+  const filepath = join(UPLOAD_DIR, filename);
+
+  try {
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    await writeFile(filepath, buffer);
+
+    return {
+      url: `/uploads/${filename}`,
+      filename,
+      size: buffer.length
+    };
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw new Error('Failed to upload file');
+  }
+}
+
 export async function uploadImage(file: File): Promise<UploadResult> {
   // Validate file
-  if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     throw new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.')
   }
 
