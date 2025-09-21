@@ -171,8 +171,60 @@ export default function ListingBrowser() {
         </div>
       </Card>
 
-      {/* Listings Grid */}
-      {loading ? (
+      {/* View Toggle */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-600">
+            {listings.length} {listings.length === 1 ? 'listing' : 'listings'} found
+          </span>
+        </div>
+        <div className="flex items-center bg-gray-100 rounded-lg p-1">
+          <Button
+            variant={viewMode === 'list' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+            className="rounded-md"
+          >
+            📋 List
+          </Button>
+          <Button
+            variant={viewMode === 'map' ? 'primary' : 'ghost'}
+            size="sm"
+            onClick={() => setViewMode('map')}
+            className="rounded-md"
+          >
+            🗺️ Map
+          </Button>
+        </div>
+      </div>
+
+      {/* Content based on view mode */}
+      {viewMode === 'map' ? (
+        <div className="mb-8">
+          <PropertyMap
+            properties={listings.map(listing => ({
+              id: listing.id,
+              title: listing.title,
+              price: listing.rent,
+              address: listing.address,
+              coordinates: {
+                // Generate mock coordinates around Toronto for demo
+                lat: 43.6532 + (Math.random() - 0.5) * 0.1,
+                lng: -79.3832 + (Math.random() - 0.5) * 0.1
+              },
+              bedrooms: 2, // Mock data - you'd extract this from description or add to schema
+              bathrooms: 1,
+              images: listing.photos
+            }))}
+            selectedProperty={selectedListing}
+            onPropertySelect={setSelectedListing}
+            height="600px"
+          />
+        </div>
+      ) : (
+        <>
+          {/* Listings Grid */}
+          {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="animate-pulse">
@@ -278,6 +330,7 @@ export default function ListingBrowser() {
             </Card>
           ))}
         </div>
+        </>
       )}
     </div>
   )
