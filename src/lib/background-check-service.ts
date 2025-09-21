@@ -7,7 +7,9 @@ const MOCK_API_DELAY = 15000; // 15 seconds to simulate the time a real check ta
 
 class BackgroundCheckService {
   async initiateCheck(userId: string): Promise<{ status: string; checkId: string }> {
-    console.log(`[BackgroundCheckService] Initiating background check for user: ${userId}`);
+        console.log(`
+✅ [BackgroundCheckService] ENTERING initiateCheck for user: ${userId}
+`);
 
     // 1. In a real app, you would first create a 'candidate' with the provider's API.
     // const candidate = await checkr.candidates.create({ ... });
@@ -33,6 +35,7 @@ class BackgroundCheckService {
     }
 
     // 4. Simulate the webhook callback after a delay.
+        console.log(`[BackgroundCheckService] Setting a ${MOCK_API_DELAY / 1000}s timer to simulate webhook...`);
     setTimeout(() => {
       this.simulateWebhookCallback(userId, mockCheckId);
     }, MOCK_API_DELAY);
@@ -56,7 +59,9 @@ class BackgroundCheckService {
       },
     };
 
-    console.log(`[BackgroundCheckService] Simulating webhook for check ${checkId} with result: ${randomResult}`);
+        console.log(`
+✅ [BackgroundCheckService] TIMER FIRED. Simulating webhook for check ${checkId} with result: ${randomResult}
+`);
 
     try {
       const host = process.env.NEXTAUTH_URL || 'http://localhost:3010';
@@ -66,7 +71,7 @@ class BackgroundCheckService {
         body: JSON.stringify(payload),
       });
     } catch (error) {
-      console.error('[BackgroundCheckService] Error simulating webhook:', error);
+            console.error('❌ [BackgroundCheckService] CRITICAL: Error sending simulated webhook:', error);
     }
   }
 }
