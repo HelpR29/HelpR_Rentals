@@ -295,15 +295,15 @@ export default function ListingBrowser() {
                             />
                           </div>
 
-                      {/* Quick Facts */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {listing.furnished && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            🛋️ Furnished
-                          </span>
-                        )}
-                        {listing.petsAllowed && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {/* Quick Facts */}
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {listing.furnished && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                🛋️ Furnished
+                              </span>
+                            )}
+                            {listing.petsAllowed && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                             🐕 Pets OK
                           </span>
                         )}
