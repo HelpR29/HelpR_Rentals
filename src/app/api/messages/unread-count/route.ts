@@ -16,11 +16,17 @@ export async function GET(request: NextRequest) {
     }
 
     // In production, would query database for unread messages
-    // For now, return no unread messages - notifications will be handled by the chat system
-    const hasUnread = false
-    const unreadCount = 0
+    // For demo, use a simple time-based heuristic to show notifications
+    const now = Date.now()
+    const lastCheck = parseInt(request.headers.get('x-last-check') || '0')
+    const timeSinceLastCheck = now - lastCheck
     
-    console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount })
+    // Show notification if user hasn't checked messages in last 2 minutes and they're a tenant
+    // This simulates having unread messages from the host
+    const hasUnread = user.role === 'tenant' && timeSinceLastCheck > 2 * 60 * 1000
+    const unreadCount = hasUnread ? 1 : 0
+    
+    console.log('💬 Message count for', user.email, '(', user.role, '):', { hasUnread, unreadCount, timeSinceLastCheck })
 
     return NextResponse.json({
       hasUnread,

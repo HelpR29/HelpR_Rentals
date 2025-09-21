@@ -45,6 +45,10 @@ export default function ChatPage({ params }: ChatPageProps) {
       const resolvedParams = await params
       setUserId(resolvedParams.userId)
       
+      // Mark messages as read when visiting chat
+      localStorage.setItem('lastMessageCheck', Date.now().toString())
+      console.log('📬 Marked messages as read at:', new Date().toLocaleTimeString())
+      
       fetchUser()
       fetchMessages(resolvedParams.userId)
       

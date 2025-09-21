@@ -117,10 +117,18 @@ export default function Header() {
 
   const fetchMessageStatus = async () => {
     try {
-      const response = await fetch('/api/messages/unread-count')
+      // Get last message check time from localStorage
+      const lastCheck = localStorage.getItem('lastMessageCheck') || '0'
+      
+      const response = await fetch('/api/messages/unread-count', {
+        headers: {
+          'x-last-check': lastCheck
+        }
+      })
       if (response.ok) {
         const data = await response.json()
         setHasNewMessages(data.hasUnread)
+        console.log('📬 Header message status:', data.hasUnread ? 'HAS UNREAD' : 'no unread')
       }
     } catch (error) {
       console.error('Failed to fetch message status:', error)
