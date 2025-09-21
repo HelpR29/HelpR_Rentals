@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { sendApplicationStatusNotification } from '@/lib/email'
+import { sendApplicationStatusNotification } from '@/lib/email';
+import { NotificationService } from '@/lib/notification-service';
 
 export async function PATCH(
   request: NextRequest,
@@ -84,13 +85,27 @@ export async function PATCH(
       status as 'accepted' | 'declined'
     )
 
-    // If accepted, you could implement additional logic here
-    // For example: send additional notifications, update availability, etc.
-    if (status === 'accepted') {
-      // Future enhancement: Could add logic to manage listing availability
-      // For now, we'll just let the application status change
-      console.log(`Application ${id} accepted for listing ${application.listing.id}`)
-    }
+    // Also create an in-app notification for the tenant
+    const notificationTitle = status === 'accepted' 
+      ? `Congratulations! Your application was accepted` 
+      : `Update on your application`;
+    const notificationMessage = status === 'accepted'
+      ? `Your application for "${application.listing.title}" has been accepted by the host.`
+      : `Your application for "${application.listing.title}" has been declined.`;
+
+    NotificationService.addNotification(application.applicantId, {
+      type: 'application_update',
+      title: notificationTitle,
+      message: notificationMessage,
+      read: false,
+      actionUrl: '/inbox',
+      actionText: 'View Application',
+      fromUser: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    });
 
     return NextResponse.json({ application: updatedApplication })
 
