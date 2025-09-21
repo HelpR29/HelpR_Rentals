@@ -279,71 +279,26 @@ export default function VerificationPage() {
                   <div className="flex-shrink-0">
                     <VerificationBadge verified={true} size="md" />
                   </div>
-
-return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Account Verification</h1>
-            <p className="mt-2 text-gray-600">
-              Verify your identity to build trust with other users
-            </p>
-          </div>
-          <div className="text-right">
-            <VerificationBadge 
-              verified={user.verified} 
-              verificationScore={user.verificationScore}
-              size="lg"
-              showScore={true}
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              {user.completedVerifications} of {user.totalVerifications} completed
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Bar */}
-      <Card className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Verification Progress</h3>
-          <span className="text-sm font-medium text-gray-600">{user.verificationScore}%</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div 
-            className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-500"
-            style={{ width: `${user.verificationScore}%` }}
-          ></div>
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          Complete more verifications to increase your trustworthiness score
-        </p>
-      </Card>
-
-      {/* Verification Items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {verificationItems.map((item) => (
-          <Card key={item.type} className={`relative ${item.verified ? 'border-green-200 bg-green-50' : ''}`}>
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <span className="text-2xl">{item.icon}</span>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                    <span>{item.title}</span>
-                    {item.required && (
-                      <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Required</span>
-                    )}
-                  </h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </div>
+                )}
               </div>
-              {item.verified && (
-                <div className="flex-shrink-0">
-                  <VerificationBadge verified={true} size="md" />
-                </div>
-              )}
+              <div className="mt-4">
+                {item.type === 'income_address' ? (
+                  <IncomeAddressVerificationForm 
+                    submitting={submitting === item.type} 
+                    onSubmit={(data, documentFile) => handleVerificationSubmit(item.type, data, documentFile)} 
+                  />
+                ) : (
+                  <VerificationForm 
+                    type={item.type} 
+                    submitting={submitting === item.type} 
+                    onSubmit={(data, documentFile) => handleVerificationSubmit(item.type, data, documentFile)} 
+                  />
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+
         {/* Benefits Section */}
         <Card className="mt-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Benefits of Verification</h3>
