@@ -132,21 +132,20 @@ export default function InboxPage() {
       const oneHourAgo = now - 60 * 60 * 1000 // 1 hour window for cleared messages
       
       if (user?.role === 'tenant') {
-        // Check for unread messages for each application's host
+        // Check for unread messages using same logic as header
         const newUnreadMessages: { [key: string]: number } = {}
+        const lastMessageCheck = parseInt(localStorage.getItem('lastMessageCheck') || '0')
+        const timeSinceLastCheck = Date.now() - lastMessageCheck
         
         applications.forEach(app => {
           const hostId = app.listing.owner.id
-          // Simple heuristic: if application was created recently and user hasn't chatted, show notification
-          const appCreated = new Date(app.createdAt).getTime()
-          const timeSinceApp = Date.now() - appCreated
-          const lastChatVisit = clearedMessages[hostId] || 0
-          
-          // Show notification if app was created in last hour and no recent chat visit
-          newUnreadMessages[hostId] = (timeSinceApp < 60 * 60 * 1000 && lastChatVisit < appCreated) ? 1 : 0
+          // Show notification if user hasn't checked messages in last 2 minutes (same as header)
+          newUnreadMessages[hostId] = timeSinceLastCheck > 2 * 60 * 1000 ? 1 : 0
         })
         setUnreadMessages(newUnreadMessages)
-        console.log('Tenant unread messages set:', newUnreadMessages, 'Cleared:', clearedMessages)
+        console.log('📬 Inbox: Tenant unread messages set:', newUnreadMessages)
+        console.log('📬 Inbox: Last message check:', new Date(lastMessageCheck).toLocaleTimeString())
+        console.log('📬 Inbox: Time since last check:', Math.round(timeSinceLastCheck / 1000), 'seconds')
       } else if (user?.role === 'host') {
         const newUnreadMessages = {
           'tenant_1': (clearedMessages['tenant_1'] && clearedMessages['tenant_1'] > oneHourAgo) ? 0 : 1,
