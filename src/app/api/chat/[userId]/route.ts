@@ -14,6 +14,9 @@ interface Message {
 // Mock message storage (in production, use database) - cleared for fresh testing
 const mockMessages: { [chatId: string]: Message[] } = {}
 
+// Track unread message notifications per user
+const unreadNotifications: { [userId: string]: number } = {}
+
 // Clear all messages on server restart for clean testing
 console.log('🧹 Chat storage cleared for fresh testing')
 
