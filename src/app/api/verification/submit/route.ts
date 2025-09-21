@@ -3,7 +3,7 @@ import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
 import { sendVerificationEmail } from '@/lib/send-verification-email';
 import { uploadFile } from '@/lib/storage';
 import { backgroundCheckService } from '@/lib/background-check-service';
-import { incomeAnalyzerService } from '@/lib/income-analyzer';
+import { documentAnalyzerService } from '@/lib/document-analyzer';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -138,30 +138,38 @@ export async function POST(request: NextRequest) {
       updatedData[verificationType].status = 'pending';
     }
 
-    if (verificationType === 'address') {
-      if (documentFile) {
-        const uploadResult = await uploadFile(documentFile);
-        updatedData[verificationType].documentUrl = uploadResult.url;
-      }
-      // Address verification requires manual review
-      updatedData[verificationType].status = 'pending';
-    }
-
-    if (verificationType === 'income') {
+    if (verificationType === 'income_address') {
       if (!documentFile) {
-        return NextResponse.json({ error: 'Income verification requires a document.' }, { status: 400 });
+        return NextResponse.json({ error: 'Income & Address verification requires a document.' }, { status: 400 });
       }
       const uploadResult = await uploadFile(documentFile);
-      updatedData[verificationType].documentUrl = uploadResult.url;
+      const fullAddress = `${data.street}, ${data.city}, ${data.postalCode}`;
 
-      // Use AI to analyze the document
-      const analysisResult = await incomeAnalyzerService.analyze(uploadResult.url, data.amount);
-      updatedData[verificationType].status = analysisResult.status;
-      updatedData[verificationType].aiAnalysis = analysisResult;
+      // Use AI to analyze the document for both income and address
+      const analysisResult = await documentAnalyzerService.analyze(uploadResult.url, data.amount, fullAddress);
 
-      if (analysisResult.status === 'approved') {
+      // Update income verification
+      updatedData.income = {
+        ...(updatedData.income || {}),
+        status: analysisResult.income.status,
+        aiAnalysis: analysisResult.income,
+        documentUrl: uploadResult.url,
+      };
+      if (analysisResult.income.status === 'approved') {
         updateFields.incomeVerified = true;
-        updatedData[verificationType].approvedAt = new Date().toISOString();
+        updatedData.income.approvedAt = new Date().toISOString();
+      }
+
+      // Update address verification
+      updatedData.address = {
+        ...(updatedData.address || {}),
+        status: analysisResult.address.status,
+        aiAnalysis: analysisResult.address,
+        documentUrl: uploadResult.url,
+      };
+      if (analysisResult.address.status === 'approved') {
+        updateFields.addressVerified = true;
+        updatedData.address.approvedAt = new Date().toISOString();
       }
     }
 
