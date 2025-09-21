@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth';
 import { mockMessages, unreadNotifications } from '@/lib/chat-store';
+import { NotificationService } from '@/lib/notification-service';
 
 interface Message {
   id: string
@@ -112,9 +113,25 @@ export async function POST(
     }
     mockMessages[chatId].push(message)
 
-    // Create notification for the receiver
-    unreadNotifications[otherUserId] = (unreadNotifications[otherUserId] || 0) + 1
-    console.log('🔔 Created notification for user:', otherUserId, 'Count:', unreadNotifications[otherUserId])
+    // Increment unread message count for the red dot on Inbox
+    unreadNotifications[otherUserId] = (unreadNotifications[otherUserId] || 0) + 1;
+
+    // Also create a formal notification for the bell icon
+    NotificationService.addNotification(otherUserId, {
+      type: 'message',
+      title: `New Message from ${user.email.split('@')[0]}`,
+      message: content.trim(),
+      read: false,
+      actionUrl: `/chat/${user.id}?email=${user.email}`,
+      actionText: 'View Message',
+      fromUser: {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      }
+    });
+
+    console.log('🔔 Created chat notification and incremented unread count for user:', otherUserId);
 
     // Log message for development
     console.log('💬 NEW MESSAGE SENT')
