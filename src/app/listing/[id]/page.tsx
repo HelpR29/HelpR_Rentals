@@ -72,12 +72,19 @@ export default function ListingDetailPage() {
     moveInDate: '',
     duration: '',
     reason: ''
-  })
+  });
+  const [mainImage, setMainImage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchListing()
-    fetchUser()
-  }, [params.id])
+    fetchListing();
+    fetchUser();
+  }, [params.id]);
+
+  useEffect(() => {
+    if (listing && listing.photos.length > 0) {
+      setMainImage(listing.photos[0]);
+    }
+  }, [listing]);
 
   const fetchListing = async () => {
     try {
@@ -191,29 +198,35 @@ export default function ListingDetailPage() {
       {/* Photos */}
       <div className="mb-8">
         {listing.photos && listing.photos.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative h-64 md:h-96">
-              <Image
-                src={listing.photos[0]}
-                alt={listing.title}
-                fill
-                className="object-cover rounded-lg"
-              />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative h-64 md:h-96 flex-grow-[2]">
+              {mainImage && (
+                <Image
+                  src={mainImage}
+                  alt={listing.title}
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              )}
             </div>
             {listing.photos.length > 1 && (
-              <div className="grid grid-cols-2 gap-2">
-                {listing.photos.slice(1, 5).map((photo, index) => (
-                  <div key={index} className="relative h-30 md:h-46">
+              <div className="flex md:flex-col gap-2 flex-grow-1">
+                {listing.photos.slice(0, 4).map((photo, index) => (
+                  <div 
+                    key={index} 
+                    className="relative h-20 md:h-full w-full cursor-pointer" 
+                    onClick={() => setMainImage(photo)}
+                  >
                     <Image
                       src={photo}
-                      alt={`${listing.title} ${index + 2}`}
+                      alt={`${listing.title} ${index + 1}`}
                       fill
-                      className="object-cover rounded-lg"
+                      className={`object-cover rounded-lg border-2 ${mainImage === photo ? 'border-blue-500' : 'border-transparent'}`}
                     />
                   </div>
                 ))}
               </div>
-            )}
+            )} 
           </div>
         ) : (
           <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">
