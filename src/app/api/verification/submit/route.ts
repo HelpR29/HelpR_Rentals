@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const documentFile = formData.get('document') as File | null;
 
     // Validate verification type
-    const validTypes = ['email', 'phone', 'id', 'address', 'income', 'background']
+    const validTypes = ['email', 'phone', 'id', 'address', 'income', 'background', 'income_address']
     if (!validTypes.includes(verificationType)) {
       return NextResponse.json(
         { error: 'Invalid verification type' },
