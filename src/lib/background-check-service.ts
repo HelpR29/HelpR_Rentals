@@ -65,7 +65,8 @@ class BackgroundCheckService {
     try {
       // Instead of a network request, we now call the processor directly.
       // This is more reliable for local simulation.
-      await processBackgroundCheckWebhook(payload);
+            // We pass the userId directly to our processor to avoid race conditions in dev.
+      await processBackgroundCheckWebhook(payload, userId);
     } catch (error) {
             console.error('❌ [BackgroundCheckService] CRITICAL: Error sending simulated webhook:', error);
     }

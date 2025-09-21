@@ -1,21 +1,23 @@
 import { prisma } from './prisma';
 
-export async function processBackgroundCheckWebhook(payload: any) {
+export async function processBackgroundCheckWebhook(payload: any, userId?: string) {
   if (payload.type === 'report.completed') {
     const checkId = payload.data.object.id;
     const result = payload.data.object.status; // 'clear' or 'consider'
 
     console.log(`[WebhookProcessor] Processing background check result for ${checkId}: ${result}`);
 
-    // Use a more robust direct query with JSON filtering to find the user.
-    // This is more efficient and resilient to state inconsistencies than fetching all users.
-    const userToUpdate = await prisma.user.findFirst({
-      where: {
-        verificationData: {
-          contains: `"checkId":"${checkId}"`
-        }
-      }
-    });
+    // If a userId is passed directly (from our mock service), use it for a guaranteed lookup.
+    // Otherwise, fall back to the checkId search for real webhooks.
+    const userToUpdate = userId
+      ? await prisma.user.findUnique({ where: { id: userId } })
+      : await prisma.user.findFirst({
+          where: {
+            verificationData: {
+              contains: `"checkId":"${checkId}"`,
+            },
+          },
+        });
 
     if (userToUpdate) {
       const verificationData = JSON.parse(userToUpdate.verificationData!);
