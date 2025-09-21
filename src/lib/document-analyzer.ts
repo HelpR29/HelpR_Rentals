@@ -32,7 +32,6 @@ class DocumentAnalyzerService {
 
     return { income: incomeResult, address: addressResult };
   }
-}
 
   private analyzeIncome(statedIncome: number): DocumentAnalysisResult['income'] {
     const isConfident = Math.random() > 0.3; // 70% chance
@@ -73,5 +72,4 @@ class DocumentAnalyzerService {
     };
   }
 }
-
 export const documentAnalyzerService = new DocumentAnalyzerService();

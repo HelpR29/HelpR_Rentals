@@ -198,20 +198,13 @@ export default function VerificationPage() {
       verified: user.idVerified
     },
     {
-      type: 'address',
-      title: 'Address Verification',
-      description: 'Verify your current address with a utility bill or bank statement',
-      icon: '🏠',
-      required: false,
-      verified: user.addressVerified
-    },
     {
-      type: 'income',
-      title: 'Income Verification',
-      description: 'Verify your income with pay stubs or employment letter',
-      icon: '💰',
+      type: 'income_address',
+      title: 'Income & Address',
+      description: 'Verify income and address with one document',
+      icon: '📄',
       required: false,
-      verified: user.incomeVerified
+      verified: user.incomeVerified && user.addressVerified
     },
     {
       type: 'background',
@@ -463,7 +456,7 @@ export default function VerificationPage() {
                     </div>
                   )}
 
-                  {item.type === 'address' && (
+                  {item.type === 'income_address' && (
                     <div>
                       <Input
                         label="Street Address"
@@ -530,18 +523,76 @@ export default function VerificationPage() {
                           </div>
                         )}
                       </div>
+                      {/* Income Fields */}
+                      <Input
+                        label="Annual Income"
+                        type="number"
+                        value={formData.income_address?.amount || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          income_address: { ...formData.income_address, amount: e.target.value }
+                        })}
+                        placeholder="50000"
+                        helperText="Enter your annual income in CAD"
+                      />
+                      <Input
+                        label="Employment Status"
+                        value={formData.income_address?.employment || ''}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          income_address: { ...formData.income_address, employment: e.target.value }
+                        })}
+                        placeholder="Full-time, Part-time, Self-employed, etc."
+                      />
+
+                      {/* Document Upload */}
+                      <div className="mt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700">Upload Pay Stub or Utility Bill:</p>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*,.pdf';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) {
+                                setFormData({
+                                  ...formData,
+                                  income_address: { ...formData.income_address, document: file },
+                                });
+                                addToast({
+                                  type: 'success',
+                                  title: 'Document Selected',
+                                  message: `${file.name} ready for verification.`,
+                                });
+                              }
+                            };
+                            input.click();
+                          }}
+                          className="w-full"
+                        >
+                          📄 Upload Document
+                        </Button>
+                        {formData.income_address?.document && (
+                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm text-green-800">
+                              ✅ Document ready: {formData.income_address.document.name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
                       <Button
                         className="mt-4 w-full"
-                        onClick={() => handleVerificationSubmit('address', formData.address, formData.address?.document)}
-                        loading={submitting === 'address'}
-                        disabled={!formData.address?.street || !formData.address?.city || !formData.address?.postalCode || !formData.address?.document}
+                        onClick={() => handleVerificationSubmit('income_address', formData.income_address, formData.income_address?.document)}
+                        loading={submitting === 'income_address'}
+                        disabled={!formData.income_address?.street || !formData.income_address?.city || !formData.income_address?.postalCode || !formData.income_address?.amount || !formData.income_address?.document}
                       >
-                        Submit Address Verification
+                        Submit for Analysis
                       </Button>
                     </div>
                   )}
-
-                  {item.type === 'income' && (
                     <div>
                       <Input
                         label="Annual Income"
@@ -599,16 +650,6 @@ export default function VerificationPage() {
                           </div>
                         )}
                       </div>
-                      <Button
-                        className="mt-4 w-full"
-                        onClick={() => handleVerificationSubmit('income', formData.income, formData.income?.document)}
-                        loading={submitting === 'income'}
-                        disabled={!formData.income?.amount || !formData.income?.employment || !formData.income?.document}
-                      >
-                        Submit Income Verification
-                      </Button>
-                    </div>
-                  )}
 
                   {item.type === 'background' && (
                     <>
