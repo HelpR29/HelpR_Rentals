@@ -93,8 +93,8 @@ export default function VerificationPage() {
         }
         addToast({
           type: 'success',
-          title: 'Verification Submitted!',
-          message: `Your ${verificationType} verification has been ${result.status === 'approved' ? 'approved' : 'submitted for review'}.`
+          title: result.status === 'pending_email' || result.status === 'pending_code' ? 'Code Sent!' : 'Verification Submitted!',
+          message: result.message || `Your ${verificationType} verification has been ${result.status === 'approved' ? 'approved' : 'submitted for review'}.`
         })
         fetchVerificationStatus() // Refresh status
         setFormData({ ...formData, [verificationType]: {} }) // Clear form
