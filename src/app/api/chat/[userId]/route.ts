@@ -11,8 +11,11 @@ interface Message {
   type: 'text' | 'document_request' | 'system'
 }
 
-// Mock message storage (in production, use database)
+// Mock message storage (in production, use database) - cleared for fresh testing
 const mockMessages: { [chatId: string]: Message[] } = {}
+
+// Clear all messages on server restart for clean testing
+console.log('🧹 Chat storage cleared for fresh testing')
 
 /**
  * GET /api/chat/[userId] - Get chat messages between current user and specified user
@@ -38,30 +41,7 @@ export async function GET(
     // Get messages for this chat
     let messages = mockMessages[chatId] || []
     
-    // For demo purposes, add sample messages if none exist
-    if (messages.length === 0 && user.role === 'tenant') {
-      messages = [
-        {
-          id: 'msg_1',
-          senderId: otherUserId,
-          receiverId: user.id,
-          content: 'Hi! Thank you for your application. I have a few questions about your background.',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-          read: false,
-          type: 'text'
-        },
-        {
-          id: 'msg_2',
-          senderId: otherUserId,
-          receiverId: user.id,
-          content: 'Could you please provide additional references? I would like to verify your rental history.',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          read: false,
-          type: 'text'
-        }
-      ]
-      mockMessages[chatId] = messages
-    }
+    console.log('💬 Chat GET - User:', user.email, 'ChatId:', chatId, 'Messages:', messages.length)
     
     // Mark messages as read for the current user
     messages.forEach(message => {
@@ -133,12 +113,12 @@ export async function POST(
     mockMessages[chatId].push(message)
 
     // Log message for development
-    console.log('=== NEW CHAT MESSAGE ===')
-    console.log(`From: ${user.email} (${user.role})`)
-    console.log(`To: User ${otherUserId}`)
-    console.log(`Type: ${type}`)
-    console.log(`Content: ${content}`)
-    console.log('========================')
+    console.log('💬 NEW MESSAGE SENT')
+    console.log(`📤 From: ${user.email} (${user.role})`)
+    console.log(`📥 To: User ${otherUserId}`)
+    console.log(`📝 Content: ${content}`)
+    console.log(`🔗 ChatId: ${chatId}`)
+    console.log(`📊 Total messages in chat: ${mockMessages[chatId].length}`)
 
     return NextResponse.json({
       success: true,

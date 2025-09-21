@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -44,6 +44,7 @@ interface Review {
 
 export default function ProfilePage() {
   const params = useParams()
+  const router = useRouter()
   const { addToast } = useToast()
   const [user, setUser] = useState<User | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
@@ -347,11 +348,19 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {canReview && (
-              <div className="flex-shrink-0">
-                <Button onClick={() => setShowReviewForm(true)}>
-                  Write Review
+            {currentUser && currentUser.id !== user.id && (
+              <div className="flex-shrink-0 space-x-3 flex">
+                <Button 
+                  variant="secondary"
+                  onClick={() => router.push(`/chat/${user.id}?email=${encodeURIComponent(user.email)}`)}
+                >
+                  💬 Chat
                 </Button>
+                {canReview && (
+                  <Button onClick={() => setShowReviewForm(true)}>
+                    Write Review
+                  </Button>
+                )}
               </div>
             )}
           </div>
