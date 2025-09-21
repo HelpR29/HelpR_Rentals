@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
+    console.log('📊 Application count for', user.email, '(', user.role, '):', count)
     return NextResponse.json({ count })
 
   } catch (error) {
