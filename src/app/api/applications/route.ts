@@ -210,8 +210,11 @@ export async function GET(request: NextRequest) {
 
     // Debug: Log the applications found
     console.log('Applications found:', parsedApplications.length, 'for user:', user.email, 'role:', user.role)
+    if (parsedApplications.length > 0) {
+      console.log('First application:', JSON.stringify(parsedApplications[0], null, 2))
+    }
     
-    // If no applications found, provide demo data for testing
+    // If no applications found, provide demo data for testing (only for tenants with no real applications)
     if (parsedApplications.length === 0 && user.role === 'tenant') {
       parsedApplications = [
         {
