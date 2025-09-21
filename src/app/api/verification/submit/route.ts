@@ -3,6 +3,7 @@ import { getCurrentUser, generateEmailVerificationToken } from '@/lib/auth';
 import { sendVerificationEmail } from '@/lib/send-verification-email';
 import { uploadFile } from '@/lib/storage';
 import { backgroundCheckService } from '@/lib/background-check-service';
+import { incomeAnalyzerService } from '@/lib/income-analyzer';
 import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
@@ -138,15 +139,30 @@ export async function POST(request: NextRequest) {
     }
 
     if (verificationType === 'address') {
-      updateFields.addressVerified = true // Auto-approve for development
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+      if (documentFile) {
+        const uploadResult = await uploadFile(documentFile);
+        updatedData[verificationType].documentUrl = uploadResult.url;
+      }
+      // Address verification requires manual review
+      updatedData[verificationType].status = 'pending';
     }
 
     if (verificationType === 'income') {
-      updateFields.incomeVerified = true // Auto-approve for development
-      updatedData[verificationType].status = 'approved'
-      updatedData[verificationType].approvedAt = new Date().toISOString()
+      if (!documentFile) {
+        return NextResponse.json({ error: 'Income verification requires a document.' }, { status: 400 });
+      }
+      const uploadResult = await uploadFile(documentFile);
+      updatedData[verificationType].documentUrl = uploadResult.url;
+
+      // Use AI to analyze the document
+      const analysisResult = await incomeAnalyzerService.analyze(uploadResult.url, data.amount);
+      updatedData[verificationType].status = analysisResult.status;
+      updatedData[verificationType].aiAnalysis = analysisResult;
+
+      if (analysisResult.status === 'approved') {
+        updateFields.incomeVerified = true;
+        updatedData[verificationType].approvedAt = new Date().toISOString();
+      }
     }
 
     if (verificationType === 'background' && data.consent) {

@@ -494,13 +494,49 @@ export default function VerificationPage() {
                           placeholder="12345"
                         />
                       </div>
+                      <div className="mt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700">Upload Proof of Address:</p>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*,.pdf';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) {
+                                setFormData({
+                                  ...formData,
+                                  address: { ...formData.address, document: file },
+                                });
+                                addToast({
+                                  type: 'success',
+                                  title: 'Document Selected',
+                                  message: `${file.name} ready for verification.`,
+                                });
+                              }
+                            };
+                            input.click();
+                          }}
+                          className="w-full"
+                        >
+                          📄 Upload Utility Bill or Bank Statement
+                        </Button>
+                        {formData.address?.document && (
+                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm text-green-800">
+                              ✅ Document ready: {formData.address.document.name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                       <Button
-                        className="mt-3 w-full"
-                        onClick={() => handleVerificationSubmit('address', formData.address)}
+                        className="mt-4 w-full"
+                        onClick={() => handleVerificationSubmit('address', formData.address, formData.address?.document)}
                         loading={submitting === 'address'}
-                        disabled={!formData.address?.street || !formData.address?.city || !formData.address?.postalCode}
+                        disabled={!formData.address?.street || !formData.address?.city || !formData.address?.postalCode || !formData.address?.document}
                       >
-                        Verify Address
+                        Submit Address Verification
                       </Button>
                     </div>
                   )}
@@ -527,13 +563,49 @@ export default function VerificationPage() {
                         })}
                         placeholder="Full-time, Part-time, Self-employed, etc."
                       />
+                      <div className="mt-4 space-y-3">
+                        <p className="text-sm font-medium text-gray-700">Upload Pay Stub or Employment Letter:</p>
+                        <Button
+                          variant="secondary"
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*,.pdf';
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) {
+                                setFormData({
+                                  ...formData,
+                                  income: { ...formData.income, document: file },
+                                });
+                                addToast({
+                                  type: 'success',
+                                  title: 'Document Selected',
+                                  message: `${file.name} ready for verification.`,
+                                });
+                              }
+                            };
+                            input.click();
+                          }}
+                          className="w-full"
+                        >
+                          📄 Upload Document
+                        </Button>
+                        {formData.income?.document && (
+                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p className="text-sm text-green-800">
+                              ✅ Document ready: {formData.income.document.name}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                       <Button
-                        className="mt-3 w-full"
-                        onClick={() => handleVerificationSubmit('income', formData.income)}
+                        className="mt-4 w-full"
+                        onClick={() => handleVerificationSubmit('income', formData.income, formData.income?.document)}
                         loading={submitting === 'income'}
-                        disabled={!formData.income?.amount || !formData.income?.employment}
+                        disabled={!formData.income?.amount || !formData.income?.employment || !formData.income?.document}
                       >
-                        Verify Income
+                        Submit Income Verification
                       </Button>
                     </div>
                   )}
