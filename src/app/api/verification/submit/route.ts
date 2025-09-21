@@ -130,12 +130,32 @@ export async function POST(request: NextRequest) {
     }
 
     if (verificationType === 'id') {
-      if (documentFile) {
-                const uploadResult = await uploadFile(documentFile);
-        updatedData[verificationType].documentUrl = uploadResult.url;
+      if (!documentFile) {
+        return NextResponse.json({ error: 'ID verification requires a document.' }, { status: 400 });
       }
-      // ID verification should always be pending manual review
-      updatedData[verificationType].status = 'pending';
+      const uploadResult = await uploadFile(documentFile);
+      updatedData[verificationType].documentUrl = uploadResult.url;
+
+      // Get previously verified data for cross-document validation
+      const previouslyVerifiedData = {
+        name: currentUser.name || data.idType, // Use provided name or fallback
+        address: updatedData.address?.extractedAddress || updatedData.income?.extractedAddress
+      };
+
+      // Use AI to analyze ID with cross-document validation
+      const idAnalysisResult = await documentAnalyzerService.analyzeID(
+        uploadResult.url,
+        currentUser.name || 'Unknown User',
+        previouslyVerifiedData
+      );
+
+      updatedData[verificationType].status = idAnalysisResult.status;
+      updatedData[verificationType].aiAnalysis = idAnalysisResult;
+
+      if (idAnalysisResult.status === 'approved') {
+        updateFields.idVerified = true;
+        updatedData[verificationType].approvedAt = new Date().toISOString();
+      }
     }
 
     if (verificationType === 'income_address') {
