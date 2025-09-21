@@ -16,6 +16,23 @@ export interface DocumentAnalysisResult {
   };
 }
 
+export interface IDAnalysisResult {
+  status: 'approved' | 'pending' | 'rejected';
+  reason: string;
+  extractedName?: string;
+  extractedAddress?: string;
+  extractedDOB?: string;
+  idNumber?: string;
+  confidenceScore?: number;
+  crossDocumentValidation?: {
+    nameMatch: boolean;
+    addressMatch: boolean;
+    overallMatch: boolean;
+    confidenceScore: number;
+    discrepancies: string[];
+  };
+}
+
 class DocumentAnalyzerService {
   async analyze(documentUrl: string, statedIncome: number, statedAddress: string): Promise<DocumentAnalysisResult> {
     console.log(`[DocumentAnalyzer] Analyzing document: ${documentUrl} for income: ${statedIncome} and address: ${statedAddress}`);
