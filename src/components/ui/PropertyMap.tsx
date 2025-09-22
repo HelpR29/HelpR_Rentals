@@ -111,9 +111,11 @@ export default function PropertyMap({
         center={mapCenter}
         zoom={selectedPropertyData ? 15 : 12}
         height={height}
-        markers={markers}
+        // Hide markers when showing a route
+        markers={directions ? [] : markers}
         onMapClick={handleMapClick}
         className="w-full"
+        directions={directions}
       />
 
       {/* Map Controls */}
@@ -167,21 +169,38 @@ export default function PropertyMap({
             <div className="flex flex-col space-y-2">
               <Link
                 href={`/listing/${selectedPropertyData.id}`}
-                className="inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-3 py-1.5 text-sm"
+                className="inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-3 py-1.5 text-sm"
               >
                 View Details
               </Link>
-              <Link
-                href={`/listing/${selectedPropertyData.id}#commute`}
-                className="inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 px-3 py-1.5 text-sm"
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsCommuteMode(!isCommuteMode)}
               >
                 🚗 Commute
-              </Link>
+              </Button>
             </div>
           </div>
 
           {/* Nearby Amenities */}
-          {showNearbyAmenities && (
+          {isCommuteMode && (
+            <div className="mt-4 pt-4 border-t">
+              <h4 className="font-medium mb-2 text-gray-900">Calculate Commute</h4>
+              <div className="flex items-center space-x-2">
+                <AddressAutocomplete
+                  onAddressSelect={(addr) => setCommuteOrigin(addr.formatted)}
+                  placeholder='Your starting address'
+                  label=''
+                  className='flex-1'
+                />
+                <Button size="sm" onClick={handleCalculateCommute} loading={isCalculating}>Go</Button>
+                <Button size="sm" variant='ghost' onClick={handleClearCommute}>Clear</Button>
+              </div>
+            </div>
+          )}
+
+          {showNearbyAmenities && !isCommuteMode && (
             <div className="mt-4 pt-4 border-t">
               <h4 className="font-medium mb-2 text-gray-900">Nearby Amenities</h4>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-800">
