@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerUser } from '@/lib/get-server-user';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   const user = await getServerUser();
@@ -41,29 +39,43 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const incomeAddressData = existingUserData?.verificationData as any | null;
-    const verifiedAddress = incomeAddressData?.income_address?.address?.formatted;
+    const incomeAddressData = (existingUserData?.verificationData as any)?.income_address;
+
+    if (!incomeAddressData?.address?.formatted) {
+      console.error('Cross-referencing failed: Verified income/address data not found.');
+      return NextResponse.json(
+        { error: 'Income & Address must be verified before using Smart Scan.' },
+        { status: 400 }
+      );
+    }
+
+    const verifiedAddress = incomeAddressData.address.formatted;
     const verifiedName = existingUserData?.name;
 
     // Simple comparison logic (can be made more sophisticated with fuzzy matching)
-    const isNameMatch = verifiedName?.toLowerCase() === mockExtractedData.fullName.toLowerCase();
-    const isAddressMatch = verifiedAddress?.toLowerCase().includes(mockExtractedData.address.toLowerCase());
+    const isNameMatch = !!verifiedName && verifiedName.toLowerCase() === mockExtractedData.fullName.toLowerCase();
+    const isAddressMatch = !!verifiedAddress && verifiedAddress.toLowerCase().includes(mockExtractedData.address.toLowerCase());
+
+    console.log(`Cross-referencing results: Name match: ${isNameMatch}, Address match: ${isAddressMatch}`);
 
     if (isNameMatch && isAddressMatch) {
       // ** Automated Approval **
+      const currentVerificationData = (existingUserData?.verificationData as any) || {};
+      const updatedVerificationData = {
+        ...currentVerificationData,
+        id_smart_scan: {
+          status: 'approved',
+          extractedName: mockExtractedData.fullName,
+          extractedAddress: mockExtractedData.address,
+          matchedOn: new Date(),
+        },
+      };
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
           idVerified: true,
-          verificationData: {
-            ...(existingUserData?.verificationData as any || {}),
-            id_smart_scan: {
-              status: 'approved',
-              extractedName: mockExtractedData.fullName,
-              extractedAddress: mockExtractedData.address,
-              matchedOn: new Date(),
-            },
-          },
+          verificationData: updatedVerificationData,
         },
       });
 
@@ -73,18 +85,21 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // ** Flag for Manual Review **
+      const currentVerificationData = (existingUserData?.verificationData as any) || {};
+      const updatedVerificationData = {
+        ...currentVerificationData,
+        id_smart_scan: {
+          status: 'rejected',
+          reason: 'Mismatch found between ID and existing records.',
+          extractedName: mockExtractedData.fullName,
+          extractedAddress: mockExtractedData.address,
+        },
+      };
+
       await prisma.user.update({
         where: { id: user.id },
         data: {
-          verificationData: {
-            ...(existingUserData?.verificationData as any || {}),
-            id_smart_scan: {
-              status: 'rejected',
-              reason: 'Mismatch found between ID and existing records.',
-              extractedName: mockExtractedData.fullName,
-              extractedAddress: mockExtractedData.address,
-            },
-          },
+          verificationData: updatedVerificationData,
         },
       });
 

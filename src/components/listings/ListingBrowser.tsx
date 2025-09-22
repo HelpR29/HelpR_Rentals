@@ -47,31 +47,19 @@ interface Filters {
 export default function ListingBrowser() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
-  const [filters, setFilters] = useState<Filters>({
-    minRent: '',
-    maxRent: '',
-    furnished: '',
-    petsAllowed: ''
-  })
-  const [showFilters, setShowFilters] = useState(false)
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [searchQuery, setSearchQuery] = useState('');
+    const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   const [selectedListing, setSelectedListing] = useState<string | undefined>()
 
   useEffect(() => {
     fetchListings()
   }, [])
 
-  const fetchListings = async (filterParams?: Filters) => {
+  const fetchListings = async (query?: string) => {
     try {
-      setLoading(true)
-      const params = new URLSearchParams()
-      
-      if (filterParams?.minRent) params.append('minRent', filterParams.minRent)
-      if (filterParams?.maxRent) params.append('maxRent', filterParams.maxRent)
-      if (filterParams?.furnished) params.append('furnished', filterParams.furnished)
-      if (filterParams?.petsAllowed) params.append('petsAllowed', filterParams.petsAllowed)
-
-      const response = await fetch(`/api/listings?${params}`)
+      setLoading(true);
+      const endpoint = query ? `/api/listings/search?query=${encodeURIComponent(query)}` : '/api/listings';
+      const response = await fetch(endpoint);
       if (response.ok) {
         const data = await response.json()
         setListings(data.listings)
@@ -83,92 +71,37 @@ export default function ListingBrowser() {
     }
   }
 
-  const handleFilterChange = (key: keyof Filters, value: string) => {
-    const newFilters = { ...filters, [key]: value }
-    setFilters(newFilters)
-  }
+  const handleSearch = () => {
+    fetchListings(searchQuery);
+  };
 
-  const applyFilters = () => {
-    fetchListings(filters)
-  }
-
-  const clearFilters = () => {
-    const emptyFilters = { minRent: '', maxRent: '', furnished: '', petsAllowed: '' }
-    setFilters(emptyFilters)
-    fetchListings(emptyFilters)
-  }
+  const clearSearch = () => {
+    setSearchQuery('');
+    fetchListings();
+  };
 
   return (
     <div>
-      {/* Top Filter Bar */}
+      {/* AI Search Bar */}
       <Card className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Find Your Perfect Rental</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            className="md:hidden"
-          >
-            {showFilters ? 'Hide' : 'Show'} Filters
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Find Your Perfect Rental with AI</h2>
+        <div className="flex items-center space-x-2">
+          <Input
+            type="text"
+            placeholder='e.g., "a pet-friendly 2-bedroom under $2500 near a park"'
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            className="flex-1"
+            label=''
+          />
+          <Button onClick={handleSearch} size='lg' className='px-6'>
+            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' /></svg>
+            <span className='ml-2'>Search</span>
           </Button>
+          <Button variant="ghost" onClick={clearSearch}>Clear</Button>
         </div>
-
-        <div className={`${showFilters ? 'block' : 'hidden'} md:block`}>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-            <div className="md:col-span-2 grid grid-cols-2 gap-2">
-              <Input
-                label="Min Rent"
-                type="number"
-                placeholder="$500"
-                value={filters.minRent}
-                onChange={(e) => handleFilterChange('minRent', e.target.value)}
-              />
-              <Input
-                label="Max Rent"
-                type="number"
-                placeholder="$2000"
-                value={filters.maxRent}
-                onChange={(e) => handleFilterChange('maxRent', e.target.value)}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Furnished
-              </label>
-              <select
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                value={filters.furnished}
-                onChange={(e) => handleFilterChange('furnished', e.target.value)}
-              >
-                <option value="">Any</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Pets Allowed
-              </label>
-              <select
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                value={filters.petsAllowed}
-                onChange={(e) => handleFilterChange('petsAllowed', e.target.value)}
-              >
-                <option value="">Any</option>
-                <option value="true">Yes</option>
-                <option value="false">No</option>
-              </select>
-            </div>
-
-            <div className="flex items-end space-x-2">
-              <Button onClick={applyFilters} className="flex-1">Search</Button>
-              <Button variant="ghost" onClick={clearFilters} size="sm">Clear</Button>
-            </div>
-          </div>
-        </div>
+        <p className='text-xs text-gray-500 mt-2'>Our AI understands criteria like price, number of bedrooms, amenities, and location features.</p>
       </Card>
 
       {/* View Toggle */}
@@ -248,7 +181,7 @@ export default function ListingBrowser() {
                     <div className="flex flex-col sm:flex-row">
                       {/* Photo */}
                       <div className="relative h-48 sm:h-32 sm:w-48 flex-shrink-0">
-                        {listing.photos && listing.photos.length > 0 ? (
+                        {listing.photos && listing.photos.length > 0 && (listing.photos[0].startsWith('http') || listing.photos[0].startsWith('/')) ? (
                           <Image
                             src={listing.photos[0]}
                             alt={listing.title}
