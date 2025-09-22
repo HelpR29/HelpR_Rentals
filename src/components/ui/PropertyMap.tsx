@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import GoogleMap from './GoogleMap'
 import Button from './Button'
 import Card from './Card'
+import Link from 'next/link'
 
 interface Property {
   id: string
