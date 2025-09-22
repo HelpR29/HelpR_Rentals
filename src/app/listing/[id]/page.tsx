@@ -9,6 +9,7 @@ import Input from '@/components/ui/Input'
 import { useToast } from '@/components/ui/Toast'
 import { AverageRating } from '@/components/ui/StarRating'
 import VerificationBadge from '@/components/ui/VerificationBadge'
+import GoogleMap from '@/components/ui/GoogleMap'
 import Link from 'next/link'
 
 interface Listing {
@@ -352,6 +353,137 @@ export default function ListingDetailPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </Card>
+
+          {/* Location & Neighborhood */}
+          <Card className="mt-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Location & Neighborhood</h2>
+            
+            {/* Address */}
+            <div className="mb-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-lg">📍</span>
+                <span className="text-lg font-medium text-gray-900">{listing.address}</span>
+              </div>
+            </div>
+
+            {/* Interactive Map */}
+            <div className="mb-6">
+              <GoogleMap
+                center={{
+                  // Generate mock coordinates around Toronto for demo
+                  lat: 43.6532 + (Math.random() - 0.5) * 0.02,
+                  lng: -79.3832 + (Math.random() - 0.5) * 0.02
+                }}
+                zoom={15}
+                height="400px"
+                markers={[{
+                  id: listing.id,
+                  position: {
+                    lat: 43.6532 + (Math.random() - 0.5) * 0.02,
+                    lng: -79.3832 + (Math.random() - 0.5) * 0.02
+                  },
+                  title: listing.title,
+                  price: `$${listing.rent}`
+                }]}
+                className="rounded-lg border border-gray-200"
+              />
+            </div>
+
+            {/* Neighborhood Insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Transit */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <span className="mr-2">🚇</span>
+                  Public Transit
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span className="text-sm font-medium">Subway Station</span>
+                    <span className="text-sm text-blue-600 font-semibold">0.3 km</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                    <span className="text-sm font-medium">Bus Stop</span>
+                    <span className="text-sm text-green-600 font-semibold">0.1 km</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Amenities */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <span className="mr-2">🏪</span>
+                  Nearby Amenities
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                    <span className="text-sm font-medium">Grocery Store</span>
+                    <span className="text-sm text-orange-600 font-semibold">0.2 km</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                    <span className="text-sm font-medium">Pharmacy</span>
+                    <span className="text-sm text-purple-600 font-semibold">0.4 km</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Schools */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <span className="mr-2">🏫</span>
+                  Education
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                    <span className="text-sm font-medium">Elementary School</span>
+                    <span className="text-sm text-yellow-600 font-semibold">0.6 km</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-indigo-50 rounded-lg">
+                    <span className="text-sm font-medium">University</span>
+                    <span className="text-sm text-indigo-600 font-semibold">2.1 km</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Healthcare */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                  <span className="mr-2">🏥</span>
+                  Healthcare
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                    <span className="text-sm font-medium">Hospital</span>
+                    <span className="text-sm text-red-600 font-semibold">1.2 km</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-teal-50 rounded-lg">
+                    <span className="text-sm font-medium">Walk-in Clinic</span>
+                    <span className="text-sm text-teal-600 font-semibold">0.8 km</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Commute Calculator */}
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <span className="mr-2">🚗</span>
+                Calculate Commute
+              </h3>
+              <div className="flex space-x-3">
+                <Input 
+                  placeholder="Enter work/school address..." 
+                  className="flex-1"
+                />
+                <Button variant="primary">
+                  Get Directions
+                </Button>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Get estimated travel times by car, transit, walking, and cycling
+              </p>
             </div>
           </Card>
         </div>

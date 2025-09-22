@@ -304,28 +304,28 @@ export default function ListingBrowser() {
                             )}
                             {listing.petsAllowed && (
                               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            🐕 Pets OK
+                                🐕 Pets OK
+                              </span>
+                            )}
+                            {listing.deposit && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                💰 ${listing.deposit} deposit
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Bottom section */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">
+                            {listing._count.applications} application{listing._count.applications !== 1 ? 's' : ''}
                           </span>
-                        )}
-                        {listing.deposit && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                            💰 ${listing.deposit} deposit
-                          </span>
-                        )}
+                          <Button size="sm" className="group-hover:shadow-md transition-shadow">
+                            View Listing
+                          </Button>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Bottom section */}
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs text-gray-500">
-                        {listing._count.applications} application{listing._count.applications !== 1 ? 's' : ''}
-                      </span>
-                      <Button size="sm" className="group-hover:shadow-md transition-shadow">
-                        View Listing
-                      </Button>
-                    </div>
-                  </div>
-                </div>
                   </Link>
                 </Card>
               ))}
