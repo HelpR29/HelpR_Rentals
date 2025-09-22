@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Loader } from '@googlemaps/js-api-loader'
+import { getGoogleMapsLoader } from '@/lib/google-maps-loader'
 
 interface MapProps {
   center?: { lat: number; lng: number }
@@ -15,6 +15,7 @@ interface MapProps {
     onClick?: () => void
   }>
   onMapClick?: (position: { lat: number; lng: number }) => void
+  directions?: google.maps.DirectionsResult | null
   className?: string
 }
 
@@ -24,20 +25,18 @@ export default function GoogleMap({
   height = '400px',
   markers = [],
   onMapClick,
+  directions = null,
   className = ''
 }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [map, setMap] = useState<google.maps.Map | null>(null)
   const [isLoaded, setIsLoaded] = useState(false)
-  const markersRef = useRef<google.maps.Marker[]>([])
+  const markersRef = useRef<google.maps.Marker[]>([]);
+  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
 
   useEffect(() => {
     const initMap = async () => {
-      const loader = new Loader({
-        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'demo-key',
-        version: 'weekly',
-        libraries: ['places', 'geometry']
-      })
+      const loader = getGoogleMapsLoader()
 
       try {
         await loader.load()
@@ -115,7 +114,25 @@ export default function GoogleMap({
 
       markersRef.current.push(marker)
     })
-  }, [map, markers, isLoaded])
+  }, [map, markers, isLoaded]);
+
+  // Update directions when they change
+  useEffect(() => {
+    if (!map || !isLoaded) return;
+
+    if (!directionsRendererRef.current) {
+      directionsRendererRef.current = new google.maps.DirectionsRenderer();
+    }
+
+    if (directions) {
+      directionsRendererRef.current.setMap(map);
+      directionsRendererRef.current.setDirections(directions);
+    } else {
+      // Clear directions by removing the renderer from the map
+      directionsRendererRef.current.setMap(null);
+    }
+
+  }, [map, directions, isLoaded]);
 
   return (
     <div className={`relative ${className}`}>

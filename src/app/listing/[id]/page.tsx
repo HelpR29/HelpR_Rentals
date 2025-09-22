@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/Toast'
 import { AverageRating } from '@/components/ui/StarRating'
 import VerificationBadge from '@/components/ui/VerificationBadge'
 import GoogleMap from '@/components/ui/GoogleMap'
+import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
 import Link from 'next/link'
 
 interface Listing {
@@ -76,6 +77,8 @@ export default function ListingDetailPage() {
   });
   const [mainImage, setMainImage] = useState<string | null>(null);
   const [commuteDestination, setCommuteDestination] = useState('');
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [isCalculatingCommute, setIsCalculatingCommute] = useState(false);
 
   useEffect(() => {
     fetchListing();
@@ -194,7 +197,7 @@ export default function ListingDetailPage() {
   const canApply = user && user.role === 'tenant' && user.id !== listing.owner.id
   const hasApplied = listing.applications.some(app => app.applicantId === user?.id)
 
-  const handleCalculateCommute = () => {
+  const handleCalculateCommute = async () => {
     if (!commuteDestination) {
       addToast({
         type: 'error',
@@ -204,11 +207,34 @@ export default function ListingDetailPage() {
       return;
     }
 
-    const origin = encodeURIComponent(listing.address);
-    const destination = encodeURIComponent(commuteDestination);
-    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-    
-    window.open(googleMapsUrl, '_blank');
+    setIsCalculatingCommute(true);
+    setDirections(null); // Clear previous directions
+
+    try {
+      const response = await fetch(
+        `/api/directions?origin=${listing.address}&destination=${commuteDestination}`
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        setDirections(data);
+        addToast({
+          type: 'success',
+          title: 'Route Found!',
+          message: `Displaying route to ${commuteDestination}.`,
+        });
+      } else {
+        throw new Error(data.error || 'Failed to fetch directions');
+      }
+    } catch (error: any) {
+      addToast({
+        type: 'error',
+        title: 'Could Not Find Route',
+        message: error.message || 'An unexpected error occurred.',
+      });
+    } finally {
+      setIsCalculatingCommute(false);
+    }
   };
 
   return (
@@ -394,9 +420,9 @@ export default function ListingDetailPage() {
                   lat: 43.6532 + (Math.random() - 0.5) * 0.02,
                   lng: -79.3832 + (Math.random() - 0.5) * 0.02
                 }}
-                zoom={15}
+                zoom={directions ? 12 : 15} // Zoom out to show the full route
                 height="400px"
-                markers={[{
+                markers={directions ? [] : [{ // Hide marker when showing route
                   id: listing.id,
                   position: {
                     lat: 43.6532 + (Math.random() - 0.5) * 0.02,
@@ -405,6 +431,7 @@ export default function ListingDetailPage() {
                   title: listing.title,
                   price: `$${listing.rent}`
                 }]}
+                directions={directions}
                 className="rounded-lg border border-gray-200"
               />
             </div>
@@ -491,13 +518,14 @@ export default function ListingDetailPage() {
                 Calculate Commute
               </h3>
               <div className="flex space-x-3">
-                <Input 
-                  placeholder="Enter work/school address..." 
+                <AddressAutocomplete
+                  placeholder="Enter work/school address..."
                   className="flex-1"
-                  value={commuteDestination}
-                  onChange={(e) => setCommuteDestination(e.target.value)}
+                  onAddressSelect={(address) => setCommuteDestination(address.formatted)}
+                  defaultValue={commuteDestination}
+                  label=""
                 />
-                <Button variant="primary" onClick={handleCalculateCommute}>
+                <Button variant="primary" onClick={handleCalculateCommute} loading={isCalculatingCommute}>
                   Get Directions
                 </Button>
               </div>
