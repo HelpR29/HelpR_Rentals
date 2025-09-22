@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'; // THIS IS THE FIX
+
 import ListingBrowser from '@/components/listings/ListingBrowser';
 import { getServerUser } from '@/lib/get-server-user';
 
