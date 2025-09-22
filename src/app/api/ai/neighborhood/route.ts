@@ -9,29 +9,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    // Create AI prompt for neighborhood analysis
-    const prompt = `Analyze the neighborhood for this address: "${address}"
+    // Create enhanced AI prompt for factual neighborhood analysis
+    const prompt = `You are a professional real estate researcher and neighborhood analyst. Analyze the neighborhood for this address: "${address}"
 
-Please provide a comprehensive neighborhood analysis in the following JSON format:
+IMPORTANT: Base your analysis on factual, research-based information about this specific Toronto area. Consider:
+- Actual transit lines and stations near this address
+- Real demographic data for this Toronto neighborhood
+- Documented crime statistics and safety records
+- Verified local amenities and businesses
+- Actual walkability factors (sidewalks, traffic, distance to services)
+- Real estate market trends for this area
+
+If you don't have specific factual data about this exact location, clearly indicate this and provide general Toronto context instead of making up specific details.
+
+Provide a comprehensive, factual neighborhood analysis in JSON format:
+
 {
-  "vibe": "Brief description of the neighborhood's character and atmosphere (1-2 sentences)",
+  "vibe": "Factual description based on documented neighborhood characteristics, demographics, and urban planning",
   "highlights": [
-    "Key attraction or feature 1",
-    "Key attraction or feature 2", 
-    "Key attraction or feature 3"
+    "Verified major attraction, landmark, or feature within 1km",
+    "Documented transportation hub or major transit connection", 
+    "Confirmed local amenity or community feature"
   ],
-  "walkability": "Description of walkability and transportation options",
-  "demographics": "Brief description of typical residents and community",
-  "safety": "General safety assessment and feel of the area",
+  "walkability": "Research-based assessment including actual Walk Score data if available, real transit options (TTC lines/stations), and documented pedestrian infrastructure",
+  "demographics": "Factual demographic information based on census data and documented community characteristics",
+  "safety": "Evidence-based safety assessment using available crime statistics and community safety data",
   "amenities": [
-    "Nearby amenity 1",
-    "Nearby amenity 2",
-    "Nearby amenity 3"
+    "Verified grocery stores or essential services within walking distance",
+    "Documented recreational facilities or parks",
+    "Confirmed dining, shopping, or entertainment options"
   ],
-  "summary": "2-3 sentence overall summary of why someone would want to live here"
+  "summary": "Evidence-based 2-3 sentence summary highlighting the factual advantages of this location for potential renters"
 }
 
-Focus on accurate, helpful information about the actual neighborhood. Be positive but realistic.`;
+CRITICAL: Be factual and research-based. If specific data isn't available, acknowledge this rather than fabricating details. Focus on what can be verified about this Toronto neighborhood.`;
 
     let insights;
 

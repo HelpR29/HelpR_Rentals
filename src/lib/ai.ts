@@ -53,7 +53,7 @@ Please respond with a JSON object containing:
 - isScam: boolean (true if suspicious)
 - scamReasons: array of reasons if flagged as scam`
 
-    try {
+  try {
     // ** Primary Provider: Google Gemini (Free) **
     if (process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('fake-key')) {
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
@@ -63,29 +63,31 @@ Please respond with a JSON object containing:
       
       const cleanedText = text.replace(/```json\n|```/g, '').trim();
       return JSON.parse(cleanedText);
-
-    } catch (geminiError) {
-      console.error('Gemini fallback also failed:', (geminiError as Error).message);
-      // Final fallback to basic generation
-      return {
-        title: input.title || `${input.furnished ? 'Furnished' : 'Unfurnished'} Rental at ${input.address.split(',')[0]}`,
-        bedrooms: parseInt(input.title?.match(/(\d+)/)?.[0] || '1'),
-        description: `Beautiful ${input.furnished ? 'furnished' : 'unfurnished'} rental available at ${input.address}.`,
-        neighborhood: {
-          vibe: 'Lively Urban Area',
-          highlights: ['Close to public transit', 'Excellent restaurants nearby', 'Vibrant nightlife'],
-          summary: 'A bustling neighborhood known for its convenient location and exciting atmosphere.'
-        },
-        quickFacts: {
-          deposit: input.deposit ? `$${input.deposit}` : 'Contact for details',
-          furnished: input.furnished ? 'Yes' : 'No',
-          utilities: 'Contact for details',
-          pets: input.petsAllowed ? 'Allowed' : 'Not allowed'
-        },
-        isScam: input.rent < 200,
-        scamReasons: input.rent < 200 ? ['Rent suspiciously low'] : undefined
-      };
+    } else {
+      throw new Error('No Gemini API key available');
     }
+
+  } catch (error) {
+    console.error('Gemini failed:', (error as Error).message);
+    // Final fallback to basic generation
+    return {
+      title: input.title || `${input.furnished ? 'Furnished' : 'Unfurnished'} Rental at ${input.address.split(',')[0]}`,
+      bedrooms: parseInt(input.title?.match(/(\d+)/)?.[0] || '1'),
+      description: `Beautiful ${input.furnished ? 'furnished' : 'unfurnished'} rental available at ${input.address}.`,
+      neighborhood: {
+        vibe: 'Lively Urban Area',
+        highlights: ['Close to public transit', 'Excellent restaurants nearby', 'Vibrant nightlife'],
+        summary: 'A bustling neighborhood known for its convenient location and exciting atmosphere.'
+      },
+      quickFacts: {
+        deposit: input.deposit ? `$${input.deposit}` : 'Contact for details',
+        furnished: input.furnished ? 'Yes' : 'No',
+        utilities: 'Contact for details',
+        pets: input.petsAllowed ? 'Allowed' : 'Not allowed'
+      },
+      isScam: input.rent < 200,
+      scamReasons: input.rent < 200 ? ['Rent suspiciously low'] : undefined
+    };
   }
 }
 
@@ -113,23 +115,21 @@ Provide a concise one-line summary for the landlord:`
       return `${input.duration} stay starting ${input.moveInDate}, verified email`
     }
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are Helpr\'s AI assistant. Create concise applicant summaries for landlords.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 100
-    })
-
-    return completion.choices[0]?.message?.content?.trim() || `${input.duration} stay, verified email`
+    try {
+      if (process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('fake-key')) {
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        
+        return text.trim() || `${input.duration} stay, verified email`;
+      } else {
+        return `${input.duration} stay starting ${input.moveInDate}, verified email`;
+      }
+    } catch (error) {
+      console.error('Gemini failed for application summary:', error);
+      return `${input.duration} stay starting ${input.moveInDate}, verified email`;
+    }
   } catch (error) {
     console.error('AI summary error:', error)
     return `${input.duration} stay starting ${input.moveInDate}, verified email`
