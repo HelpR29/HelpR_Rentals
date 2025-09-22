@@ -1,13 +1,17 @@
-import { ButtonHTMLAttributes, ReactNode } from 'react'
+import React, { ElementType, ReactNode } from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gradient'
-  size?: 'sm' | 'md' | 'lg'
-  children: ReactNode
-  loading?: boolean
-}
+type ButtonProps<T extends ElementType> = {
+  as?: T;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gradient';
+  size?: 'sm' | 'md' | 'lg';
+  children: ReactNode;
+  loading?: boolean;
+  className?: string;
+} & Omit<React.ComponentProps<T>, 'as' | 'variant' | 'size' | 'children' | 'loading' | 'className'>;
 
-export default function Button({
+export default function Button<T extends ElementType = 'button'>({ as, ...props }: ButtonProps<T>) {
+  const { variant = 'primary', size = 'md', children, loading = false, className = '', disabled, ...rest } = props;
+  as,
   variant = 'primary',
   size = 'md',
   children,
@@ -15,7 +19,8 @@ export default function Button({
   className = '',
   disabled,
   ...props
-}: ButtonProps) {
+}: ButtonProps<T>) {
+  const Component = as || 'button';
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
   
   const variantClasses = {
@@ -33,10 +38,10 @@ export default function Button({
   }
   
   return (
-    <button
+    <Component
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
       disabled={disabled || loading}
-      {...props}
+      {...rest}
     >
       {loading && (
         <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -45,6 +50,6 @@ export default function Button({
         </svg>
       )}
       {children}
-    </button>
+    </Component>
   )
 }
