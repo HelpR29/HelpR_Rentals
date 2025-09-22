@@ -63,25 +63,22 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('query');
 
+    console.log('Search API called with query:', query);
+
     if (!query) {
       return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
     }
 
-    const aiFilters = await getFiltersFromAI(query);
-
-    // Add text search for title, description, and address
-    const textSearch = {
+    // Simple text search for now - we'll add AI filters later
+    const searchWhere = {
       OR: [
-        { title: { contains: query, mode: 'insensitive' as const } },
-        { description: { contains: query, mode: 'insensitive' as const } },
-        { address: { contains: query, mode: 'insensitive' as const } },
+        { title: { contains: query } },
+        { description: { contains: query } },
+        { address: { contains: query } },
       ]
     };
 
-    // Combine AI filters with text search
-    const searchWhere = Object.keys(aiFilters).length > 0 
-      ? { AND: [aiFilters, textSearch] }
-      : textSearch;
+    console.log('Search where clause:', JSON.stringify(searchWhere, null, 2));
 
     const listings = await prisma.listing.findMany({
       where: searchWhere,

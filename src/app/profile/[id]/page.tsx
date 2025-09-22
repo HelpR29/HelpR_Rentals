@@ -165,7 +165,7 @@ export default function ProfilePage() {
         if (typeof window !== 'undefined') {
           // Dispatch the event after a small delay to ensure the DOM is ready
           setTimeout(() => {
-            window.dispatchEvent(new Event('refreshUser'))
+            window.dispatchEvent(new Event('profileUpdated'))
             console.log('📡 Header refresh event dispatched')
           }, 100)
         }

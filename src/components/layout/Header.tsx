@@ -19,15 +19,25 @@ export default function Header() {
   const { user, loading, logout, fetchUser } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Listen for login events to refresh user data
+  // Listen for login and profile update events to refresh user data
   useEffect(() => {
     const handleUserLoggedIn = () => {
       console.log('🔄 Header received userLoggedIn event, refreshing...');
       fetchUser();
     };
 
+    const handleProfileUpdated = () => {
+      console.log('🔄 Header received profileUpdated event, refreshing...');
+      fetchUser();
+    };
+
     window.addEventListener('userLoggedIn', handleUserLoggedIn);
-    return () => window.removeEventListener('userLoggedIn', handleUserLoggedIn);
+    window.addEventListener('profileUpdated', handleProfileUpdated);
+    
+    return () => {
+      window.removeEventListener('userLoggedIn', handleUserLoggedIn);
+      window.removeEventListener('profileUpdated', handleProfileUpdated);
+    };
   }, [fetchUser]);
 
   // Cast the user from the hook to the more detailed HeaderUser type
