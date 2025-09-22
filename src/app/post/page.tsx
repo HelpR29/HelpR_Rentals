@@ -250,13 +250,13 @@ export default function PostListingPage() {
           <Card>
             <form onSubmit={handlePublish} className="space-y-6">
           {/* Address */}
-          <Input
+          <GooglePlacesInput
             label="Address *"
             value={formData.address}
-            onChange={(e) => setFormData({...formData, address: e.target.value})}
+            onChange={(value) => setFormData({...formData, address: value})}
             required
-            placeholder="123 Main St, City, Province"
-            helperText="Full address including city and province"
+            placeholder="Start typing your address..."
+            helperText="Full address including city and province (powered by Google Places)"
           />
 
           {/* Rent and Deposit */}
