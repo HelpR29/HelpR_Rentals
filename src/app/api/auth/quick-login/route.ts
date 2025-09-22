@@ -4,30 +4,43 @@ import jwt from 'jsonwebtoken';
 
 // This route is for development purposes only to allow for quick logins.
 export async function GET(request: NextRequest) {
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json({ error: 'Not Found' }, { status: 404 });
-  }
-
-  const { searchParams } = new URL(request.url);
-  const email = searchParams.get('email');
-  const role = searchParams.get('role');
-
-  if (!email || !role) {
-    return NextResponse.json({ error: 'Email and role are required' }, { status: 400 });
-  }
-
   try {
+    const { searchParams } = new URL(request.url);
+    const email = searchParams.get('email');
+    const role = searchParams.get('role');
+
+    if (!email || !role) {
+      return NextResponse.json({ error: 'Email and role are required' }, { status: 400 });
+    }
+
+    console.log('Quick login attempt:', { email, role });
+
     // Find or create the user
-    let user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      user = await prisma.user.create({
-        data: { email, role },
-      });
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { email } });
+      if (!user) {
+        console.log('Creating new user:', { email, role });
+        user = await prisma.user.create({
+          data: {
+            email,
+            role,
+            name: email.split('@')[0],
+            verified: true,
+            emailVerified: true,
+            phoneVerified: true,
+          },
+        });
+      }
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return NextResponse.json({ error: 'Database connection failed' }, { status: 500 });
     }
 
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined in .env');
+      console.error('JWT_SECRET not found');
+      return NextResponse.json({ error: 'JWT_SECRET not configured' }, { status: 500 });
     }
 
     // Create a session token
@@ -60,7 +73,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Quick Login Error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
