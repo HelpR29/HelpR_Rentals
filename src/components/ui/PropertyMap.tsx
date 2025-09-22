@@ -67,13 +67,7 @@ export default function PropertyMap({
     setSelectedPropertyData(null)
   }
 
-  const calculateCommute = async (destination: string) => {
-    // In a real app, you'd use Google Maps Distance Matrix API
-    console.log(`Calculating commute to ${destination}`)
-    // Mock implementation
-    alert(`Commute calculation would show routes to ${destination}`)
-  }
-
+  
   return (
     <div className="relative">
       <GoogleMap
@@ -143,7 +137,8 @@ export default function PropertyMap({
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => calculateCommute('Downtown Toronto')}
+                // Navigate to the listing page and focus the commute section
+                onClick={() => window.open(`/listing/${selectedPropertyData.id}#commute`, '_blank')}
               >
                 🚗 Commute
               </Button>

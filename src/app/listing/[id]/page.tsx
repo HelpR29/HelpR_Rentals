@@ -92,6 +92,16 @@ export default function ListingDetailPage() {
     }
   }, [listing]);
 
+  useEffect(() => {
+    // Scroll to commute section if hash is present
+    if (window.location.hash === '#commute') {
+      const commuteSection = document.getElementById('commute');
+      if (commuteSection) {
+        commuteSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, []); // Run only once on initial component mount
+
   const fetchListing = async () => {
     try {
       const response = await fetch(`/api/listings/${params.id}`)
@@ -529,7 +539,7 @@ export default function ListingDetailPage() {
             </div>
 
             {/* Commute Calculator */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div id="commute" className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 scroll-mt-20">
               <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
                 <span className="mr-2">🚗</span>
                 Calculate Commute
