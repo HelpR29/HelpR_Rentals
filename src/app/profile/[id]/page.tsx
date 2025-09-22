@@ -278,10 +278,10 @@ export default function ProfilePage() {
                   alt={user.name || user.email}
                   width={120}
                   height={120}
-                  className="rounded-full object-cover"
+                  className="w-30 h-30 rounded-full object-cover border-4 border-gray-200 shadow-lg"
                 />
               ) : (
-                <div className="w-30 h-30 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                <div className="w-30 h-30 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center border-4 border-gray-200 shadow-lg">
                   <span className="text-white text-4xl font-bold">
                     {(user.name || user.email).charAt(0).toUpperCase()}
                   </span>
@@ -413,10 +413,10 @@ export default function ProfilePage() {
                           alt={review.author.name || review.author.email}
                           width={48}
                           height={48}
-                          className="rounded-full"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-gray-200"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center border-2 border-gray-200">
                           <span className="text-white text-lg font-semibold">
                             {(review.author.name || review.author.email).charAt(0).toUpperCase()}
                           </span>
