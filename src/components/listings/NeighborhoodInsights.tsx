@@ -23,20 +23,26 @@ export default function NeighborhoodInsights({ address, existingInsights }: Neig
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // If we have existing insights, parse and use them
     if (existingInsights) {
       try {
         const parsed = JSON.parse(existingInsights)
         setInsights(parsed)
-        return
-      } catch (e) {
-        console.error('Failed to parse existing insights:', e)
+        setLoading(false)
+      } catch (error) {
+        console.error('Error parsing existing insights:', error)
+        fetchInsights()
       }
+    } else {
+      fetchInsights()
     }
-
-    // Otherwise, fetch new insights
-    fetchInsights()
   }, [address, existingInsights])
+
+  useEffect(() => {
+    return () => {
+      setInsights(null)
+      setError(null)
+    }
+  }, [])
 
   const fetchInsights = async () => {
     if (!address) return

@@ -3,9 +3,17 @@ interface NeighborhoodData {
   walkScore?: number;
   transitStations?: string[];
   nearbyPlaces?: string[];
-  demographics?: any;
+  demographics?: Record<string, unknown>;
   city?: string;
   province?: string;
+}
+
+interface NeighborhoodInfo {
+  vibe: string;
+  highlights: string[];
+  walkability: string;
+  demographics: string;
+  safety: string;
 }
 
 interface CityConfig {
@@ -15,7 +23,7 @@ interface CityConfig {
   policeService: string;
   majorLandmarks: string[];
   transitStations: { [area: string]: string[] };
-  neighborhoods: { [area: string]: any };
+  neighborhoods: { [area: string]: NeighborhoodInfo };
 }
 
 // City configurations for scalable multi-city support
@@ -184,7 +192,14 @@ async function fetchNearbyPlaces(address: string): Promise<string[]> {
   }
 }
 
-export function enhanceInsightsWithRealData(baseInsights: any, realData: NeighborhoodData): any {
+interface InsightData {
+  walkability: string;
+  highlights: string[];
+  amenities: string[];
+  [key: string]: unknown;
+}
+
+export function enhanceInsightsWithRealData(baseInsights: InsightData, realData: NeighborhoodData): InsightData {
   const enhanced = { ...baseInsights };
   
   // Enhance walkability with real Walk Score
@@ -195,7 +210,7 @@ export function enhanceInsightsWithRealData(baseInsights: any, realData: Neighbo
   // Add real transit stations to highlights
   if (realData.transitStations && realData.transitStations.length > 0) {
     enhanced.highlights = [
-      `TTC Stations: ${realData.transitStations.join(', ')}`,
+      `Transit Stations: ${realData.transitStations.join(', ')}`,
       ...enhanced.highlights.slice(1) // Keep other highlights
     ];
   }

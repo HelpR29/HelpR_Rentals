@@ -78,7 +78,7 @@ CRITICAL: Be factual and research-based. If specific data isn't available, ackno
     // Enhance insights with real data
     try {
       const realData = await realDataPromise;
-      insights = enhanceInsightsWithRealData(insights, realData);
+      insights = enhanceInsightsWithRealData(insights as any, realData);
     } catch (error) {
       console.error('Error enhancing with real data:', error);
       // Continue with base insights if real data fails
@@ -205,23 +205,24 @@ function generateFallbackInsights(address: string): any {
     
     // Financial District / Downtown Core
     if (addressLower.includes('bay st') || addressLower.includes('king st') || addressLower.includes('university ave')) {
-    return {
-      vibe: "Toronto's Financial District - Canada's economic center with modern high-rises, business headquarters, and urban amenities. Walk Score typically 90+.",
-      highlights: [
-        "Union Station (major transit hub serving GO Transit, TTC, UP Express)",
-        "PATH underground walkway system (27km of climate-controlled shopping/dining)",
-        "CN Tower, Rogers Centre, and Harbourfront Centre within 1km"
-      ],
-      walkability: "Excellent walkability (Walk Score 90+). TTC Line 1 (Yonge-University) stations: St. Andrew, King, Queen. Multiple streetcar lines.",
-      demographics: "Based on 2021 Census: High concentration of young professionals (25-40), median household income $80,000+, 60% condo residents.",
-      safety: "Toronto Police Service 14 Division. Well-lit with high foot traffic. Crime rate below Toronto average due to business district security.",
-      amenities: [
-        "Metro, Loblaws, and specialty grocers within PATH system",
-        "Harbourfront Centre, Roy Thomson Hall, Princess of Wales Theatre",
-        "200+ restaurants, Financial District BIA member businesses"
-      ],
-      summary: "Prime location for professionals seeking urban convenience with excellent transit access. High cost of living offset by walkability and cultural amenities."
-    };
+      return {
+        vibe: "Toronto's Financial District - Canada's economic center with modern high-rises, business headquarters, and urban amenities. Walk Score typically 90+.",
+        highlights: [
+          "Union Station (major transit hub serving GO Transit, TTC, UP Express)",
+          "PATH underground walkway system (27km of climate-controlled shopping/dining)",
+          "CN Tower, Rogers Centre, and Harbourfront Centre within 1km"
+        ],
+        walkability: "Excellent walkability (Walk Score 90+). TTC Line 1 (Yonge-University) stations: St. Andrew, King, Queen. Multiple streetcar lines.",
+        demographics: "Based on 2021 Census: High concentration of young professionals (25-40), median household income $80,000+, 60% condo residents.",
+        safety: "Toronto Police Service 14 Division. Well-lit with high foot traffic. Crime rate below Toronto average due to business district security.",
+        amenities: [
+          "Metro, Loblaws, and specialty grocers within PATH system",
+          "Harbourfront Centre, Roy Thomson Hall, Princess of Wales Theatre",
+          "200+ restaurants, Financial District BIA member businesses"
+        ],
+        summary: "Prime location for professionals seeking urban convenience with excellent transit access. High cost of living offset by walkability and cultural amenities."
+      };
+    }
   }
   
   // Mississauga
