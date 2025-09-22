@@ -13,26 +13,40 @@ export interface ListingInput {
   petsAllowed: boolean
 }
 
-export interface AIListingResult {
-  title: string;
-  bedrooms?: number;
-  description: string;
+export interface ScamDetectionResult {
+  isScam: boolean
+  confidence: number // 0-100
+  reasons: string[]
+  severity: 'low' | 'medium' | 'high'
+  riskFactors: {
+    rent: number
+    deposit: number
+    urgency: number
+    contact: number
+    description: number
+    photos: number
+  }
+}
+
+export interface ListingAnalysis {
+  title: string
+  bedrooms?: number
+  description: string
   neighborhood: {
-    vibe: string;
-    highlights: string[];
-    summary: string;
-  };
+    vibe: string
+    highlights: string[]
+    summary: string
+  }
   quickFacts: {
     deposit: string
     furnished: string
     utilities: string
     pets: string
   }
-  isScam: boolean
-  scamReasons?: string[]
+  scamDetection: ScamDetectionResult
 }
 
-export async function generateListingContent(input: ListingInput): Promise<AIListingResult> {
+export async function generateListingContent(input: ListingInput): Promise<ListingAnalysis> {
   const prompt = `You are Helpr's AI assistant. Given rental info, write a clear, attractive listing with a friendly tone. Extract the number of bedrooms from the title and provide Quick Facts. Only flag as scam if there are OBVIOUS red flags (extremely low rent under $100, suspicious language, etc.).
 
 Rental Info:
@@ -52,8 +66,20 @@ Please respond with a JSON object containing:
 - description: A friendly, detailed description (2-3 paragraphs).
 - neighborhood: { vibe: string (e.g., 'Vibrant and Youthful'), highlights: string[] (3-4 key points), summary: string (a short paragraph) }.
 - quickFacts: { deposit, furnished, utilities, pets }
-- isScam: boolean (true ONLY if obvious red flags)
-- scamReasons: array of reasons if flagged as scam (only if isScam is true)`
+- scamDetection: {
+    isScam: boolean (true ONLY if obvious red flags),
+    confidence: number (0-100),
+    reasons: string[] (only if isScam is true),
+    severity: "low" | "medium" | "high",
+    riskFactors: {
+      rent: number (0-100),
+      deposit: number (0-100),
+      urgency: number (0-100),
+      contact: number (0-100),
+      description: number (0-100),
+      photos: number (0-100)
+    }
+  }`
 
   try {
     // ** Primary Provider: Google Gemini (Free) **
@@ -72,6 +98,7 @@ Please respond with a JSON object containing:
   } catch (error) {
     console.error('Gemini failed:', (error as Error).message);
     // Final fallback to basic generation
+    const isScam = input.rent < 100;
     return {
       title: input.title || `${input.furnished ? 'Furnished' : 'Unfurnished'} Rental at ${input.address.split(',')[0]}`,
       bedrooms: parseInt(input.title?.match(/(\d+)/)?.[0] || '1'),
@@ -87,8 +114,20 @@ Please respond with a JSON object containing:
         utilities: 'Contact for details',
         pets: input.petsAllowed ? 'Allowed' : 'Not allowed'
       },
-      isScam: input.rent < 100, // More reasonable threshold - only flag extremely low rents
-      scamReasons: input.rent < 100 ? ['Rent suspiciously low'] : undefined
+      scamDetection: {
+        isScam,
+        confidence: isScam ? 95 : 5,
+        reasons: isScam ? ['Rent suspiciously low'] : [],
+        severity: isScam ? 'high' : 'low',
+        riskFactors: {
+          rent: isScam ? 100 : 0,
+          deposit: 0,
+          urgency: 0,
+          contact: 0,
+          description: 0,
+          photos: 0
+        }
+      }
     };
   }
 }
