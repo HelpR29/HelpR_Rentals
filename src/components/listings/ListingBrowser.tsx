@@ -183,7 +183,7 @@ export default function ListingBrowser() {
             variant={viewMode === 'list' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('list')}
-            className="rounded-md"
+            className={`rounded-md ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:text-gray-900'}`}
           >
             📋 List
           </Button>
@@ -191,7 +191,7 @@ export default function ListingBrowser() {
             variant={viewMode === 'map' ? 'primary' : 'ghost'}
             size="sm"
             onClick={() => setViewMode('map')}
-            className="rounded-md"
+            className={`rounded-md ${viewMode === 'map' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:text-gray-900'}`}
           >
             🗺️ Map
           </Button>

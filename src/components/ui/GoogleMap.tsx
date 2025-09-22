@@ -131,7 +131,10 @@ export default function GoogleMap({
         >
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-            <p className="text-gray-600 text-sm">Loading map...</p>
+            <p className="text-gray-600 text-sm">Loading Google Maps...</p>
+            <p className="text-gray-500 text-xs mt-1">
+              {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? 'Initializing...' : 'API key required'}
+            </p>
           </div>
         </div>
       )}
