@@ -129,20 +129,16 @@ export default function PropertyMap({
               </div>
             </div>
             <div className="flex flex-col space-y-2">
-              <Button
-                size="sm"
-                onClick={() => window.open(`/listing/${selectedPropertyData.id}`, '_blank')}
-              >
-                View Details
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                // Navigate to the listing page and focus the commute section
-                onClick={() => window.open(`/listing/${selectedPropertyData.id}#commute`, '_blank')}
-              >
-                🚗 Commute
-              </Button>
+              <Link href={`/listing/${selectedPropertyData.id}`} passHref>
+                <Button as="a" size="sm">
+                  View Details
+                </Button>
+              </Link>
+              <Link href={`/listing/${selectedPropertyData.id}#commute`} passHref>
+                <Button as="a" variant="secondary" size="sm">
+                  🚗 Commute
+                </Button>
+              </Link>
             </div>
           </div>
 
