@@ -153,7 +153,7 @@ export default function PropertyMap({
           {/* Nearby Amenities */}
           {showNearbyAmenities && (
             <div className="mt-4 pt-4 border-t">
-              <h4 className="font-medium mb-2">Nearby Amenities</h4>
+              <h4 className="font-medium mb-2 text-gray-900">Nearby Amenities</h4>
               <div className="grid grid-cols-2 gap-2 text-sm text-gray-800">
                 <div className="flex items-center space-x-1">
                   <span>🚇</span>
