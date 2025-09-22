@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import SmartSearch from '@/components/search/SmartSearch';
 import { ListingGridSkeleton } from '@/components/ui/LoadingStates';
@@ -84,27 +85,18 @@ export default function ListingBrowser() {
 
   return (
     <div>
-      {/* AI Search Bar */}
-      <Card className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Find Your Perfect Rental with AI</h2>
-        <div className="flex items-center space-x-2">
-          <Input
-            type="text"
-            placeholder='e.g., "a pet-friendly 2-bedroom under $2500 near a park"'
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            className="flex-1"
-            label=''
-          />
-          <Button onClick={handleSearch} size='lg' className='px-6'>
-            <svg className='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'><path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' /></svg>
-            <span className='ml-2'>Search</span>
-          </Button>
-          <Button variant="ghost" onClick={clearSearch}>Clear</Button>
-        </div>
-        <p className='text-xs text-gray-500 mt-2'>Our AI understands criteria like price, number of bedrooms, amenities, and location features.</p>
-      </Card>
+      {/* Smart Search */}
+      <ErrorBoundary>
+        <SmartSearch 
+          onFiltersChange={(filters) => {
+            // Handle filter changes and update listings
+            if (filters.query || Object.values(filters).some(v => v !== '' && v !== 0 && v !== 5000)) {
+              fetchListings(filters.query);
+            }
+          }}
+          initialFilters={{ query: searchQuery }}
+        />
+      </ErrorBoundary>
 
       {/* View Toggle */}
       <div className="flex items-center justify-between mb-6">
