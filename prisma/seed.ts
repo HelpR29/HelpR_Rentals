@@ -80,13 +80,17 @@ async function main() {
   ];
 
   for (const listingData of listingsData) {
+    // Generate neighborhood insights for each listing
+    const neighborhoodInsights = generateNeighborhoodInsights(listingData.address);
+    
     await prisma.listing.create({
       data: {
         ...listingData,
         ownerId: host.id,
         availableFrom: new Date(),
+        neighborhoodInsights: JSON.stringify(neighborhoodInsights),
       },
-    });
+    })
   }
 
   console.log(`Seeded ${listingsData.length} listings.`);
