@@ -22,9 +22,7 @@ async function getFiltersFromAI(query: string) {
   // Bedroom parsing
   const bedroomMatch = query.match(/(\d+)\s*bed(room)?s?/);
   if (bedroomMatch) {
-    // This is a simplification. A real implementation would need to query a `bedrooms` field.
-    // We'll filter by description for now.
-    filters.description = { contains: `${bedroomMatch[1]} bed`, mode: 'insensitive' };
+    filters.bedrooms = parseInt(bedroomMatch[1], 10);
   }
 
   // Amenities parsing
