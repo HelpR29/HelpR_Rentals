@@ -23,9 +23,12 @@ export async function GET(request: NextRequest) {
     // Create session token
     const sessionToken = await createSessionToken(user)
 
-    // Redirect to appropriate page based on role
-    const redirectUrl = user.role === 'host' ? '/post' : '/'
-    const response = NextResponse.redirect(new URL(redirectUrl, request.url))
+    // Redirect to the finalize page, which will handle the client-side event dispatch
+    const finalRedirectUrl = user.role === 'host' ? '/post' : '/';
+    const finalizeUrl = new URL('/auth/finalize', request.url);
+    finalizeUrl.searchParams.set('redirectTo', finalRedirectUrl);
+
+    const response = NextResponse.redirect(finalizeUrl);
 
     // Set session cookie on the response to ensure browser persists it
     response.cookies.set({
