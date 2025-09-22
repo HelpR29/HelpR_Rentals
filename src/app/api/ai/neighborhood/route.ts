@@ -15,13 +15,13 @@ export async function POST(request: NextRequest) {
 
 IMPORTANT: Base your analysis on factual, research-based information about this specific Canadian city/area. Consider:
 - Actual transit lines and stations near this address
-- Real demographic data for this Toronto neighborhood
-- Documented crime statistics and safety records
+- Real demographic data for this neighborhood
+- Documented crime statistics and safety records  
 - Verified local amenities and businesses
 - Actual walkability factors (sidewalks, traffic, distance to services)
 - Real estate market trends for this area
 
-If you don't have specific factual data about this exact location, clearly indicate this and provide general Toronto context instead of making up specific details.
+If you don't have specific factual data about this exact location, clearly indicate this and provide general context for the city instead of making up specific details.
 
 Provide a comprehensive, factual neighborhood analysis in JSON format:
 
@@ -43,7 +43,7 @@ Provide a comprehensive, factual neighborhood analysis in JSON format:
   "summary": "Evidence-based 2-3 sentence summary highlighting the factual advantages of this location for potential renters"
 }
 
-CRITICAL: Be factual and research-based. If specific data isn't available, acknowledge this rather than fabricating details. Focus on what can be verified about this Toronto neighborhood.`;
+CRITICAL: Be factual and research-based. If specific data isn't available, acknowledge this rather than fabricating details. Focus on what can be verified about this Canadian neighborhood.`;
 
     let insights;
 
