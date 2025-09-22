@@ -9,8 +9,8 @@ interface UserPayload {
 
 export async function getServerUser() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  console.log('Auth Token from cookie:', token ? 'Found' : 'Not Found');
+  const token = cookieStore.get('session')?.value;
+  console.log('Auth Token (from "session" cookie):', token ? 'Found' : 'Not Found');
 
   if (!token) {
     console.log('No token, returning null.');

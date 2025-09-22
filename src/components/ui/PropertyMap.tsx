@@ -6,6 +6,7 @@ import Button from './Button'
 import Card from './Card'
 import Link from 'next/link';
 import AddressAutocomplete from './AddressAutocomplete';
+import { useToast } from './Toast';
 
 interface Property {
   id: string
@@ -42,6 +43,7 @@ export default function PropertyMap({
   const [commuteOrigin, setCommuteOrigin] = useState('');
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const { addToast } = useToast();
 
   // Convert properties to map markers
   const markers = properties.map(property => ({
@@ -92,8 +94,21 @@ export default function PropertyMap({
         if (status === google.maps.DirectionsStatus.OK && result) {
           setDirections(result);
           setSelectedPropertyData(null); // Hide the card to show the route
+
+          const leg = result.routes[0].legs[0];
+          if (leg.distance && leg.duration) {
+            addToast({
+              type: 'success',
+              title: 'Route Found!',
+              message: `Distance: ${leg.distance.text}, Duration: ${leg.duration.text}`,
+            });
+          }
         } else {
-          alert(`Directions request failed due to ${status}`);
+          addToast({
+            type: 'error',
+            title: 'Could Not Find Route',
+            message: `Directions request failed due to ${status}`,
+          });
         }
       }
     );
