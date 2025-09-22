@@ -37,6 +37,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: 'File size must be less than 5MB' },
+        { status: 400 }
+      )
+    }
+
+    console.log(`📏 Profile photo: ${file.name}, ${(file.size / 1024).toFixed(1)}KB, ${file.type}`)
+
     // Upload the image
     const uploadResult = await uploadImage(file)
 
