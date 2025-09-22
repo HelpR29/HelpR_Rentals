@@ -148,12 +148,10 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/auth/logout', { method: 'POST' });
-      if (response.ok) {
-        // The API response will handle the redirect and cookie deletion.
-        // We just need to reload the page to reflect the logged-out state.
-        window.location.href = '/';
-      }
+      // Make the API call. The server response itself contains the redirect
+      // and the cookie deletion instructions. The browser will handle it automatically.
+      await fetch('/api/auth/logout', { method: 'POST' });
+      // After the fetch, the browser will be redirected by the response, so we don't need to do anything else.
     } catch (error) {
       console.error('Logout failed:', error);
     }
