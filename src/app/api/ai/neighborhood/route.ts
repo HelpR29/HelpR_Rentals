@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { openai } from '@/lib/openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,39 +35,29 @@ Focus on accurate, helpful information about the actual neighborhood. Be positiv
 
     let insights;
 
-    if (process.env.NODE_ENV === 'development' && !process.env.OPENAI_API_KEY) {
-      // Development fallback with realistic data based on the address
-      const fallbackInsights = generateFallbackInsights(address);
-      insights = fallbackInsights;
-    } else {
-      // Use OpenAI for production or when API key is available
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a knowledgeable real estate expert who provides detailed neighborhood analyses. Always respond with valid JSON only.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-
-      const content = completion.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error('No content received from OpenAI');
-      }
-
+    // Try Gemini first (free tier), fallback to local insights if no API key
+    if (process.env.GEMINI_API_KEY) {
       try {
-        insights = JSON.parse(content);
-      } catch (parseError) {
-        console.error('Failed to parse OpenAI response:', content);
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const content = response.text();
+
+        try {
+          insights = JSON.parse(content);
+        } catch (parseError) {
+          console.error('Failed to parse Gemini response:', content);
+          insights = generateFallbackInsights(address);
+        }
+      } catch (error) {
+        console.error('Gemini API error:', error);
         insights = generateFallbackInsights(address);
       }
+    } else {
+      console.log('No GEMINI_API_KEY found, using fallback insights');
+      insights = generateFallbackInsights(address);
     }
 
     return NextResponse.json({ insights });

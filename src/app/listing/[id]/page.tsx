@@ -206,7 +206,6 @@ export default function ListingDetailPage() {
     )
   }
 
-  const quickFacts = listing.aiFlags?.quickFacts || {}
   const canApply = user && user.role === 'tenant' && user.id !== listing.owner.id
   const hasApplied = listing.applications.some(app => app.applicantId === user?.id)
 
@@ -329,6 +328,7 @@ export default function ListingDetailPage() {
               <p className="text-gray-900 whitespace-pre-line">{listing.description}</p>
             </div>
           </Card>
+
 
           <Card>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Details & Utilities</h2>

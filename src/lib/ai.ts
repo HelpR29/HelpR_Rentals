@@ -1,9 +1,4 @@
-import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || 'sk-fake-key-for-development',
-});
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'fake-gemini-key');
 
@@ -59,39 +54,9 @@ Please respond with a JSON object containing:
 - scamReasons: array of reasons if flagged as scam`
 
     try {
-    // ** Primary Provider: OpenAI **
-    console.log('Attempting to generate content with OpenAI...');
-    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY.includes('fake-key')) {
-      throw new Error('OpenAI key not available, failing over to Gemini.');
-    }
-
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
-      messages: [
-        { role: 'system', content: 'You are Helpr\'s AI assistant. Generate rental listings and detect scams.' },
-        { role: 'user', content: prompt },
-      ],
-      temperature: 0.7,
-    });
-
-    const content = completion.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error('No response from OpenAI');
-    }
-
-    return JSON.parse(content);
-
-  } catch (error) {
-    console.warn('OpenAI failed:', (error as Error).message);
-    console.log('Attempting fallback to Google Gemini Pro...');
-
-    // ** Secondary Provider: Google Gemini **
-    try {
-      if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY.includes('fake-key')) {
-        throw new Error('Gemini API key not available.');
-      }
-
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // ** Primary Provider: Google Gemini (Free) **
+    if (process.env.GEMINI_API_KEY && !process.env.GEMINI_API_KEY.includes('fake-key')) {
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
