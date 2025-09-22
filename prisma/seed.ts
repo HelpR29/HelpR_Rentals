@@ -22,7 +22,18 @@ async function main() {
   });
   console.log(`Created admin user: ${admin.email}`);
 
-  const listingsData = [
+  // Create a host user
+  const host = await prisma.user.create({
+    data: {
+      email: 'host@example.com',
+      name: 'John Host',
+      role: 'host',
+      verified: true,
+      emailVerified: true,
+      phoneVerified: true,
+    },
+  });
+  console.log(`Created host user: ${host.email}`);
     // WINNIPEG LISTINGS (Primary Launch City)
     {
       title: 'Downtown Exchange District Loft',
