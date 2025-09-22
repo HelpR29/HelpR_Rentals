@@ -7,8 +7,8 @@ interface UserPayload {
   role: 'tenant' | 'host' | 'admin';
 }
 
-export function getServerUser() {
-  const cookieStore = cookies();
+export async function getServerUser() {
+  const cookieStore = await cookies();
   const token = cookieStore.get('auth_token')?.value;
 
   if (!token) {
