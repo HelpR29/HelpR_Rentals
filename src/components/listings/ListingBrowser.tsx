@@ -152,16 +152,7 @@ export default function ListingBrowser() {
         <>
           {/* Listings Grid */}
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-48 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </Card>
-              ))}
-            </div>
+            <ListingGridSkeleton count={6} />
           ) : listings.length === 0 ? (
             <Card className="text-center py-12">
               <h3 className="text-lg font-medium text-gray-900 mb-2">No listings found</h3>
