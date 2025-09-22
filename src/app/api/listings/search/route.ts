@@ -100,7 +100,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ listings });
+    // Parse photos JSON strings to arrays
+    const listingsWithParsedPhotos = listings.map(listing => ({
+      ...listing,
+      photos: typeof listing.photos === 'string' 
+        ? JSON.parse(listing.photos) 
+        : listing.photos || []
+    }));
+
+    return NextResponse.json({ listings: listingsWithParsedPhotos });
 
   } catch (error) {
     console.error('AI search error:', error);

@@ -33,7 +33,7 @@ export interface AIListingResult {
 }
 
 export async function generateListingContent(input: ListingInput): Promise<AIListingResult> {
-  const prompt = `You are Helpr's AI assistant. Given minimal rental info, write a clear, scam-free listing with a friendly tone. Extract the number of bedrooms from the title and provide Quick Facts. If suspicious, flag as a potential scam.
+  const prompt = `You are Helpr's AI assistant. Given rental info, write a clear, attractive listing with a friendly tone. Extract the number of bedrooms from the title and provide Quick Facts. Only flag as scam if there are OBVIOUS red flags (extremely low rent under $100, suspicious language, etc.).
 
 Rental Info:
 - Title: ${input.title}
@@ -44,14 +44,16 @@ Rental Info:
 - Furnished: ${input.furnished ? 'Yes' : 'No'}
 - Pets: ${input.petsAllowed ? 'Allowed' : 'Not allowed'}
 
+IMPORTANT: Be conservative with scam detection. Normal market-rate rentals should NOT be flagged. Only flag if rent is under $100 or there are clear scam indicators.
+
 Please respond with a JSON object containing:
 - title: A revised, catchy, descriptive title (max 60 chars) based on the user's input.
 - bedrooms: The number of bedrooms (e.g., 1, 2, 3) extracted from the title. If it's a studio, return 0.
 - description: A friendly, detailed description (2-3 paragraphs).
 - neighborhood: { vibe: string (e.g., 'Vibrant and Youthful'), highlights: string[] (3-4 key points), summary: string (a short paragraph) }.
 - quickFacts: { deposit, furnished, utilities, pets }
-- isScam: boolean (true if suspicious)
-- scamReasons: array of reasons if flagged as scam`
+- isScam: boolean (true ONLY if obvious red flags)
+- scamReasons: array of reasons if flagged as scam (only if isScam is true)`
 
   try {
     // ** Primary Provider: Google Gemini (Free) **
@@ -85,8 +87,8 @@ Please respond with a JSON object containing:
         utilities: 'Contact for details',
         pets: input.petsAllowed ? 'Allowed' : 'Not allowed'
       },
-      isScam: input.rent < 200,
-      scamReasons: input.rent < 200 ? ['Rent suspiciously low'] : undefined
+      isScam: input.rent < 100, // More reasonable threshold - only flag extremely low rents
+      scamReasons: input.rent < 100 ? ['Rent suspiciously low'] : undefined
     };
   }
 }

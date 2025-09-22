@@ -18,6 +18,8 @@ interface HeaderUser {
 export default function Header() {
   const { user, loading, logout, fetchUser } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   // Listen for login and profile update events to refresh user data
   useEffect(() => {
@@ -39,6 +41,40 @@ export default function Header() {
       window.removeEventListener('profileUpdated', handleProfileUpdated);
     };
   }, [fetchUser]);
+
+  // Fetch unread counts
+  const fetchUnreadCounts = async () => {
+    if (!user) return;
+    
+    try {
+      // Fetch unread notifications
+      const notificationsResponse = await fetch('/api/notifications');
+      if (notificationsResponse.ok) {
+        const notificationsData = await notificationsResponse.json();
+        const unreadCount = notificationsData.notifications.filter((n: any) => !n.read).length;
+        setUnreadNotifications(unreadCount);
+      }
+
+      // Fetch unread messages
+      const messagesResponse = await fetch('/api/messages/unread-count');
+      if (messagesResponse.ok) {
+        const messagesData = await messagesResponse.json();
+        setUnreadMessages(messagesData.count || 0);
+      }
+    } catch (error) {
+      console.error('Failed to fetch unread counts:', error);
+    }
+  };
+
+  // Fetch unread counts when user changes
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCounts();
+      // Set up polling for real-time updates
+      const interval = setInterval(fetchUnreadCounts, 30000); // Every 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [user]);
 
   // Cast the user from the hook to the more detailed HeaderUser type
   const headerUser = user as HeaderUser | null;
@@ -81,10 +117,24 @@ export default function Header() {
             )}
             {headerUser && (
               <>
-                <Link href="/inbox" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Inbox</Link>
+                <Link href="/inbox" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">
+                  Inbox
+                  {unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadMessages > 9 ? '9+' : unreadMessages}
+                    </span>
+                  )}
+                </Link>
                 <Link href="/verification" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Verification</Link>
                 <Link href="/privacy" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Privacy</Link>
-                <Link href="/notifications" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">🔔</Link>
+                <Link href="/notifications" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">
+                  🔔
+                  {unreadNotifications > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                    </span>
+                  )}
+                </Link>
               </>
             )}
             {headerUser?.role === 'admin' && (
@@ -179,8 +229,15 @@ export default function Header() {
                   <Link href="/privacy" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
                     Privacy
                   </Link>
-                  <Link href="/notifications" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
-                    🔔 Notifications
+                  <Link href="/notifications" className="relative block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    <span className="flex items-center">
+                      🔔 Notifications
+                      {unreadNotifications > 0 && (
+                        <span className="ml-2 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {unreadNotifications > 9 ? '9+' : unreadNotifications}
+                        </span>
+                      )}
+                    </span>
                   </Link>
                 </>
               )}
