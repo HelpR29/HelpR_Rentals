@@ -181,8 +181,8 @@ export default function PostListingPage() {
           availableTo: formData.availableTo,
           furnished: formData.furnished,
           petsAllowed: formData.petsAllowed,
-          bedrooms: formData.bedrooms,
-          bathrooms: formData.bathrooms,
+          bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : 0,
+          bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : 1,
           // Utilities
           waterIncluded: formData.waterIncluded,
           heatIncluded: formData.heatIncluded,
