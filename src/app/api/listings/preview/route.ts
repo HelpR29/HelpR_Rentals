@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Generate AI content preview
     const aiResult = await generateListingContent({
+      title: `Rental at ${address}`, // Generate a default title
       address,
       rent,
       deposit,
@@ -82,8 +83,7 @@ export async function POST(request: NextRequest) {
       title: aiResult.title,
       description: aiResult.description,
       quickFacts: quickFacts,
-      isScam: aiResult.isScam,
-      scamReasons: aiResult.scamReasons
+      scamDetection: aiResult.scamDetection
     })
 
   } catch (error) {

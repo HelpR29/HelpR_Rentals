@@ -76,12 +76,15 @@ export async function POST(request: NextRequest) {
         bathrooms: bathrooms ? parseFloat(bathrooms) : null,
         photos: JSON.stringify(photos),
         aiFlags: JSON.stringify({
-          isScam: aiResult.isScam,
-          scamReasons: aiResult.scamReasons,
+          isScam: aiResult.scamDetection.isScam,
+          scamReasons: aiResult.scamDetection.reasons,
+          confidence: aiResult.scamDetection.confidence,
+          severity: aiResult.scamDetection.severity,
+          riskFactors: aiResult.scamDetection.riskFactors,
           quickFacts: aiResult.quickFacts,
           neighborhood: aiResult.neighborhood, // Save new neighborhood insights
         }),
-        flagged: aiResult.isScam,
+        flagged: aiResult.scamDetection.isScam,
         // Utilities
         waterIncluded: waterIncluded || false,
         heatIncluded: heatIncluded || false,
@@ -104,9 +107,11 @@ export async function POST(request: NextRequest) {
       aiGenerated: {
         title: aiResult.title,
         description: aiResult.description,
-        quickFacts: aiResult.quickFacts
+        quickFacts: aiResult.quickFacts,
+        neighborhood: aiResult.neighborhood
       },
-      flagged: aiResult.isScam
+      flagged: aiResult.scamDetection.isScam,
+      scamDetection: aiResult.scamDetection
     })
 
   } catch (error) {
