@@ -56,13 +56,27 @@ export default function GooglePlacesInput({
 
     // Load Google Places API only if not already loading
     const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGooglePlaces`
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    
+    if (!apiKey) {
+      console.warn('Google Maps API key not found. Address autocomplete will not work.')
+      setIsLoaded(true) // Set as loaded so input still works
+      return
+    }
+    
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGooglePlaces`
     script.async = true
     script.defer = true
 
     window.initGooglePlaces = () => {
       initializeAutocomplete()
       setIsLoaded(true)
+    }
+
+    // Add error handling for script loading
+    script.onerror = () => {
+      console.error('Failed to load Google Maps API')
+      setIsLoaded(true) // Set as loaded so input still works
     }
 
     document.head.appendChild(script)
@@ -73,26 +87,35 @@ export default function GooglePlacesInput({
   }, [])
 
   const initializeAutocomplete = () => {
-    if (!inputRef.current || !window.google) return
-
-    // Focus on Canadian addresses
-    const options = {
-      types: ['address'],
-      componentRestrictions: { country: 'ca' },
-      fields: ['formatted_address', 'geometry', 'address_components']
+    if (!inputRef.current || !window.google || !window.google.maps || !window.google.maps.places) {
+      console.log('Google Maps API not ready yet')
+      return
     }
 
-    autocompleteRef.current = new window.google.maps.places.Autocomplete(
-      inputRef.current,
-      options
-    )
-
-    autocompleteRef.current.addListener('place_changed', () => {
-      const place = autocompleteRef.current.getPlace()
-      if (place.formatted_address) {
-        onChange(place.formatted_address)
+    try {
+      // Focus on Canadian addresses
+      const options = {
+        types: ['address'],
+        componentRestrictions: { country: 'ca' },
+        fields: ['formatted_address', 'geometry', 'address_components']
       }
-    })
+
+      autocompleteRef.current = new window.google.maps.places.Autocomplete(
+        inputRef.current,
+        options
+      )
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current.getPlace()
+        if (place.formatted_address) {
+          onChange(place.formatted_address)
+        }
+      })
+      
+      console.log('Google Places Autocomplete initialized successfully')
+    } catch (error) {
+      console.error('Error initializing Google Places Autocomplete:', error)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
