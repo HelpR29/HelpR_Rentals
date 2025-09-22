@@ -8,12 +8,11 @@ export default async function Home() {
   
   return (
     <>
-      {/* Force header refresh after login */}
+      {/* Force full page reload after login */}
       <script dangerouslySetInnerHTML={{
         __html: `
           if (window.location.search.includes('refresh=true')) {
-            window.history.replaceState({}, '', '/');
-            window.dispatchEvent(new CustomEvent('userLoggedIn'));
+            window.location.href = '/';
           }
         `
       }} />
