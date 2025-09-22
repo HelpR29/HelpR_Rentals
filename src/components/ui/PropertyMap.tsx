@@ -36,7 +36,11 @@ export default function PropertyMap({
 }: PropertyMapProps) {
   const [mapCenter, setMapCenter] = useState(center || { lat: 43.6532, lng: -79.3832 })
   const [selectedPropertyData, setSelectedPropertyData] = useState<Property | null>(null)
-  const [showNearbyAmenities, setShowNearbyAmenities] = useState(false)
+  const [showNearbyAmenities, setShowNearbyAmenities] = useState(false);
+  const [isCommuteMode, setIsCommuteMode] = useState(false);
+  const [commuteOrigin, setCommuteOrigin] = useState('');
+  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   // Convert properties to map markers
   const markers = properties.map(property => ({
@@ -64,9 +68,40 @@ export default function PropertyMap({
   }, [selectedProperty, properties])
 
   const handleMapClick = (position: { lat: number; lng: number }) => {
-    setMapCenter(position)
-    setSelectedPropertyData(null)
-  }
+    setMapCenter(position);
+    setSelectedPropertyData(null);
+    setIsCommuteMode(false);
+    setDirections(null);
+  };
+
+  const handleCalculateCommute = () => {
+    if (!commuteOrigin || !selectedPropertyData) return;
+
+    setIsCalculating(true);
+    const directionsService = new google.maps.DirectionsService();
+
+    directionsService.route(
+      {
+        origin: commuteOrigin,
+        destination: selectedPropertyData.coordinates,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        setIsCalculating(false);
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          setDirections(result);
+        } else {
+          alert(`Directions request failed due to ${status}`);
+        }
+      }
+    );
+  };
+
+  const handleClearCommute = () => {
+    setDirections(null);
+    setCommuteOrigin('');
+    setIsCommuteMode(false);
+  };
 
   
   return (
@@ -129,19 +164,18 @@ export default function PropertyMap({
               </div>
             </div>
             <div className="flex flex-col space-y-2">
-              <Button
-                size="sm"
-                onClick={() => window.open(`/listing/${selectedPropertyData.id}`, '_blank')}
+              <Link
+                href={`/listing/${selectedPropertyData.id}`}
+                className="inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 px-3 py-1.5 text-sm"
               >
                 View Details
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => window.open(`/listing/${selectedPropertyData.id}#commute`, '_blank')}
+              </Link>
+              <Link
+                href={`/listing/${selectedPropertyData.id}#commute`}
+                className="inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 px-3 py-1.5 text-sm"
               >
                 🚗 Commute
-              </Button>
+              </Link>
             </div>
           </div>
 
