@@ -198,9 +198,9 @@ export default function Header() {
                 <div className="px-3">
                   <div className="flex items-center space-x-3 mb-3">
                     {headerUser.avatar ? (
-                      <img src={headerUser.avatar} alt={headerUser.email} className="w-10 h-10 rounded-full object-cover" />
+                      <img src={headerUser.avatar} alt={headerUser.email} className="w-10 h-10 rounded-full object-cover border-2 border-gray-200" />
                     ) : (
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center border-2 border-gray-200">
                         <span className="text-white text-sm font-semibold">{headerUser.email.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
