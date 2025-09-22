@@ -40,7 +40,21 @@ export default function GooglePlacesInput({
       return
     }
 
-    // Load Google Places API
+    // Check if script is already loading
+    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]')
+    if (existingScript) {
+      // Wait for existing script to load
+      const checkGoogleLoaded = setInterval(() => {
+        if (window.google && window.google.maps && window.google.maps.places) {
+          clearInterval(checkGoogleLoaded)
+          initializeAutocomplete()
+          setIsLoaded(true)
+        }
+      }, 100)
+      return () => clearInterval(checkGoogleLoaded)
+    }
+
+    // Load Google Places API only if not already loading
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initGooglePlaces`
     script.async = true
@@ -54,9 +68,7 @@ export default function GooglePlacesInput({
     document.head.appendChild(script)
 
     return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
+      // Don't remove script as other components might be using it
     }
   }, [])
 
@@ -106,6 +118,7 @@ export default function GooglePlacesInput({
             block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
             disabled:bg-gray-50 disabled:text-gray-500
+            text-gray-900 font-medium text-base placeholder-gray-500
             ${className}
           `}
         />

@@ -121,7 +121,7 @@ export default function SmartSearch({ onFiltersChange, initialFilters }: SmartSe
               onChange={(e) => handleFilterChange('query', e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               onFocus={() => filters.query.length > 1 && setShowSuggestions(true)}
-              className="block w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-600 text-gray-900 focus:outline-none focus:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+              className="block w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 text-gray-900 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-semibold text-base"
             />
             
             {/* Search Suggestions */}
