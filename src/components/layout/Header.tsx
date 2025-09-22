@@ -148,14 +148,16 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
-      setUser(null)
-      setNotificationCount(0)
-      router.push('/')
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (response.ok) {
+        // The API response will handle the redirect and cookie deletion.
+        // We just need to reload the page to reflect the logged-out state.
+        window.location.href = '/';
+      }
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout failed:', error);
     }
-  }
+  };
 
   // Function to refresh notification count (can be called from other components)
   const refreshNotificationCount = () => {
