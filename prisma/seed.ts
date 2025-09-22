@@ -8,18 +8,19 @@ async function main() {
   await prisma.user.deleteMany({});
   console.log('Cleaned up old data.');
 
-  // Create a host user
-  const host = await prisma.user.create({
+  // Create an admin user
+  const admin = await prisma.user.create({
     data: {
-      email: 'host@example.com',
-      name: 'John Host',
-      role: 'host',
+      email: 'admin@example.com',
+      name: 'Admin User',
+      role: 'admin',
       verified: true,
       emailVerified: true,
       phoneVerified: true,
+      idVerified: true,
     },
   });
-  console.log(`Created host user: ${host.email}`);
+  console.log(`Created admin user: ${admin.email}`);
 
   const listingsData = [
     // WINNIPEG LISTINGS (Primary Launch City)
