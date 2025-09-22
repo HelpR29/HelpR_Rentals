@@ -84,6 +84,10 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
 
   useEffect(() => {
+    fetchUser()
+  }, [])
+
+  useEffect(() => {
     if (user?.role === 'admin') {
       fetchFlaggedListings()
       fetchStats()
