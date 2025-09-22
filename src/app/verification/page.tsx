@@ -95,7 +95,10 @@ export default function VerificationPage() {
         formDataBody.append('document', documentFile);
       }
 
-      const response = await fetch('/api/verification/submit', {
+      const isSmartScan = verificationType === 'id_smart_scan';
+      const endpoint = isSmartScan ? '/api/verification/analyze-id' : '/api/verification/submit';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         body: formDataBody,
       });
@@ -319,34 +322,35 @@ export default function VerificationPage() {
 
                   {/* ID Verification */}
                   {item.type === 'id' && (
-                    <div>
-                      <Input label="ID Type" value={formData.id?.idType || ''} onChange={(e) => setFormData({ ...formData, id: { ...formData.id, idType: e.target.value } })} placeholder="Driver's License, Passport, etc." helperText="What type of government ID are you submitting?" />
-                      <div className="mt-4 space-y-3">
-                        <p className="text-sm font-medium text-gray-700">Upload Document:</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <Button variant="secondary" onClick={() => router.push('/verification/mobile')} className="w-full">📱 Use Mobile Camera</Button>
-                          <Button variant="secondary" onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,.pdf'; input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) { setFormData({ ...formData, id: { ...formData.id, document: file } }); addToast({ type: 'success', title: 'Document uploaded', message: `${file.name} ready for verification` }); } }; input.click(); }} className="w-full">📄 Upload File</Button>
-                        </div>
-                        {formData.id?.document && (
-                          <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                            <div className="flex items-center justify-between">
-                              <p className="text-sm text-green-800">✅ Document ready: {formData.id.document.name || 'Mobile capture'}</p>
-                              <Button 
-                                variant="secondary" 
-                                size="sm"
-                                onClick={() => {
-                                  setFormData({ ...formData, id: { ...formData.id, document: undefined } });
-                                  addToast({ type: 'info', title: 'Document Removed', message: 'You can upload a new document.' });
-                                }}
-                                className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                              >
-                                🗑️ Remove
-                              </Button>
-                            </div>
-                          </div>
-                        )}
+                    <div className="space-y-4">
+                      <p className='text-sm text-gray-600'>For instant verification, use our AI-powered Smart Scan. It automatically extracts and cross-references your information for the highest level of security.</p>
+                      <Button 
+                        variant='gradient' 
+                        className='w-full text-base py-3'
+                        onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) { handleVerificationSubmit('id_smart_scan', {}, file); } }; input.click(); }}
+                        loading={submitting === 'id_smart_scan'}
+                      >
+                        ⚡️ Smart Scan ID
+                      </Button>
+                      <div className="text-center">
+                        <button onClick={() => setFormData({ ...formData, id: { ...formData.id, manual: true }})} className="text-sm text-gray-500 hover:text-gray-700 underline">Or, switch to manual upload</button>
                       </div>
-                      <Button className="mt-4 w-full" onClick={() => handleVerificationSubmit('id', formData.id, formData.id?.document)} loading={submitting === 'id'} disabled={!formData.id?.idType || (!formData.id?.document && !formData.id?.idNumber)}>Submit ID Verification</Button>
+
+                      {formData.id?.manual && (
+                        <div className='pt-4 border-t mt-4'>
+                           <Input label="ID Type" value={formData.id?.idType || ''} onChange={(e) => setFormData({ ...formData, id: { ...formData.id, idType: e.target.value } })} placeholder="Driver's License, Passport, etc." />
+                           <div className="mt-4 space-y-3">
+                             <p className="text-sm font-medium text-gray-700">Upload Document:</p>
+                             <Button variant="secondary" onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,.pdf'; input.onchange = (e) => { const file = (e.target as HTMLInputElement).files?.[0]; if (file) { setFormData({ ...formData, id: { ...formData.id, document: file } }); } }; input.click(); }} className="w-full">📄 Upload File</Button>
+                             {formData.id?.document && (
+                               <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                 <p className="text-sm text-green-800">✅ {formData.id.document.name}</p>
+                               </div>
+                             )}
+                           </div>
+                           <Button className="mt-4 w-full" onClick={() => handleVerificationSubmit('id', formData.id, formData.id?.document)} loading={submitting === 'id'}>Submit for Manual Review</Button>
+                        </div>
+                      )}
                     </div>
                   )}
 
