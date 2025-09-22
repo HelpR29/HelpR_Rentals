@@ -11,6 +11,7 @@ import { AverageRating } from '@/components/ui/StarRating'
 import VerificationBadge from '@/components/ui/VerificationBadge'
 import GoogleMap from '@/components/ui/GoogleMap'
 import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
+import NeighborhoodInsights from '@/components/listings/NeighborhoodInsights'
 import Link from 'next/link'
 
 interface Listing {
@@ -26,6 +27,7 @@ interface Listing {
   petsAllowed: boolean
   photos: string[]
   aiFlags?: any
+  neighborhoodInsights?: string | null
   createdAt: string
   // Utilities
   waterIncluded?: boolean
