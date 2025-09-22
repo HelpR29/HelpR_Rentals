@@ -79,6 +79,7 @@ export default function ListingDetailPage() {
   const [commuteDestination, setCommuteDestination] = useState('');
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [isCalculatingCommute, setIsCalculatingCommute] = useState(false);
+  const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
 
   useEffect(() => {
     fetchListing();
@@ -208,33 +209,42 @@ export default function ListingDetailPage() {
     }
 
     setIsCalculatingCommute(true);
-    setDirections(null); // Clear previous directions
+    setDirections(null);
+    setRouteInfo(null);
 
-    try {
-      const response = await fetch(
-        `/api/directions?origin=${listing.address}&destination=${commuteDestination}`
-      );
-      const data = await response.json();
+    const directionsService = new google.maps.DirectionsService();
 
-      if (response.ok) {
-        setDirections(data);
-        addToast({
-          type: 'success',
-          title: 'Route Found!',
-          message: `Displaying route to ${commuteDestination}.`,
-        });
-      } else {
-        throw new Error(data.error || 'Failed to fetch directions');
+    directionsService.route(
+      {
+        origin: listing.address,
+        destination: commuteDestination,
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        setIsCalculatingCommute(false);
+        if (status === google.maps.DirectionsStatus.OK && result) {
+          setDirections(result);
+          const leg = result.routes[0].legs[0];
+          if (leg.distance && leg.duration) {
+            setRouteInfo({
+              distance: leg.distance.text,
+              duration: leg.duration.text,
+            });
+          }
+          addToast({
+            type: 'success',
+            title: 'Route Found!',
+            message: `Distance: ${leg.distance?.text}, Duration: ${leg.duration?.text}`,
+          });
+        } else {
+          addToast({
+            type: 'error',
+            title: 'Could Not Find Route',
+            message: `Directions request failed due to ${status}`,
+          });
+        }
       }
-    } catch (error: any) {
-      addToast({
-        type: 'error',
-        title: 'Could Not Find Route',
-        message: error.message || 'An unexpected error occurred.',
-      });
-    } finally {
-      setIsCalculatingCommute(false);
-    }
+    );
   };
 
   return (
@@ -434,6 +444,13 @@ export default function ListingDetailPage() {
                 directions={directions}
                 className="rounded-lg border border-gray-200"
               />
+              {routeInfo && (
+                <div className="mt-4 p-3 bg-blue-100 border border-blue-200 rounded-lg text-center">
+                  <p className="text-sm font-semibold text-blue-800">
+                    <span className="font-bold">Distance:</span> {routeInfo.distance} | <span className="font-bold">Duration:</span> {routeInfo.duration}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Neighborhood Insights */}
