@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../src/lib/prisma';
 
 async function main() {
   console.log('Start seeding...');
@@ -33,7 +31,7 @@ async function main() {
       bathrooms: 2,
       furnished: true,
       petsAllowed: false,
-      photos: JSON.stringify(['/placeholder-1.jpg', '/placeholder-2.jpg']),
+      photos: JSON.stringify(['https://picsum.photos/seed/1/800/600', 'https://picsum.photos/seed/2/800/600']),
     },
     {
       title: 'Spacious 3BR House with Backyard',
@@ -44,7 +42,7 @@ async function main() {
       bathrooms: 2.5,
       furnished: false,
       petsAllowed: true,
-      photos: JSON.stringify(['/placeholder-3.jpg', '/placeholder-4.jpg']),
+      photos: JSON.stringify(['https://picsum.photos/seed/3/800/600', 'https://picsum.photos/seed/4/800/600']),
     },
     {
       title: 'Modern Studio Apartment near University',
@@ -55,7 +53,7 @@ async function main() {
       bathrooms: 1,
       furnished: true,
       petsAllowed: false,
-      photos: JSON.stringify(['/placeholder-5.jpg']),
+      photos: JSON.stringify(['https://picsum.photos/seed/5/800/600']),
     },
     {
       title: 'Luxury 1-Bedroom with City View',
@@ -66,7 +64,7 @@ async function main() {
       bathrooms: 1,
       furnished: true,
       petsAllowed: true,
-      photos: JSON.stringify(['/placeholder-1.jpg']),
+      photos: JSON.stringify(['https://picsum.photos/seed/6/800/600']),
     },
     {
       title: 'Family-Friendly 4BR Home in Suburbs',
@@ -77,7 +75,7 @@ async function main() {
       bathrooms: 3,
       furnished: false,
       petsAllowed: true,
-      photos: JSON.stringify(['/placeholder-2.jpg', '/placeholder-3.jpg']),
+      photos: JSON.stringify(['https://picsum.photos/seed/7/800/600', 'https://picsum.photos/seed/8/800/600']),
     },
   ];
 
