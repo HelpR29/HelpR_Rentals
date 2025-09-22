@@ -74,8 +74,12 @@ export default async function Home() {
       </>
     ) : null}
 
-        {/* Listing Browser */}
-        <ListingBrowser />
+        {user && (
+          <>
+            {/* Listing Browser */}
+            <ListingBrowser />
+          </>
+        )}
       </div>
     </div>
   )
