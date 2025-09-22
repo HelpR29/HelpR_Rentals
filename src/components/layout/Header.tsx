@@ -26,8 +26,18 @@ export default function Header() {
   const router = useRouter()
 
   useEffect(() => {
-    fetchUser()
-  }, [])
+    const handleLogin = () => {
+      console.log('🔄 Header received login event, fetching user...');
+      fetchUser();
+    };
+
+    window.addEventListener('userLoggedIn', handleLogin);
+    fetchUser();
+
+    return () => {
+      window.removeEventListener('userLoggedIn', handleLogin);
+    };
+  }, []);
 
   useEffect(() => {
     if (user) {
