@@ -83,12 +83,25 @@ async function main() {
     // Generate neighborhood insights for each listing
     const neighborhoodInsights = generateNeighborhoodInsights(listingData.address);
     
+    // Generate AI quick facts for each listing
+    const aiQuickFacts = {
+      deposit: listingData.rent ? `$${Math.round(listingData.rent * 1.5)}` : 'Contact for details',
+      furnished: listingData.furnished ? 'Fully furnished' : 'Unfurnished',
+      utilities: 'Heat and water included',
+      pets: listingData.petsAllowed ? 'Pets welcome with deposit' : 'No pets allowed'
+    };
+
     await prisma.listing.create({
       data: {
         ...listingData,
         ownerId: host.id,
         availableFrom: new Date(),
         neighborhoodInsights: JSON.stringify(neighborhoodInsights),
+        aiFlags: JSON.stringify({
+          isScam: false,
+          scamReasons: [],
+          quickFacts: aiQuickFacts,
+        }),
       },
     })
   }
