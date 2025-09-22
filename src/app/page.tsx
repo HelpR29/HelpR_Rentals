@@ -1,11 +1,15 @@
-import ListingBrowser from '@/components/listings/ListingBrowser'
+import ListingBrowser from '@/components/listings/ListingBrowser';
+import { getServerUser } from '@/lib/get-server-user';
 
 export default function Home() {
+  const user = getServerUser();
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-16 relative">
+        {!user || user.role !== 'tenant' ? (
+          <>
+            {/* Hero Section */}
+            <div className="text-center mb-16 relative">
           {/* Background decoration */}
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-0 left-1/4 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -65,6 +69,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </>
+    ) : null}
 
         {/* Listing Browser */}
         <ListingBrowser />

@@ -91,6 +91,7 @@ export default function PropertyMap({
         setIsCalculating(false);
         if (status === google.maps.DirectionsStatus.OK && result) {
           setDirections(result);
+          setSelectedPropertyData(null); // Hide the card to show the route
         } else {
           alert(`Directions request failed due to ${status}`);
         }
