@@ -540,33 +540,13 @@ export default function ListingDetailPage() {
               </div>
             </div>
 
-            {/* AI Neighborhood Insights */}
-            {listing.aiFlags?.neighborhood && (
-              <div className="mt-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                  <span className="mr-2">🧠</span>
-                  AI-Powered Neighborhood Insights
-                </h3>
-                <div className="p-4 bg-white rounded-lg border border-gray-200 space-y-4">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Vibe</p>
-                    <p className="text-lg font-bold text-gray-900">{listing.aiFlags.neighborhood.vibe}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Highlights</p>
-                    <ul className="list-disc list-inside space-y-1 mt-1">
-                      {listing.aiFlags.neighborhood.highlights.map((highlight: string, index: number) => (
-                        <li key={index} className="text-sm text-gray-700">{highlight}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800">Summary</p>
-                    <p className="text-sm text-gray-700 mt-1">{listing.aiFlags.neighborhood.summary}</p>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* AI-Powered Neighborhood Insights */}
+            <div className="mt-6">
+              <NeighborhoodInsights 
+                address={listing.address}
+                existingInsights={listing.neighborhoodInsights}
+              />
+            </div>
 
             {/* Commute Calculator */}
             <div id="commute" className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 scroll-mt-20">
