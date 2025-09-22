@@ -117,9 +117,9 @@ export default function Header() {
                 <Link href={`/profile/${headerUser.id}`}>
                   <div className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg p-2 transition-colors">
                     {headerUser.avatar ? (
-                      <img src={headerUser.avatar} alt={headerUser.email} className="w-8 h-8 rounded-full object-cover" />
+                      <img src={headerUser.avatar} alt={headerUser.email} className="w-8 h-8 rounded-full object-cover border-2 border-gray-200" />
                     ) : (
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center border-2 border-gray-200">
                         <span className="text-white text-sm font-semibold">{headerUser.email.charAt(0).toUpperCase()}</span>
                       </div>
                     )}
