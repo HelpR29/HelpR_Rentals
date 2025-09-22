@@ -122,7 +122,7 @@ export default function PropertyMap({
               className="w-20 h-20 object-cover rounded-lg"
             />
             <div className="flex-1">
-              <h3 className="font-semibold text-lg">{selectedPropertyData.title}</h3>
+              <h3 className="font-semibold text-lg text-gray-900">{selectedPropertyData.title}</h3>
               <p className="text-gray-600 text-sm">{selectedPropertyData.address}</p>
               <div className="flex items-center space-x-4 mt-2">
                 <span className="text-xl font-bold text-blue-600">
@@ -154,7 +154,7 @@ export default function PropertyMap({
           {showNearbyAmenities && (
             <div className="mt-4 pt-4 border-t">
               <h4 className="font-medium mb-2">Nearby Amenities</h4>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-sm text-gray-800">
                 <div className="flex items-center space-x-1">
                   <span>🚇</span>
                   <span>Subway: 0.3km</span>
