@@ -298,9 +298,9 @@ export default function AdminPage() {
           <Card className="p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Listings by City</h3>
             <div className="space-y-3">
-              {analytics.listingsByCity.map((city, index) => (
+              {analytics.listingsByCity && analytics.listingsByCity.map((city, index) => (
                 <div key={index} className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">{city.city}</span>
+                  <span className="text-sm text-gray-600">{city.city || 'Unknown'}</span>
                   <div className="flex items-center space-x-2">
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div
@@ -308,13 +308,13 @@ export default function AdminPage() {
                         style={{
                           width: `${
                             analytics.listingsByCity.length > 0
-                              ? Math.max(0, Math.min(100, (city.count / Math.max(...analytics.listingsByCity.map(c => c.count || 1))) * 100))
+                              ? Math.max(0, Math.min(100, ((city.count || 0) / Math.max(...analytics.listingsByCity.map(c => c.count || 1))) * 100))
                               : 0
                           }%`
                         }}
                       ></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-900 w-8 text-right">{city.count}</span>
+                    <span className="text-sm font-medium text-gray-900 w-8 text-right">{city.count || 0}</span>
                   </div>
                 </div>
               ))}
@@ -327,23 +327,23 @@ export default function AdminPage() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Total Flagged</span>
-                <span className="text-sm font-medium text-gray-900">{analytics.scamDetectionStats.totalFlagged}</span>
+                <span className="text-sm font-medium text-gray-900">{analytics.scamDetectionStats?.totalFlagged || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Approved by Admin</span>
-                <span className="text-sm font-medium text-green-600">{analytics.scamDetectionStats.approvedByAdmin}</span>
+                <span className="text-sm font-medium text-green-600">{analytics.scamDetectionStats?.approvedByAdmin || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Rejected by Admin</span>
-                <span className="text-sm font-medium text-red-600">{analytics.scamDetectionStats.rejectedByAdmin}</span>
+                <span className="text-sm font-medium text-red-600">{analytics.scamDetectionStats?.rejectedByAdmin || 0}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Pending Review</span>
-                <span className="text-sm font-medium text-yellow-600">{analytics.scamDetectionStats.pendingReview}</span>
+                <span className="text-sm font-medium text-yellow-600">{analytics.scamDetectionStats?.pendingReview || 0}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
                 <span className="text-sm font-medium text-gray-900">False Positive Rate</span>
-                <span className="text-sm font-medium text-gray-900">{analytics.scamDetectionStats.falsePositiveRate}%</span>
+                <span className="text-sm font-medium text-gray-900">{analytics.scamDetectionStats?.falsePositiveRate || 0}%</span>
               </div>
             </div>
           </Card>
@@ -540,8 +540,12 @@ export default function AdminPage() {
                   {/* Description Preview */}
                   <div className="mb-4">
                     <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                    <p className="text-sm text-gray-900 line-clamp-3">
-                      {listing.description}
+                    <p className="text-sm text-gray-900 overflow-hidden text-ellipsis" style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical'
+                    }}>
+                      {listing.description || 'No description available'}
                     </p>
                   </div>
 
