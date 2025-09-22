@@ -173,6 +173,7 @@ export default function PostListingPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          title: aiPreview.title || `${formData.bedrooms ? formData.bedrooms + ' Bedroom' : ''} Rental at ${formData.address}`.trim(),
           address: formData.address,
           rent: parseInt(formData.rent),
           deposit: formData.deposit ? parseInt(formData.deposit) : null,
