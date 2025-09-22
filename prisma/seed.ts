@@ -93,18 +93,13 @@ async function main() {
 
   console.log(`Seeded ${listingsData.length} listings.`);
   console.log('Seeding finished.');
-  console.log('Test accounts created:')
-  console.log('- Tenant: tenant@example.com')
-  console.log('- Host: host@example.com')
-  console.log('- Admin: admin@example.com')
-  console.log('- Sample listings and application created')
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seeding failed:', e)
-    process.exit(1)
+    console.error('Seeding failed:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
