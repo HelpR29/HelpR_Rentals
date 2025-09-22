@@ -115,13 +115,19 @@ export default function AdminPage() {
 
   const fetchFlaggedListings = async () => {
     try {
+      setLoading(true)
       const response = await fetch('/api/admin/flagged')
       if (response.ok) {
         const data = await response.json()
-        setFlaggedListings(data.flaggedListings)
+        setFlaggedListings(data.flaggedListings || [])
+      } else {
+        setFlaggedListings([])
       }
     } catch (error) {
       console.error('Failed to fetch flagged listings:', error)
+      setFlaggedListings([])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -130,10 +136,13 @@ export default function AdminPage() {
       const response = await fetch('/api/admin/dashboard-analytics')
       if (response.ok) {
         const data = await response.json()
-        setStats(data.stats)
+        setStats(data.stats || null)
+      } else {
+        setStats(null)
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error)
+      setStats(null)
     }
   }
 
@@ -142,10 +151,13 @@ export default function AdminPage() {
       const response = await fetch('/api/admin/dashboard-analytics')
       if (response.ok) {
         const data = await response.json()
-        setAnalytics(data.analytics)
+        setAnalytics(data.analytics || null)
+      } else {
+        setAnalytics(null)
       }
     } catch (error) {
       console.error('Failed to fetch analytics:', error)
+      setAnalytics(null)
     }
   }
 
@@ -293,7 +305,13 @@ export default function AdminPage() {
                     <div className="w-24 bg-gray-200 rounded-full h-2">
                       <div
                         className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${(city.count / Math.max(...analytics.listingsByCity.map(c => c.count))) * 100}%` }}
+                        style={{
+                          width: `${
+                            analytics.listingsByCity.length > 0
+                              ? Math.max(0, Math.min(100, (city.count / Math.max(...analytics.listingsByCity.map(c => c.count || 1))) * 100))
+                              : 0
+                          }%`
+                        }}
                       ></div>
                     </div>
                     <span className="text-sm font-medium text-gray-900 w-8 text-right">{city.count}</span>
