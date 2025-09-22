@@ -367,51 +367,6 @@ export default function AdminPage() {
                 🧠 ML Training
               </Button>
             </Link>
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      <Card className="mb-8">
-        <div className="p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button
-              onClick={() => {
-                if (flaggedListings.length > 0) {
-                  const action = confirm(`Approve all ${flaggedListings.length} pending flagged listings?`)
-                  if (action) {
-                    // Bulk approve - would implement this
-                    alert('Bulk approval feature coming soon!')
-                  }
-                }
-              }}
-              className="bg-green-600 hover:bg-green-700"
-              disabled={flaggedListings.length === 0}
-            >
-              ✅ Bulk Approve ({flaggedListings.filter(l => !l.aiFlags.adminReviewed).length})
-            </Button>
-
-            <Button
-              onClick={() => {
-                if (flaggedListings.length > 0) {
-                  const action = confirm(`Reject all ${flaggedListings.length} pending flagged listings?`)
-                  if (action) {
-                    // Bulk reject - would implement this
-                    alert('Bulk rejection feature coming soon!')
-                  }
-                }
-              }}
-              variant="danger"
-              disabled={flaggedListings.length === 0}
-            >
-              ❌ Bulk Reject ({flaggedListings.filter(l => !l.aiFlags.adminReviewed).length})
-            </Button>
-
-            <Link href="/admin/ml-training">
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                🧠 ML Training
-              </Button>
-            </Link>
           </div>
         </div>
       </Card>
