@@ -5,6 +5,7 @@ const openai = new OpenAI({
 })
 
 export interface ListingInput {
+  title: string; // Add title to the input
   address: string
   rent: number
   deposit?: number
@@ -15,7 +16,8 @@ export interface ListingInput {
 }
 
 export interface AIListingResult {
-  title: string
+  title: string;
+  bedrooms?: number; // Add bedrooms to the output
   description: string
   quickFacts: {
     deposit: string
@@ -28,9 +30,10 @@ export interface AIListingResult {
 }
 
 export async function generateListingContent(input: ListingInput): Promise<AIListingResult> {
-  const prompt = `You are Helpr's AI assistant. Given minimal rental info, write a clear, scam-free listing with a friendly tone. Extract Quick Facts (deposit, furnished, pets). If suspicious (too cheap, missing address, vague text), flag as potential scam.
+  const prompt = `You are Helpr's AI assistant. Given minimal rental info, write a clear, scam-free listing with a friendly tone. Extract the number of bedrooms from the title and provide Quick Facts. If suspicious, flag as a potential scam.
 
 Rental Info:
+- Title: ${input.title}
 - Address: ${input.address}
 - Rent: $${input.rent}/month
 - Deposit: ${input.deposit ? `$${input.deposit}` : 'Not specified'}
@@ -39,8 +42,9 @@ Rental Info:
 - Pets: ${input.petsAllowed ? 'Allowed' : 'Not allowed'}
 
 Please respond with a JSON object containing:
-- title: Catchy, descriptive title (max 60 chars)
-- description: Friendly, detailed description (2-3 paragraphs)
+- title: A revised, catchy, descriptive title (max 60 chars) based on the user's input.
+- bedrooms: The number of bedrooms (e.g., 1, 2, 3) extracted from the title. If it's a studio, return 0.
+- description: A friendly, detailed description (2-3 paragraphs).
 - quickFacts: { deposit, furnished, utilities, pets }
 - isScam: boolean (true if suspicious)
 - scamReasons: array of reasons if flagged as scam`
@@ -49,7 +53,8 @@ Please respond with a JSON object containing:
     if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'sk-fake-key-for-development') {
       // Development fallback
       return {
-        title: `${input.furnished ? 'Furnished' : 'Unfurnished'} Rental at ${input.address.split(',')[0]}`,
+        title: input.title || `${input.furnished ? 'Furnished' : 'Unfurnished'} Rental at ${input.address.split(',')[0]}`,
+        bedrooms: parseInt(input.title?.match(/(\d+)/)?.[0] || '1'), // Simple regex for dev fallback
         description: `Beautiful ${input.furnished ? 'furnished' : 'unfurnished'} rental available at ${input.address}. This property offers great value at $${input.rent}/month and is available from ${input.availableFrom}. ${input.petsAllowed ? 'Pet-friendly environment' : 'No pets allowed'}. Perfect for anyone looking for a comfortable place to call home.
 
 Contact us today to schedule a viewing and learn more about this fantastic opportunity!`,

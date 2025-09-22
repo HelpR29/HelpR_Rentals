@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     console.log('Received request data:', JSON.stringify(requestData, null, 2))
     
     const {
+      title, // Get title from the request
       address,
       rent,
       deposit,
@@ -39,15 +40,16 @@ export async function POST(request: NextRequest) {
     } = requestData
 
     // Validate required fields
-    if (!address || !rent || !availableFrom || !photos || photos.length === 0) {
+    if (!title || !address || !rent || !availableFrom || !photos || photos.length === 0) {
       return NextResponse.json(
-        { error: 'Missing required fields: address, rent, availableFrom, photos' },
+        { error: 'Missing required fields: title, address, rent, availableFrom, photos' },
         { status: 400 }
       )
     }
 
     // Generate AI content
     const aiResult = await generateListingContent({
+      title,
       address,
       rent,
       deposit,
@@ -63,6 +65,7 @@ export async function POST(request: NextRequest) {
         ownerId: user.id,
         title: aiResult.title,
         description: aiResult.description,
+        bedrooms: aiResult.bedrooms, // Save AI-extracted bedrooms
         address,
         rent,
         deposit,
@@ -70,7 +73,6 @@ export async function POST(request: NextRequest) {
         availableTo: availableTo ? new Date(availableTo) : null,
         furnished,
         petsAllowed,
-        bedrooms: bedrooms ? parseInt(bedrooms) : null,
         bathrooms: bathrooms ? parseFloat(bathrooms) : null,
         photos: JSON.stringify(photos),
         aiFlags: JSON.stringify(aiResult.isScam ? {
