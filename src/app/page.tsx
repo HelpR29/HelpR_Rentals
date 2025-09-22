@@ -5,7 +5,19 @@ import { getServerUser } from '@/lib/get-server-user';
 
 export default async function Home() {
   const user = await getServerUser();
+  
   return (
+    <>
+      {/* Force header refresh after login */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          if (window.location.search.includes('refresh=true')) {
+            window.history.replaceState({}, '', '/');
+            window.dispatchEvent(new CustomEvent('userLoggedIn'));
+          }
+        `
+      }} />
+      
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {user ? (
@@ -52,5 +64,6 @@ export default async function Home() {
         )}
       </div>
     </div>
+    </>
   );
 }

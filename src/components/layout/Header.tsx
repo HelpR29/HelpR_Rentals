@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import VerificationBadge from '@/components/ui/VerificationBadge';
@@ -15,7 +16,18 @@ interface HeaderUser {
 }
 
 export default function Header() {
-  const { user, loading, logout } = useUser();
+  const { user, loading, logout, fetchUser } = useUser();
+
+  // Listen for login events to refresh user data
+  useEffect(() => {
+    const handleUserLoggedIn = () => {
+      console.log('🔄 Header received userLoggedIn event, refreshing...');
+      fetchUser();
+    };
+
+    window.addEventListener('userLoggedIn', handleUserLoggedIn);
+    return () => window.removeEventListener('userLoggedIn', handleUserLoggedIn);
+  }, [fetchUser]);
 
   // Cast the user from the hook to the more detailed HeaderUser type
   const headerUser = user as HeaderUser | null;

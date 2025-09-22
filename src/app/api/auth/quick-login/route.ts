@@ -37,8 +37,10 @@ export async function GET(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
-    // Create a response to redirect to the homepage
-    const response = NextResponse.redirect(new URL('/', request.url), {
+    // Create a response to redirect to the homepage with a refresh parameter
+    const homeUrl = new URL('/', request.url);
+    homeUrl.searchParams.set('refresh', 'true');
+    const response = NextResponse.redirect(homeUrl, {
       status: 302,
     });
 
