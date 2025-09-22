@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import VerificationBadge from '@/components/ui/VerificationBadge';
@@ -17,6 +17,7 @@ interface HeaderUser {
 
 export default function Header() {
   const { user, loading, logout, fetchUser } = useUser();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Listen for login events to refresh user data
   useEffect(() => {
@@ -81,13 +82,29 @@ export default function Header() {
             )}
           </nav>
 
-          {/* Auth */}
-          <div className="flex items-center space-x-4">
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Desktop Auth */}
+          <div className="hidden md:flex items-center space-x-4">
             {loading ? (
               <div className="animate-pulse h-8 w-20 bg-gray-200 rounded"></div>
             ) : headerUser ? (
               <div className="flex items-center space-x-3">
-                <Link href={`/profile/${headerUser.id}`} className="hidden sm:block">
+                <Link href={`/profile/${headerUser.id}`}>
                   <div className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg p-2 transition-colors">
                     {headerUser.avatar ? (
                       <img src={headerUser.avatar} alt={headerUser.email} className="w-8 h-8 rounded-full object-cover" />
@@ -112,6 +129,99 @@ export default function Header() {
             )}
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link href="/" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                Home
+              </Link>
+              <Link href="/browse" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                Browse
+              </Link>
+              
+              {!headerUser && (
+                <>
+                  <Link href="/auth/login?role=host" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    Host
+                  </Link>
+                  <Link href="/about" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    About
+                  </Link>
+                </>
+              )}
+              
+              {headerUser?.role === 'host' && (
+                <Link href="/post" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                  Post Listing
+                </Link>
+              )}
+              
+              {headerUser && (
+                <>
+                  <Link href="/inbox" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    Inbox
+                  </Link>
+                  <Link href="/verification" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    Verification
+                  </Link>
+                  <Link href="/privacy" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    Privacy
+                  </Link>
+                  <Link href="/notifications" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    🔔 Notifications
+                  </Link>
+                </>
+              )}
+              
+              {headerUser?.role === 'admin' && (
+                <Link href="/admin" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium" onClick={() => setMobileMenuOpen(false)}>
+                  Admin
+                </Link>
+              )}
+            </div>
+            
+            {/* Mobile Auth */}
+            <div className="pt-4 pb-3 border-t border-gray-200">
+              {headerUser ? (
+                <div className="px-3">
+                  <div className="flex items-center space-x-3 mb-3">
+                    {headerUser.avatar ? (
+                      <img src={headerUser.avatar} alt={headerUser.email} className="w-10 h-10 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm font-semibold">{headerUser.email.charAt(0).toUpperCase()}</span>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-gray-900 font-medium">{headerUser.email.split('@')[0]}</p>
+                      <p className="text-gray-500 text-sm capitalize">{headerUser.role}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md text-base font-medium"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="px-3 space-y-2">
+                  <Link href="/auth/login?role=tenant" className="block w-full text-center px-4 py-2 bg-blue-600 text-white rounded-md font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    I'm Looking
+                  </Link>
+                  <Link href="/auth/login?role=host" className="block w-full text-center px-4 py-2 border border-gray-300 text-gray-900 rounded-md font-medium" onClick={() => setMobileMenuOpen(false)}>
+                    I'm Hosting
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
