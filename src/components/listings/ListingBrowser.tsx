@@ -1,9 +1,11 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import Card from '@/components/ui/Card'
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Card from '@/components/ui/Card';
+import SmartSearch from '@/components/search/SmartSearch';
+import { ListingGridSkeleton } from '@/components/ui/LoadingStates';
+import { ErrorBoundary, ErrorMessage } from '@/components/ui/ErrorBoundary';
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import VerificationBadge from '@/components/ui/VerificationBadge'
