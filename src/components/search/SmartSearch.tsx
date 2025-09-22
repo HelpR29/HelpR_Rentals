@@ -121,12 +121,12 @@ export default function SmartSearch({ onFiltersChange, initialFilters }: SmartSe
               onChange={(e) => handleFilterChange('query', e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               onFocus={() => filters.query.length > 1 && setShowSuggestions(true)}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full pl-10 pr-3 py-3 border-2 border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-600 text-gray-900 focus:outline-none focus:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
             />
             
             {/* Search Suggestions */}
             {showSuggestions && (
-              <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-xl py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto">
+              <div className="absolute z-10 mt-1 w-full bg-white shadow-xl max-h-60 rounded-xl py-2 text-base border border-gray-200 overflow-auto">
                 {suggestions.map((suggestion, index) => (
                   <button
                     key={index}
@@ -134,12 +134,12 @@ export default function SmartSearch({ onFiltersChange, initialFilters }: SmartSe
                       handleFilterChange('query', suggestion)
                       handleSearch(suggestion)
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center space-x-2"
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 flex items-center space-x-3 transition-colors"
                   >
-                    <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
-                    <span className="text-gray-900">{suggestion}</span>
+                    <span className="text-gray-900 font-medium">{suggestion}</span>
                   </button>
                 ))}
               </div>
@@ -148,14 +148,14 @@ export default function SmartSearch({ onFiltersChange, initialFilters }: SmartSe
           
           <button
             onClick={() => handleSearch()}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-md"
           >
             Search
           </button>
           
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="relative px-4 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            className="relative px-4 py-3 border-2 border-gray-300 rounded-xl text-gray-800 hover:bg-gray-50 transition-colors flex items-center space-x-2 font-medium"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />

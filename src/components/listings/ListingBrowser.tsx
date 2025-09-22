@@ -89,9 +89,14 @@ export default function ListingBrowser() {
       <ErrorBoundary>
         <SmartSearch 
           onFiltersChange={(filters) => {
+            // Update local search query state
+            setSearchQuery(filters.query);
             // Handle filter changes and update listings
             if (filters.query || Object.values(filters).some(v => v !== '' && v !== 0 && v !== 5000)) {
               fetchListings(filters.query);
+            } else {
+              // If no filters, fetch all listings
+              fetchListings();
             }
           }}
           initialFilters={{ query: searchQuery }}
@@ -101,7 +106,7 @@ export default function ListingBrowser() {
       {/* View Toggle */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm font-medium text-gray-800">
             {listings.length} {listings.length === 1 ? 'listing' : 'listings'} found
           </span>
         </div>
