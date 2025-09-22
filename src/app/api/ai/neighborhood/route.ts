@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { openai } from '@/lib/openai';
+import { aiService } from '@/lib/ai-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,65 +9,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    // Create AI prompt for neighborhood analysis
-    const prompt = `Analyze the neighborhood for this address: "${address}"
-
-Please provide a comprehensive neighborhood analysis in the following JSON format:
-{
-  "vibe": "Brief description of the neighborhood's character and atmosphere (1-2 sentences)",
-  "highlights": [
-    "Key attraction or feature 1",
-    "Key attraction or feature 2", 
-    "Key attraction or feature 3"
-  ],
-  "walkability": "Description of walkability and transportation options",
-  "demographics": "Brief description of typical residents and community",
-  "safety": "General safety assessment and feel of the area",
-  "amenities": [
-    "Nearby amenity 1",
-    "Nearby amenity 2",
-    "Nearby amenity 3"
-  ],
-  "summary": "2-3 sentence overall summary of why someone would want to live here"
-}
-
-Focus on accurate, helpful information about the actual neighborhood. Be positive but realistic.`;
-
     let insights;
 
-    if (process.env.NODE_ENV === 'development' && !process.env.OPENAI_API_KEY) {
-      // Development fallback with realistic data based on the address
-      const fallbackInsights = generateFallbackInsights(address);
-      insights = fallbackInsights;
-    } else {
-      // Use OpenAI for production or when API key is available
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a knowledgeable real estate expert who provides detailed neighborhood analyses. Always respond with valid JSON only.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-
-      const content = completion.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error('No content received from OpenAI');
-      }
-
-      try {
-        insights = JSON.parse(content);
-      } catch (parseError) {
-        console.error('Failed to parse OpenAI response:', content);
-        insights = generateFallbackInsights(address);
-      }
+    try {
+      // Use the cost-effective AI service (tries free models first)
+      const aiResponse = await aiService.generateNeighborhoodInsights(address);
+      console.log(`💰 AI Cost: $${aiResponse.cost.toFixed(4)} for ${aiResponse.tokens} tokens using ${aiResponse.model}`);
+      
+      insights = JSON.parse(aiResponse.content);
+    } catch (aiError) {
+      console.error('AI service failed, using fallback:', aiError);
+      // Fallback to static insights if AI fails
+      insights = generateFallbackInsights(address);
     }
 
     return NextResponse.json({ insights });

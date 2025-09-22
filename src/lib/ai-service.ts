@@ -176,7 +176,7 @@ class AIService {
   }
 
   // Convenience methods for different types of AI tasks
-  async generateNeighborhoodInsights(address: string): Promise<string> {
+  async generateNeighborhoodInsights(address: string): Promise<AIResponse> {
     const response = await this.generateResponse({
       prompt: `Analyze the neighborhood for this address: "${address}"
 
@@ -205,7 +205,7 @@ Focus on accurate, helpful information about the actual neighborhood. Be positiv
       maxTokens: 1000,
     });
 
-    return response.content;
+    return response;
   }
 
   async generateListingSearch(query: string, listings: any[]): Promise<any[]> {
