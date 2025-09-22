@@ -325,6 +325,9 @@ export default function AdminPage() {
               </div>
             </div>
           </Card>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <Card className="mb-8">
         <div className="p-6">
