@@ -136,7 +136,7 @@ export default function PropertyMap({
             <div className="flex flex-col space-y-2">
               <Button
                 size="sm"
-                onClick={() => window.open(`/listings/${selectedPropertyData.id}`, '_blank')}
+                onClick={() => window.open(`/listing/${selectedPropertyData.id}`, '_blank')}
               >
                 View Details
               </Button>
@@ -183,7 +183,7 @@ export default function PropertyMap({
           <div className="text-xs space-y-1">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-blue-600 rounded-full"></div>
-              <span>Available Properties</span>
+              <span className="font-medium text-gray-900">Available Properties</span>
             </div>
             <div className="text-gray-500">
               {properties.length} listings shown

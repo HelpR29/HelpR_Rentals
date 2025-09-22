@@ -75,6 +75,7 @@ export default function ListingDetailPage() {
     reason: ''
   });
   const [mainImage, setMainImage] = useState<string | null>(null);
+  const [commuteDestination, setCommuteDestination] = useState('');
 
   useEffect(() => {
     fetchListing();
@@ -192,6 +193,23 @@ export default function ListingDetailPage() {
   const quickFacts = listing.aiFlags?.quickFacts || {}
   const canApply = user && user.role === 'tenant' && user.id !== listing.owner.id
   const hasApplied = listing.applications.some(app => app.applicantId === user?.id)
+
+  const handleCalculateCommute = () => {
+    if (!commuteDestination) {
+      addToast({
+        type: 'error',
+        title: 'No Destination',
+        message: 'Please enter a destination to calculate the commute.',
+      });
+      return;
+    }
+
+    const origin = encodeURIComponent(listing.address);
+    const destination = encodeURIComponent(commuteDestination);
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    
+    window.open(googleMapsUrl, '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -401,11 +419,11 @@ export default function ListingDetailPage() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium">Subway Station</span>
+                    <span className="text-sm font-medium text-gray-800">Subway Station</span>
                     <span className="text-sm text-blue-600 font-semibold">0.3 km</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm font-medium">Bus Stop</span>
+                    <span className="text-sm font-medium text-gray-800">Bus Stop</span>
                     <span className="text-sm text-green-600 font-semibold">0.1 km</span>
                   </div>
                 </div>
@@ -419,11 +437,11 @@ export default function ListingDetailPage() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                    <span className="text-sm font-medium">Grocery Store</span>
+                    <span className="text-sm font-medium text-gray-800">Grocery Store</span>
                     <span className="text-sm text-orange-600 font-semibold">0.2 km</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <span className="text-sm font-medium">Pharmacy</span>
+                    <span className="text-sm font-medium text-gray-800">Pharmacy</span>
                     <span className="text-sm text-purple-600 font-semibold">0.4 km</span>
                   </div>
                 </div>
@@ -437,11 +455,11 @@ export default function ListingDetailPage() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                    <span className="text-sm font-medium">Elementary School</span>
+                    <span className="text-sm font-medium text-gray-800">Elementary School</span>
                     <span className="text-sm text-yellow-600 font-semibold">0.6 km</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-indigo-50 rounded-lg">
-                    <span className="text-sm font-medium">University</span>
+                    <span className="text-sm font-medium text-gray-800">University</span>
                     <span className="text-sm text-indigo-600 font-semibold">2.1 km</span>
                   </div>
                 </div>
@@ -455,11 +473,11 @@ export default function ListingDetailPage() {
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                    <span className="text-sm font-medium">Hospital</span>
+                    <span className="text-sm font-medium text-gray-800">Hospital</span>
                     <span className="text-sm text-red-600 font-semibold">1.2 km</span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-teal-50 rounded-lg">
-                    <span className="text-sm font-medium">Walk-in Clinic</span>
+                    <span className="text-sm font-medium text-gray-800">Walk-in Clinic</span>
                     <span className="text-sm text-teal-600 font-semibold">0.8 km</span>
                   </div>
                 </div>
@@ -476,8 +494,10 @@ export default function ListingDetailPage() {
                 <Input 
                   placeholder="Enter work/school address..." 
                   className="flex-1"
+                  value={commuteDestination}
+                  onChange={(e) => setCommuteDestination(e.target.value)}
                 />
-                <Button variant="primary">
+                <Button variant="primary" onClick={handleCalculateCommute}>
                   Get Directions
                 </Button>
               </div>
