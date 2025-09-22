@@ -26,10 +26,10 @@ async function seedListings() {
       availableFrom: new Date('2024-02-01'),
       furnished: true,
       petsAllowed: false,
-      photos: [
+      photos: JSON.stringify([
         "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800",
         "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800"
-      ],
+      ]),
       waterIncluded: true,
       heatIncluded: true,
       electricityIncluded: false,
@@ -48,10 +48,10 @@ async function seedListings() {
       availableFrom: new Date('2024-02-15'),
       furnished: false,
       petsAllowed: true,
-      photos: [
+      photos: JSON.stringify([
         "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800",
         "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800"
-      ],
+      ]),
       waterIncluded: true,
       heatIncluded: true,
       electricityIncluded: true,
@@ -69,10 +69,10 @@ async function seedListings() {
       availableFrom: new Date('2024-03-01'),
       furnished: true,
       petsAllowed: false,
-      photos: [
+      photos: JSON.stringify([
         "https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800",
         "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800"
-      ],
+      ]),
       waterIncluded: true,
       heatIncluded: true,
       electricityIncluded: true,
@@ -91,10 +91,10 @@ async function seedListings() {
       availableFrom: new Date('2024-02-20'),
       furnished: false,
       petsAllowed: true,
-      photos: [
+      photos: JSON.stringify([
         "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800",
         "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800"
-      ],
+      ]),
       waterIncluded: false,
       heatIncluded: false,
       electricityIncluded: false,
@@ -112,10 +112,10 @@ async function seedListings() {
       availableFrom: new Date('2024-01-15'),
       furnished: true,
       petsAllowed: false,
-      photos: [
+      photos: JSON.stringify([
         "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800",
         "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800"
-      ],
+      ]),
       waterIncluded: true,
       heatIncluded: true,
       electricityIncluded: true,
