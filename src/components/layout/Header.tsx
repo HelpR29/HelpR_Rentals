@@ -54,11 +54,21 @@ export default function Header() {
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             <Link href="/" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">Browse</Link>
+            {headerUser?.role === 'host' && (
+              <Link href="/post" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                Post Listing
+              </Link>
+            )}
             {headerUser && (
               <>
                 <Link href="/inbox" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Inbox</Link>
                 <Link href="/verification" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Verification</Link>
+                <Link href="/privacy" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Privacy</Link>
+                <Link href="/notifications" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">🔔</Link>
               </>
+            )}
+            {headerUser?.role === 'admin' && (
+              <Link href="/admin" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Admin</Link>
             )}
           </nav>
 
