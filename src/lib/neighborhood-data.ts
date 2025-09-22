@@ -1,9 +1,96 @@
-// Real data integration for neighborhood insights
+// Real data integration for neighborhood insights - Multi-city scalable
 interface NeighborhoodData {
   walkScore?: number;
   transitStations?: string[];
   nearbyPlaces?: string[];
   demographics?: any;
+  city?: string;
+  province?: string;
+}
+
+interface CityConfig {
+  name: string;
+  province: string;
+  transitSystem: string;
+  policeService: string;
+  majorLandmarks: string[];
+  transitStations: { [area: string]: string[] };
+  neighborhoods: { [area: string]: any };
+}
+
+// City configurations for scalable multi-city support
+const CITY_CONFIGS: { [key: string]: CityConfig } = {
+  winnipeg: {
+    name: 'Winnipeg',
+    province: 'Manitoba',
+    transitSystem: 'Winnipeg Transit',
+    policeService: 'Winnipeg Police Service',
+    majorLandmarks: ['The Forks', 'Canadian Museum for Human Rights', 'Exchange District', 'Assiniboine Park'],
+    transitStations: {
+      downtown: ['Graham Transit Mall', 'Portage & Main', 'Union Station'],
+      osborne: ['Osborne Bridge Station', 'Canada Life Centre'],
+      corydon: ['Corydon Avenue', 'Lilac Festival Area'],
+      transcona: ['Transcona BRT Station', 'Regent Avenue'],
+      st_vital: ['St. Vital Centre', 'Dakota Street']
+    },
+    neighborhoods: {
+      downtown: {
+        vibe: 'Historic downtown core with revitalized Exchange District, cultural venues, and urban amenities',
+        highlights: ['Exchange District National Historic Site', 'True North Square', 'Bell MTS Place'],
+        walkability: 'Good walkability in core areas. Winnipeg Transit downtown routes.',
+        demographics: 'Young professionals, students, urban dwellers',
+        safety: 'Winnipeg Police Service downtown division. Well-lit core areas.'
+      },
+      osborne: {
+        vibe: 'Trendy riverside neighborhood known for dining, nightlife, and Canada Day Festival',
+        highlights: ['Osborne Bridge', 'Gas Station Arts Centre', 'Osborne Village Canada Day Festival'],
+        walkability: 'Very walkable. Dense with restaurants, shops, and services.',
+        demographics: 'Young professionals, artists, urban lifestyle enthusiasts',
+        safety: 'Active neighborhood with good foot traffic and community presence.'
+      },
+      corydon: {
+        vibe: 'Little Italy district with authentic restaurants, cafes, and European charm',
+        highlights: ['Corydon Avenue restaurant strip', 'Festival du Voyageur area', 'Lilac Festival'],
+        walkability: 'Walkable restaurant and shopping district along Corydon Avenue.',
+        demographics: 'Diverse community with strong Italian-Canadian heritage',
+        safety: 'Family-friendly area with active Business Improvement Zone.'
+      }
+    }
+  },
+  toronto: {
+    name: 'Toronto',
+    province: 'Ontario', 
+    transitSystem: 'TTC',
+    policeService: 'Toronto Police Service',
+    majorLandmarks: ['CN Tower', 'Rogers Centre', 'Harbourfront Centre', 'Eaton Centre'],
+    transitStations: {
+      financial: ['St. Andrew Station', 'King Station', 'Queen Station'],
+      east_end: ['Queen Station', 'Dundas Station', 'Broadview Station']
+    },
+    neighborhoods: {} // Keep existing Toronto config for demo
+  }
+};
+
+function detectCity(address: string): string {
+  const addressLower = address.toLowerCase();
+  
+  // Winnipeg detection
+  if (addressLower.includes('winnipeg') || addressLower.includes('manitoba') || 
+      addressLower.includes('mb') || addressLower.includes('r3') || 
+      addressLower.includes('r2') || addressLower.includes('portage ave') ||
+      addressLower.includes('main st') || addressLower.includes('corydon')) {
+    return 'winnipeg';
+  }
+  
+  // Toronto detection (for demo)
+  if (addressLower.includes('toronto') || addressLower.includes('ontario') ||
+      addressLower.includes('bay st') || addressLower.includes('yonge') ||
+      addressLower.includes('mississauga')) {
+    return 'toronto';
+  }
+  
+  // Default to Winnipeg as primary city
+  return 'winnipeg';
 }
 
 export async function fetchRealNeighborhoodData(address: string): Promise<NeighborhoodData> {
