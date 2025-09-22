@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import GooglePlacesInput from '@/components/ui/GooglePlacesInput'
 
 interface User {
   id: string
