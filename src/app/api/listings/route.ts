@@ -75,11 +75,12 @@ export async function POST(request: NextRequest) {
         petsAllowed,
         bathrooms: bathrooms ? parseFloat(bathrooms) : null,
         photos: JSON.stringify(photos),
-        aiFlags: JSON.stringify(aiResult.isScam ? {
-          isScam: true,
-          reasons: aiResult.scamReasons,
-          quickFacts: aiResult.quickFacts
-        } : { quickFacts: aiResult.quickFacts }),
+        aiFlags: JSON.stringify({
+          isScam: aiResult.isScam,
+          scamReasons: aiResult.scamReasons,
+          quickFacts: aiResult.quickFacts,
+          neighborhood: aiResult.neighborhood, // Save new neighborhood insights
+        }),
         flagged: aiResult.isScam,
         // Utilities
         waterIncluded: waterIncluded || false,
