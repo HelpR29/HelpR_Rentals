@@ -5,15 +5,6 @@ import { getServerUser } from '@/lib/get-server-user';
 
 export default async function Home() {
   const user = await getServerUser();
-  
-  // EMERGENCY DEBUG LOGGING
-  console.log('🚨 HOMEPAGE DEBUG:');
-  console.log('🚨 User object:', JSON.stringify(user, null, 2));
-  console.log('🚨 User exists?', !!user);
-  console.log('🚨 User role:', user?.role);
-  console.log('🚨 Should show ListingBrowser?', !!user);
-  console.log('🚨 Should show Hero?', !user);
-  
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -62,6 +62,7 @@ model Listing {
   bathrooms     Float?        // Number of bathrooms (can be 1.5, 2.5, etc.)
   photos        String?       // JSON string of photo URLs array
   aiFlags       String?       // JSON object with AI-generated content and flags
+  neighborhoodInsights String? // JSON object with AI-generated neighborhood analysis
   flagged       Boolean       @default(false)
   // Utilities and expenses
   utilitiesIncluded String?    // JSON object with utilities details
