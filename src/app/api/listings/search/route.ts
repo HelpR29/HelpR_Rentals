@@ -70,14 +70,18 @@ export async function GET(request: NextRequest) {
     const aiFilters = await getFiltersFromAI(query);
 
     // Add text search for title, description, and address
-    const searchWhere = {
-      ...aiFilters,
+    const textSearch = {
       OR: [
         { title: { contains: query, mode: 'insensitive' as const } },
         { description: { contains: query, mode: 'insensitive' as const } },
         { address: { contains: query, mode: 'insensitive' as const } },
       ]
     };
+
+    // Combine AI filters with text search
+    const searchWhere = Object.keys(aiFilters).length > 0 
+      ? { AND: [aiFilters, textSearch] }
+      : textSearch;
 
     const listings = await prisma.listing.findMany({
       where: searchWhere,

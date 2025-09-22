@@ -159,9 +159,20 @@ export default function ListingBrowser() {
           {loading ? (
             <ListingGridSkeleton count={6} />
           ) : listings.length === 0 ? (
-            <Card className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No listings found</h3>
-              <p className="text-gray-500">Try adjusting your filters or check back later for new listings.</p>
+            <Card className="text-center py-16 bg-gray-50 border-2 border-dashed border-gray-300">
+              <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3">No listings found</h3>
+              <p className="text-gray-700 font-medium mb-2">Try searching for:</p>
+              <div className="flex flex-wrap justify-center gap-2 mb-4">
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Osborne Village</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Downtown</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Exchange District</span>
+              </div>
+              <p className="text-gray-600">Or try adjusting your filters and search again.</p>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -203,13 +214,13 @@ export default function ListingBrowser() {
                           </div>
 
                           {/* Address */}
-                          <p className="text-gray-600 text-sm mb-2 line-clamp-1">
+                          <p className="text-gray-700 text-sm mb-2 line-clamp-1 font-medium">
                             📍 {listing.address}
                           </p>
 
                           {/* Host Info */}
                           <div className="flex items-center space-x-2 mb-3">
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-600 font-medium">
                               Hosted by {listing.owner.email.split('@')[0]}
                             </span>
                             <VerificationBadge 
