@@ -65,7 +65,7 @@ export function useIntersectionObserver(
 // Lazy loading hook for images
 export function useLazyImage(src: string) {
   const [imageSrc, setImageSrc] = useState<string>()
-  const [imageRef, setImageRef] = useState<HTMLImageElement>()
+  const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
   const isIntersecting = useIntersectionObserver(
     { current: imageRef },
     { threshold: 0.1 }
@@ -86,14 +86,18 @@ export function usePerformanceMonitor() {
 
   const startMeasure = useCallback((name: string) => {
     startTime.current = performance.now()
-    performance.mark(`${name}-start`)
+    if (typeof performance !== 'undefined' && performance.mark) {
+      performance.mark(`${name}-start`)
+    }
   }, [])
 
   const endMeasure = useCallback((name: string) => {
     if (startTime.current) {
       const duration = performance.now() - startTime.current
-      performance.mark(`${name}-end`)
-      performance.measure(name, `${name}-start`, `${name}-end`)
+      if (typeof performance !== 'undefined' && performance.mark && performance.measure) {
+        performance.mark(`${name}-end`)
+        performance.measure(name, `${name}-start`, `${name}-end`)
+      }
       
       // Log slow operations in development
       if (process.env.NODE_ENV === 'development' && duration > 100) {
@@ -107,6 +111,3 @@ export function usePerformanceMonitor() {
 
   return { startMeasure, endMeasure }
 }
-
-// Missing import
-import { useState } from 'react'
