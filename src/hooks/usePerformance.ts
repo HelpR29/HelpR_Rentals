@@ -36,7 +36,7 @@ export function useThrottle<T extends (...args: any[]) => any>(
 }
 
 export function useIntersectionObserver(
-  elementRef: React.RefObject<Element>,
+  elementRef: React.RefObject<Element | null>,
   options?: IntersectionObserverInit
 ) {
   const [isIntersecting, setIsIntersecting] = useState(false)
@@ -67,7 +67,7 @@ export function useLazyImage(src: string) {
   const [imageSrc, setImageSrc] = useState<string>()
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
   const isIntersecting = useIntersectionObserver(
-    { current: imageRef },
+    { current: imageRef as Element | null },
     { threshold: 0.1 }
   )
 
