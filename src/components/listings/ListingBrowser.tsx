@@ -7,6 +7,12 @@ import Input from '@/components/ui/Input'
 import PropertyMap from '@/components/ui/PropertyMap'
 import { useToast } from '@/components/ui/Toast'
 import { formatWinnipegAddress, getWinnipegCoordinates } from '@/lib/address-utils'
+import Link from 'next/link'
+import Image from 'next/image'
+import VerificationBadge from '@/components/ui/VerificationBadge'
+import { ListingGridSkeleton } from '@/components/ui/LoadingStates'
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary'
+import SmartSearch from '@/components/search/SmartSearch'
 
 interface Listing {
   id: string
@@ -90,7 +96,7 @@ export default function ListingBrowser() {
       {/* Smart Search */}
       <ErrorBoundary>
         <SmartSearch 
-          onFiltersChange={(filters) => {
+          onFiltersChange={(filters: any) => {
             // Update local search query state
             setSearchQuery(filters.query);
             // Handle filter changes and update listings
