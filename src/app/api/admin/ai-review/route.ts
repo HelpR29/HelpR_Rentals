@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Parse verification data
-    const parsedVerifications = pendingVerifications.map(user => ({
+    const parsedVerifications = pendingVerifications.map((user: typeof pendingVerifications[0]) => ({
       ...user,
       verificationData: user.verificationData 
         ? JSON.parse(user.verificationData) 
