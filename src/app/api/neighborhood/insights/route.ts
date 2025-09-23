@@ -6,7 +6,6 @@ export async function GET(request: NextRequest) {
     const lat = parseFloat(searchParams.get('lat') || '0')
     const lng = parseFloat(searchParams.get('lng') || '0')
     const radius = parseInt(searchParams.get('radius') || '1000') // meters
-
     if (!lat || !lng) {
       return NextResponse.json(
         { error: 'Latitude and longitude are required' },
@@ -14,17 +13,45 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // In a real application, you would:
-    // 1. Use Google Places API to find nearby amenities
-    // 2. Use transit APIs to get public transport info
-    // 3. Use school district APIs for education data
-    // 4. Cache results for performance
+    // Development: compute distances from incoming coordinates to curated Winnipeg POIs
+    const toRad = (x: number) => (x * Math.PI) / 180
+    const distM = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+      const R = 6371000
+      const dLat = toRad(b.lat - a.lat)
+      const dLng = toRad(b.lng - a.lng)
+      const lat1 = toRad(a.lat)
+      const lat2 = toRad(b.lat)
+      const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2
+      return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)))
+    }
+    const ORIGIN = { lat, lng }
+    const POIS = {
+      transit: [
+        { type: 'bus', name: 'Portage & Main', coords: { lat: 49.8954, lng: -97.1385 }, routes: ['11','16','20'] },
+        { type: 'bus', name: 'Osbourne Station', coords: { lat: 49.8846, lng: -97.1423 }, routes: ['60','66','185'] }
+      ],
+      grocery: [
+        { name: 'Safeway Osborne', type: 'Supermarket', coords: { lat: 49.8769, lng: -97.1412 }, rating: 4.2 },
+        { name: 'Real Canadian Superstore (Bison Dr)', type: 'Supermarket', coords: { lat: 49.8067, lng: -97.1529 }, rating: 4.1 }
+      ],
+      healthcare: [
+        { name: 'Health Sciences Centre Winnipeg', type: 'Hospital', coords: { lat: 49.9062, lng: -97.1646 }, rating: 4.5 },
+        { name: 'St. Boniface Hospital', type: 'Hospital', coords: { lat: 49.8855, lng: -97.1198 }, rating: 4.4 }
+      ],
+      education: [
+        { name: 'University of Winnipeg', type: 'University', coords: { lat: 49.8925, lng: -97.1507 }, rating: 4.6 },
+        { name: 'University of Manitoba', type: 'University', coords: { lat: 49.8077, lng: -97.1325 }, rating: 4.7 }
+      ],
+      entertainment: [
+        { name: 'The Forks Market', type: 'Market & Public Space', coords: { lat: 49.887, lng: -97.1307 }, rating: 4.8 },
+        { name: 'Assiniboine Park', type: 'Park', coords: { lat: 49.8707, lng: -97.236 }, rating: 4.7 }
+      ]
+    }
 
     // Mock neighborhood insights data
     const insights = {
       coordinates: { lat, lng },
       transit: {
-        score: Math.floor(Math.random() * 40) + 60, // 60-100
         nearbyStations: [
           {
             type: 'bus',
