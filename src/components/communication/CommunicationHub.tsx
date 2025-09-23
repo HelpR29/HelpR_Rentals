@@ -1,7 +1,8 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 import EnhancedChat from '@/components/ui/EnhancedChat'
 import VideoCall from '@/components/ui/VideoCall'
 import AvailabilityCalendar from '@/components/ui/AvailabilityCalendar'
