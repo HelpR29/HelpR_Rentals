@@ -549,8 +549,8 @@ export default function ListingDetailPage() {
             {/* AI-Powered Neighborhood Insights */}
             <div className="mt-6">
               <NeighborhoodInsights 
-                coordinates={getListingCoordinates()}
-                className=""
+                address={listing.address}
+                existingInsights={listing.neighborhoodInsights}
               />
             </div>
 
