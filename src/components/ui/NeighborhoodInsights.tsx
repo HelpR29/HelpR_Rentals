@@ -237,33 +237,33 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
         <div className="space-y-6">
           <h4 className="font-semibold text-gray-900 mb-4">Commute to Downtown</h4>
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-blue-100 border border-blue-200 rounded-lg">
               <div className="flex items-center">
                 <span className="mr-3 text-xl">🚗</span>
-                <span className="font-medium">Driving</span>
+                <span className="font-semibold text-gray-900">Driving</span>
               </div>
-              <span className="font-bold text-blue-600">{insights.commute.toDowntown.driving} min</span>
+              <span className="font-extrabold text-blue-800">{insights.commute.toDowntown.driving} min</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-green-100 border border-green-200 rounded-lg">
               <div className="flex items-center">
-                <span className="mr-3 text-xl">🚇</span>
-                <span className="font-medium">Transit</span>
+                <span className="mr-3 text-xl">🚌</span>
+                <span className="font-semibold text-gray-900">Transit</span>
               </div>
-              <span className="font-bold text-green-600">{insights.commute.toDowntown.transit} min</span>
+              <span className="font-extrabold text-green-800">{insights.commute.toDowntown.transit} min</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-yellow-100 border border-yellow-200 rounded-lg">
               <div className="flex items-center">
                 <span className="mr-3 text-xl">🚶</span>
-                <span className="font-medium">Walking</span>
+                <span className="font-semibold text-gray-900">Walking</span>
               </div>
-              <span className="font-bold text-yellow-600">{insights.commute.toDowntown.walking} min</span>
+              <span className="font-extrabold text-yellow-800">{insights.commute.toDowntown.walking} min</span>
             </div>
-            <div className="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-purple-100 border border-purple-200 rounded-lg">
               <div className="flex items-center">
                 <span className="mr-3 text-xl">🚴</span>
-                <span className="font-medium">Cycling</span>
+                <span className="font-semibold text-gray-900">Cycling</span>
               </div>
-              <span className="font-bold text-purple-600">{insights.commute.toDowntown.cycling} min</span>
+              <span className="font-extrabold text-purple-800">{insights.commute.toDowntown.cycling} min</span>
             </div>
           </div>
 
@@ -272,14 +272,14 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
             <h4 className="font-semibold text-gray-900 mb-3">Nearby Transit</h4>
             <div className="space-y-2">
               {insights.transit.nearbyStations.map((station, index) => (
-                <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div key={index} className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200">
                   <div>
-                    <div className="font-medium text-sm">{station.name}</div>
-                    <div className="text-xs text-gray-500">
+                    <div className="font-semibold text-sm text-gray-900">{station.name}</div>
+                    <div className="text-xs text-gray-700">
                       {station.lines?.join(', ') || station.routes?.join(', ')}
                     </div>
                   </div>
-                  <div className="text-sm font-medium text-blue-600">
+                  <div className="text-sm font-semibold text-blue-700">
                     {formatDistance(station.distance)}
                   </div>
                 </div>
