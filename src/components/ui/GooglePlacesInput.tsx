@@ -33,6 +33,15 @@ export default function GooglePlacesInput({
   const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    
+    // Skip Google Maps entirely if no valid API key
+    if (!apiKey || apiKey === 'demo-key-for-development' || apiKey === 'your-google-maps-api-key' || apiKey.includes('YOUR_ACTUAL_API_KEY')) {
+      console.log('🗺️ Google Maps API key not configured. Using regular text input for addresses.')
+      setIsLoaded(true)
+      return
+    }
+
     // Check if Google Places API is already loaded
     if (window.google && window.google.maps && window.google.maps.places) {
       initializeAutocomplete()
@@ -54,16 +63,8 @@ export default function GooglePlacesInput({
       return () => clearInterval(checkGoogleLoaded)
     }
 
-    // Load Google Places API only if not already loading
+    // Load Google Places API
     const script = document.createElement('script')
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    
-    if (!apiKey || apiKey === 'demo-key-for-development') {
-      console.warn('Google Maps API key not found or is demo key. Address autocomplete will not work. Input will work as regular text field.')
-      setIsLoaded(true) // Set as loaded so input still works
-      return
-    }
-    
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGooglePlaces`
     script.async = true
     script.defer = true
@@ -75,7 +76,7 @@ export default function GooglePlacesInput({
 
     // Add error handling for script loading
     script.onerror = () => {
-      console.error('Failed to load Google Maps API')
+      console.error('Failed to load Google Maps API - Invalid API key or network error')
       setIsLoaded(true) // Set as loaded so input still works
     }
 
@@ -153,6 +154,14 @@ export default function GooglePlacesInput({
       </div>
       {helperText && (
         <p className="text-sm text-gray-500">{helperText}</p>
+      )}
+      {(!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY === 'demo-key-for-development' || 
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY === 'your-google-maps-api-key' ||
+        process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.includes('YOUR_ACTUAL_API_KEY')) && (
+        <p className="text-xs text-amber-600 mt-1">
+          💡 Address autocomplete not available. Please type your full address manually.
+        </p>
       )}
     </div>
   )
