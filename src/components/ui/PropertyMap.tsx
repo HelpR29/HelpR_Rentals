@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import GoogleMap from './GoogleMap'
-import Button from './Button'
-import Card from './Card'
+import GoogleMap from '@/components/ui/GoogleMap'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
 import Link from 'next/link';
-import AddressAutocomplete from './AddressAutocomplete';
-import { useToast } from './Toast';
+import AddressAutocomplete from '@/components/ui/AddressAutocomplete';
+import { useToast } from '@/components/ui/Toast';
 
 interface Property {
   id: string
