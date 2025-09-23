@@ -154,8 +154,16 @@ export default function CommunicationHub({ currentUser, listing, applicationId }
   if (isVideoCallActive && videoCallUser) {
     return (
       <VideoCall
-        currentUser={currentUser}
-        otherUser={videoCallUser}
+        currentUser={{
+          id: currentUser.id,
+          name: currentUser.name || currentUser.email.split('@')[0],
+          email: currentUser.email
+        }}
+        otherUser={{
+          id: videoCallUser.id,
+          name: videoCallUser.name || videoCallUser.email.split('@')[0],
+          email: videoCallUser.email
+        }}
         onClose={endVideoCall}
       />
     )
@@ -272,7 +280,7 @@ export default function CommunicationHub({ currentUser, listing, applicationId }
       <div className="p-4 border-t border-gray-200 bg-gray-50">
         <div className="flex justify-center space-x-4">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => setActiveView('chat')}
             className="flex items-center space-x-2"
@@ -282,7 +290,7 @@ export default function CommunicationHub({ currentUser, listing, applicationId }
           </Button>
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => setActiveView('calendar')}
             className="flex items-center space-x-2"
@@ -292,7 +300,7 @@ export default function CommunicationHub({ currentUser, listing, applicationId }
           </Button>
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => setActiveView('notifications')}
             className="flex items-center space-x-2"

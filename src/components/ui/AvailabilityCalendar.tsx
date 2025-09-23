@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 
 interface AvailabilitySlot {
   id: string
@@ -122,7 +122,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
         <h3 className="text-xl font-semibold text-gray-900">Available Times</h3>
         <div className="flex items-center space-x-4">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => navigateMonth('prev')}
           >
@@ -132,7 +132,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
             {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
           </h4>
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={() => navigateMonth('next')}
           >
@@ -219,7 +219,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
 
               <div className="flex space-x-3 mt-6">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setShowBookingModal(false)}
                   className="flex-1"
                 >
@@ -241,7 +241,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
       {/* Quick Actions */}
       <div className="flex flex-wrap gap-3">
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={() => setCurrentMonth(new Date())}
           className="flex items-center space-x-2"
         >
@@ -252,7 +252,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
         </Button>
 
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={() => setCurrentMonth(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000))}
           className="flex items-center space-x-2"
         >
@@ -263,7 +263,7 @@ export default function AvailabilityCalendar({ listingId, hostId, onBookingReque
         </Button>
 
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={() => setCurrentMonth(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))}
           className="flex items-center space-x-2"
         >
