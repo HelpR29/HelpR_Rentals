@@ -30,62 +30,62 @@ Province of Manitoba
 
 This agreement is made between:
 
-LANDLORD: {{landlordName}}
-Address: {{landlordAddress}}
-Phone: {{landlordPhone}}
-Email: {{landlordEmail}}
+LANDLORD: \{\{landlordName\}\}
+Address: \{\{landlordAddress\}\}
+Phone: \{\{landlordPhone\}\}
+Email: \{\{landlordEmail\}\}
 
-TENANT: {{tenantName}}
-Phone: {{tenantPhone}}
-Email: {{tenantEmail}}
+TENANT: \{\{tenantName\}\}
+Phone: \{\{tenantPhone\}\}
+Email: \{\{tenantEmail\}\}
 
 RENTAL PROPERTY:
-Address: {{propertyAddress}}
-Unit: {{unitNumber}}
-City: {{city}}, Manitoba
-Postal Code: {{postalCode}}
+Address: \{\{propertyAddress\}\}
+Unit: \{\{unitNumber\}\}
+City: \{\{city\}\}, Manitoba
+Postal Code: \{\{postalCode\}\}
 
 TERMS AND CONDITIONS:
 
 1. RENT AND PAYMENT
-   - Monthly Rent: ${{monthlyRent}}
-   - Due Date: {{rentDueDate}} of each month
-   - Payment Method: {{paymentMethod}}
-   - Late Fee: ${{lateFee}} after {{gracePeriod}} days
+   - Monthly Rent: $\{\{monthlyRent\}\}
+   - Due Date: \{\{rentDueDate\}\} of each month
+   - Payment Method: \{\{paymentMethod\}\}
+   - Late Fee: $\{\{lateFee\}\} after \{\{gracePeriod\}\} days
 
 2. SECURITY DEPOSIT
-   - Amount: ${{securityDeposit}}
+   - Amount: $\{\{securityDeposit\}\}
    - Held in trust as per Manitoba Residential Tenancies Act
-   - Interest rate: {{interestRate}}% annually
+   - Interest rate: \{\{interestRate\}\}% annually
 
 3. LEASE TERM
-   - Start Date: {{leaseStartDate}}
-   - End Date: {{leaseEndDate}}
-   - Term: {{leaseTerm}} months
+   - Start Date: \{\{leaseStartDate\}\}
+   - End Date: \{\{leaseEndDate\}\}
+   - Term: \{\{leaseTerm\}\} months
 
 4. UTILITIES AND SERVICES
-   {{#if utilitiesIncluded}}
-   - Utilities Included: {{utilitiesList}}
-   {{else}}
+   \{\{#if utilitiesIncluded\}\}
+   - Utilities Included: \{\{utilitiesList\}\}
+   \{\{else\}\}
    - Tenant responsible for all utilities
-   {{/if}}
+   \{\{/if\}\}
 
 5. PROPERTY CONDITION
-   - Furnished: {{#if furnished}}Yes{{else}}No{{/if}}
-   - Pets Allowed: {{#if petsAllowed}}Yes - with ${{petDeposit}} deposit{{else}}No{{/if}}
-   - Smoking: {{#if smokingAllowed}}Permitted{{else}}Prohibited{{/if}}
+   - Furnished: \{\{#if furnished\}\}Yes\{\{else\}\}No\{\{/if\}\}
+   - Pets Allowed: \{\{#if petsAllowed\}\}Yes - with $\{\{petDeposit\}\} deposit\{\{else\}\}No\{\{/if\}\}
+   - Smoking: \{\{#if smokingAllowed\}\}Permitted\{\{else\}\}Prohibited\{\{/if\}\}
 
 6. MAINTENANCE AND REPAIRS
    - Landlord responsible for: Major repairs, structural issues, heating system
-   - Tenant responsible for: Minor repairs under ${{minorRepairLimit}}, cleaning, lawn care
+   - Tenant responsible for: Minor repairs under $\{\{minorRepairLimit\}\}, cleaning, lawn care
 
 7. ENTRY AND INSPECTION
    - 24-hour notice required except in emergencies
    - Quarterly inspections permitted with notice
 
 8. TERMINATION
-   - {{terminationNotice}} days written notice required
-   - Early termination fee: ${{earlyTerminationFee}}
+   - \{\{terminationNotice\}\} days written notice required
+   - Early termination fee: $\{\{earlyTerminationFee\}\}
 
 9. LEGAL COMPLIANCE
    This agreement is governed by the Manitoba Residential Tenancies Act and regulations.
@@ -93,10 +93,10 @@ TERMS AND CONDITIONS:
 SIGNATURES:
 
 Landlord: _________________________ Date: _________
-{{landlordName}}
+\{\{landlordName\}\}
 
 Tenant: _________________________ Date: _________
-{{tenantName}}
+\{\{tenantName\}\}
 
 Witness: _________________________ Date: _________`,
       variables: [
@@ -148,42 +148,42 @@ Witness: _________________________ Date: _________`,
       type: 'application',
       jurisdiction: 'manitoba',
       content: `RENTAL APPLICATION
-{{propertyAddress}}
+\{\{propertyAddress\}\}
 
 APPLICANT INFORMATION:
-Full Name: {{applicantName}}
-Date of Birth: {{dateOfBirth}}
-Phone: {{phone}}
-Email: {{email}}
-Current Address: {{currentAddress}}
-Move-in Date: {{moveInDate}}
+Full Name: \{\{applicantName\}\}
+Date of Birth: \{\{dateOfBirth\}\}
+Phone: \{\{phone\}\}
+Email: \{\{email\}\}
+Current Address: \{\{currentAddress\}\}
+Move-in Date: \{\{moveInDate\}\}
 
 EMPLOYMENT INFORMATION:
-Employer: {{employer}}
-Position: {{position}}
-Monthly Income: ${{monthlyIncome}}
-Employment Duration: {{employmentDuration}}
+Employer: \{\{employer\}\}
+Position: \{\{position\}\}
+Monthly Income: $\{\{monthlyIncome\}\}
+Employment Duration: \{\{employmentDuration\}\}
 
 RENTAL HISTORY:
-Previous Landlord: {{previousLandlord}}
-Previous Address: {{previousAddress}}
-Rent Amount: ${{previousRent}}
-Reason for Moving: {{reasonForMoving}}
+Previous Landlord: \{\{previousLandlord\}\}
+Previous Address: \{\{previousAddress\}\}
+Rent Amount: $\{\{previousRent\}\}
+Reason for Moving: \{\{reasonForMoving\}\}
 
 REFERENCES:
-1. {{reference1Name}} - {{reference1Phone}}
-2. {{reference2Name}} - {{reference2Phone}}
+1. \{\{reference1Name\}\} - \{\{reference1Phone\}\}
+2. \{\{reference2Name\}\} - \{\{reference2Phone\}\}
 
 ADDITIONAL OCCUPANTS:
-{{additionalOccupants}}
+\{\{additionalOccupants\}\}
 
 PETS:
-{{petInformation}}
+\{\{petInformation\}\}
 
 I certify that the information provided is true and complete.
 
 Signature: _________________________ Date: _________
-{{applicantName}}`,
+\{\{applicantName\}\}`,
       variables: [
         { name: 'propertyAddress', type: 'text', required: true, description: 'Property being applied for' },
         { name: 'applicantName', type: 'text', required: true, description: 'Full name of applicant' },
@@ -222,8 +222,8 @@ Signature: _________________________ Date: _________
     // Replace simple variables
     template.variables.forEach(variable => {
       const value = variables[variable.name] || variable.defaultValue || ''
-      const placeholder = `{{${variable.name}}}`
-      processedContent = processedContent.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value.toString())
+      const placeholder = `\\{\\{${variable.name}\\}\\}`
+      processedContent = processedContent.replace(new RegExp(placeholder, 'g'), value.toString())
     })
 
     // Process conditional statements
@@ -233,8 +233,8 @@ Signature: _________________________ Date: _________
   }
 
   private static processConditionals(content: string, variables: Record<string, any>): string {
-    // Handle {{#if variable}} ... {{else}} ... {{/if}} blocks
-    const ifRegex = /\{\{#if\s+(\w+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g
+    // Handle \\{\\{#if variable\\}\\} ... \\{\\{else\\}\\} ... \\{\\{/if\\}\\} blocks
+    const ifRegex = /\\{\\{#if\s+(\w+)\\}\\}([\s\S]*?)(?:\\{\\{else\\}\\}([\s\S]*?))?\\{\\{\/if\\}\\}/g
     
     return content.replace(ifRegex, (match, variable, ifContent, elseContent = '') => {
       const value = variables[variable]
