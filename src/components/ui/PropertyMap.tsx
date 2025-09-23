@@ -138,14 +138,14 @@ export default function PropertyMap({
       {showControls && (
         <div className="absolute top-4 left-4 z-10 space-y-2">
           <Button
-            variant={showNearbyAmenities ? "primary" : "secondary"}
+            variant={showNearbyAmenities ? "primary" : "ghost"}
             size="sm"
             onClick={() => setShowNearbyAmenities(!showNearbyAmenities)}
           >
             🏪 Amenities
           </Button>
           <Button
-            variant="secondary"
+            variant="ghost"
             size="sm"
             onClick={() => {
               // Fit map to show all properties
