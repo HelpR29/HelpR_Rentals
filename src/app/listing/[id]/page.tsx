@@ -1,18 +1,16 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import Card from '@/components/ui/Card'
+import { getCurrentUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 import Button from '@/components/ui/Button'
-import Input from '@/components/ui/Input'
-import { useToast } from '@/components/ui/Toast'
-import { AverageRating } from '@/components/ui/StarRating'
 import VerificationBadge from '@/components/ui/VerificationBadge'
+import NeighborhoodInsights from '@/components/ui/NeighborhoodInsights'
 import GoogleMap from '@/components/ui/GoogleMap'
 import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
-import NeighborhoodInsights from '@/components/listings/NeighborhoodInsights'
-import Link from 'next/link'
+import { useToast } from '@/components/ui/Toast'
+import { formatWinnipegAddress, getWinnipegCoordinates, extractStreetAddress } from '@/lib/address-utils'
 
 interface Listing {
   id: string
@@ -85,12 +83,8 @@ export default function ListingDetailPage() {
 
   // Helper function to generate consistent coordinates for this listing
   const getListingCoordinates = () => {
-    if (!listing) return { lat: 49.8951, lng: -97.1384 }; // Default Winnipeg coordinates
-    const seed = listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return {
-      lat: 49.8951 + ((seed % 100) - 50) * 0.001, // Winnipeg area coordinates
-      lng: -97.1384 + ((seed % 100) - 50) * 0.001
-    };
+    if (!listing) return getWinnipegCoordinates();
+    return getWinnipegCoordinates(listing.id);
   };
 
   useEffect(() => {
