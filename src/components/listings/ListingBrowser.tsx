@@ -11,6 +11,8 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import VerificationBadge from '@/components/ui/VerificationBadge'
 import PropertyMap from '@/components/ui/PropertyMap'
+// import { useAuth } from '@/lib/auth-context'
+// import { useToast } from '@/lib/toast-context'
 
 interface Listing {
   id: string
@@ -50,9 +52,19 @@ interface Filters {
 export default function ListingBrowser() {
   const [listings, setListings] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('');
-    const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
+  const [view, setView] = useState<'list' | 'map'>('list')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list')
   const [selectedListing, setSelectedListing] = useState<string | undefined>()
+
+  // Helper function to generate consistent coordinates for each listing
+  const getListingCoordinates = (listingId: string) => {
+    const seed = listingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return {
+      lat: 49.8951 + ((seed % 100) - 50) * 0.001, // Winnipeg area coordinates
+      lng: -97.1384 + ((seed % 100) - 50) * 0.001
+    };
+  };
 
   useEffect(() => {
     fetchListings()
@@ -139,11 +151,7 @@ export default function ListingBrowser() {
               title: listing.title,
               price: listing.rent,
               address: listing.address,
-              coordinates: {
-                // Generate mock coordinates around Winnipeg, Manitoba
-                lat: 49.8951 + (Math.random() - 0.5) * 0.1,
-                lng: -97.1384 + (Math.random() - 0.5) * 0.1
-              },
+              coordinates: getListingCoordinates(listing.id),
               bedrooms: 2, // Mock data - you'd extract this from description or add to schema
               bathrooms: 1,
               images: listing.photos
