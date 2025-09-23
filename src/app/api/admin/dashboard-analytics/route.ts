@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     })
 
     const totalFlagged = flaggedListingsData.length
-    const approvedByAdmin = flaggedListingsData.filter(l => {
+    const approvedByAdmin = flaggedListingsData.filter((l: typeof flaggedListingsData[0]) => {
       try {
         const flags = typeof l.aiFlags === 'string' ? JSON.parse(l.aiFlags) : l.aiFlags
         return flags?.adminAction === 'approve'
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
       }
     }).length
 
-    const rejectedByAdmin = flaggedListingsData.filter(l => {
+    const rejectedByAdmin = flaggedListingsData.filter((l: typeof flaggedListingsData[0]) => {
       try {
         const flags = typeof l.aiFlags === 'string' ? JSON.parse(l.aiFlags) : l.aiFlags
         return flags?.adminAction === 'reject'
