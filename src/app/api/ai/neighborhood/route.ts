@@ -10,10 +10,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Address is required' }, { status: 400 });
     }
 
-    // Create enhanced AI prompt for factual neighborhood analysis
-    const prompt = `You are a professional real estate researcher and neighborhood analyst. Analyze the neighborhood for this address: "${address}"
+    // Format address with Winnipeg context for AI analysis
+    const formattedAddress = address.toLowerCase().includes('winnipeg') || address.toLowerCase().includes('manitoba') 
+      ? address 
+      : `${address}, Winnipeg, Manitoba, Canada`;
 
-IMPORTANT: Base your analysis on factual, research-based information about this specific Canadian city/area. Consider:
+    // Create enhanced AI prompt for factual neighborhood analysis
+    const prompt = `You are a professional real estate researcher and neighborhood analyst specializing in Canadian cities. Analyze the neighborhood for this address: "${formattedAddress}"
+
+IMPORTANT: This address is in WINNIPEG, MANITOBA, CANADA. Base your analysis on factual, research-based information about this specific Winnipeg neighborhood. Consider:
 - Actual transit lines and stations near this address
 - Real demographic data for this neighborhood
 - Documented crime statistics and safety records  

@@ -313,7 +313,7 @@ export default function ListingDetailPage() {
         <div className="lg:col-span-2">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{listing.title}</h1>
-            <p className="text-gray-600 mb-4">{listing.address}</p>
+            <p className="text-gray-600 mb-4">{formatWinnipegAddress(listing.address)}</p>
             
             <div className="flex flex-wrap gap-2 mb-4">
               {listing.furnished && (
@@ -437,7 +437,7 @@ export default function ListingDetailPage() {
             <div className="mb-6">
               <div className="flex items-center space-x-2 mb-4">
                 <span className="text-lg">📍</span>
-                <span className="text-lg font-medium text-gray-900">{listing.address}</span>
+                <span className="text-lg font-medium text-gray-900">{formatWinnipegAddress(listing.address)}</span>
               </div>
             </div>
 
@@ -543,8 +543,7 @@ export default function ListingDetailPage() {
             {/* AI-Powered Neighborhood Insights */}
             <div className="mt-6">
               <NeighborhoodInsights 
-                address={listing.address}
-                existingInsights={listing.neighborhoodInsights}
+                coordinates={getListingCoordinates()}
               />
             </div>
 
