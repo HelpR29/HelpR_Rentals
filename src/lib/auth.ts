@@ -73,7 +73,7 @@ export function verifyMagicToken(token: string): { email: string } | null {
   }
 }
 
-export async function findOrCreateUser(email: string) {
+export async function findOrCreateUser(email: string, role: string = 'tenant') {
   try {
     let user = await prisma.user.findUnique({
       where: { email }
@@ -83,7 +83,7 @@ export async function findOrCreateUser(email: string) {
       user = await prisma.user.create({
         data: {
           email,
-          role: 'tenant'
+          role: role as 'tenant' | 'host' | 'admin'
         }
       });
     }

@@ -12,13 +12,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify magic link token
-    const email = await verifyMagicToken(token)
-    if (!email) {
+    const tokenResult = verifyMagicToken(token)
+    if (!tokenResult) {
       return NextResponse.redirect(new URL('/auth/error?error=invalid_token', request.url))
     }
 
     // Find or create user
-    const user = await findOrCreateUser(email, role)
+    const user = await findOrCreateUser(tokenResult.email, role)
 
     // Create session token
     const sessionToken = await createSessionToken(user)

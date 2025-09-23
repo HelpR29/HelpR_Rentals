@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
     const total = await prisma.listing.count({ where })
 
     // Parse JSON fields for response
-    const parsedListings = listings.map(listing => ({
+    const parsedListings = listings.map((listing: typeof listings[0]) => ({
       ...listing,
       photos: listing.photos ? JSON.parse(listing.photos) : [],
       aiFlags: listing.aiFlags ? JSON.parse(listing.aiFlags) : null

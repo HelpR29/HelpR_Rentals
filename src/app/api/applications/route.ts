@@ -227,7 +227,7 @@ export async function GET(request: NextRequest) {
     })
 
     // Parse JSON fields for response
-    let parsedApplications = applications.map(application => ({
+    let parsedApplications = applications.map((application: typeof applications[0]) => ({
       ...application,
       listing: {
         ...application.listing,
