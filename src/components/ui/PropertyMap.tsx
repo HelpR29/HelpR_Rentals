@@ -190,7 +190,7 @@ export default function PropertyMap({
                 View Details
               </Link>
               <Button
-                variant="secondary"
+                variant="ghost"
                 size="sm"
                 onClick={() => setIsCommuteMode(!isCommuteMode)}
               >
@@ -211,7 +211,7 @@ export default function PropertyMap({
                   className='flex-1'
                 />
                 <Button size="sm" onClick={handleCalculateCommute} loading={isCalculating}>Go</Button>
-                <Button size="sm" variant='ghost' onClick={handleClearCommute}>Clear</Button>
+                <Button size="sm" variant="ghost" onClick={handleClearCommute}>Clear</Button>
               </div>
             </div>
           )}
