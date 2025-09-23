@@ -1,10 +1,19 @@
 export const dynamic = 'force-dynamic'; // THIS IS THE FIX
 
-import ListingBrowser from '@/components/listings/ListingBrowser';
+import NextDynamic from 'next/dynamic'
 import { getServerUser } from '@/lib/get-server-user';
 
 export default async function Home() {
   const user = await getServerUser();
+  
+  const ListingBrowser = NextDynamic(() => import('@/components/listings/ListingBrowser'), {
+    ssr: false,
+    loading: () => (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="animate-pulse h-40 bg-gray-100 rounded-2xl border"></div>
+      </div>
+    )
+  })
   
   return (
     <>
