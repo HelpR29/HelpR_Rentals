@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const POIS = {
       transit: [
         { type: 'bus', name: 'Portage & Main', coords: { lat: 49.8954, lng: -97.1385 }, routes: ['11','16','20'] },
-        { type: 'bus', name: 'Osbourne Station', coords: { lat: 49.8846, lng: -97.1423 }, routes: ['60','66','185'] }
+        { type: 'bus', name: 'Osborne Station', coords: { lat: 49.8846, lng: -97.1423 }, routes: ['60','66','185'] }
       ],
       grocery: [
         { name: 'Safeway Osborne', type: 'Supermarket', coords: { lat: 49.8769, lng: -97.1412 }, rating: 4.2 },
@@ -48,86 +48,37 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    // Mock neighborhood insights data
+    // Utility: sort and attach distances from listing origin
+    const withDistances = <T extends { coords: { lat: number; lng: number } }>(arr: T[]) =>
+      arr
+        .map((p) => ({ ...p, distance: Math.round(distM(ORIGIN, p.coords)) }))
+        .sort((a, b) => a.distance - b.distance)
+
+    // Deterministic neighborhood insights data (Winnipeg-focused)
     const insights = {
       coordinates: { lat, lng },
       transit: {
-        nearbyStations: [
-          {
-            type: 'bus',
-            name: 'Portage & Main (Winnipeg Transit Hub)',
-            distance: Math.floor(Math.random() * 800) + 200,
-            routes: ['11 Portage', '16 Selkirk-Osborne', '20 Academy-Watt']
-          },
-          {
-            type: 'bus',
-            name: 'Osborne Station (Southbound)',
-            distance: Math.floor(Math.random() * 300) + 50,
-            routes: ['60 Pembina', '66 Grant', '185 Osborne Village']
-          }
-        ]
+        nearbyStations: withDistances(POIS.transit)
+          .slice(0, 2)
+          .map((s) => ({ type: s.type, name: s.name, distance: s.distance, routes: s.routes }))
       },
       walkability: {
-        score: Math.floor(Math.random() * 30) + 70, // 70-100
+        score: 78,
         description: 'Very Walkable - Most errands can be accomplished on foot'
       },
       amenities: {
-        grocery: [
-          {
-            name: 'Metro',
-            type: 'Supermarket',
-            distance: Math.floor(Math.random() * 500) + 100,
-            rating: 4.2
-          },
-          {
-            name: 'Safeway',
-            type: 'Supermarket', 
-            distance: Math.floor(Math.random() * 800) + 300,
-            rating: 4.0
-          }
-        ],
-        healthcare: [
-          {
-            name: 'Health Sciences Centre Winnipeg',
-            type: 'Hospital',
-            distance: Math.floor(Math.random() * 2000) + 500,
-            rating: 4.5
-          },
-          {
-            name: 'Shoppers Drug Mart',
-            type: 'Pharmacy',
-            distance: Math.floor(Math.random() * 400) + 100,
-            rating: 4.1
-          }
-        ],
-        education: [
-          {
-            name: 'University of Winnipeg',
-            type: 'University',
-            distance: Math.floor(Math.random() * 3000) + 1000,
-            rating: 4.8
-          },
-          {
-            name: 'Kelvin High School',
-            type: 'Elementary School',
-            distance: Math.floor(Math.random() * 800) + 200,
-            rating: 4.3
-          }
-        ],
-        entertainment: [
-          {
-            name: 'The Forks Market',
-            type: 'Market & Public Space',
-            distance: Math.floor(Math.random() * 1500) + 500,
-            rating: 4.6
-          },
-          {
-            name: 'Assiniboine Park',
-            type: 'Park',
-            distance: Math.floor(Math.random() * 600) + 200,
-            rating: 4.4
-          }
-        ]
+        grocery: withDistances([
+          ...POIS.grocery
+        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
+        healthcare: withDistances([
+          ...POIS.healthcare
+        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
+        education: withDistances([
+          ...POIS.education
+        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
+        entertainment: withDistances([
+          ...POIS.entertainment
+        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating }))
       },
       safety: {
         score: Math.floor(Math.random() * 20) + 80, // 80-100
