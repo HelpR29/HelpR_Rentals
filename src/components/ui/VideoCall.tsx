@@ -216,7 +216,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
 
             {/* Screen Share */}
             <Button
-              variant={isScreenSharing ? "secondary" : "outline"}
+              variant={isScreenSharing ? "secondary" : "ghost"}
               size="lg"
               onClick={toggleScreenShare}
               className="rounded-full w-14 h-14 p-0"
@@ -228,7 +228,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
 
             {/* End Call */}
             <Button
-              variant="destructive"
+              variant="danger"
               size="lg"
               onClick={endCall}
               className="rounded-full w-14 h-14 p-0"
@@ -257,7 +257,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
           <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2">
             <div className="flex space-x-4">
               <Button
-                variant="destructive"
+                variant="danger"
                 size="lg"
                 onClick={endCall}
                 className="rounded-full w-16 h-16 p-0"
