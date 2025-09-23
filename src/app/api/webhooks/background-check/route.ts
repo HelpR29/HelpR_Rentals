@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processBackgroundCheckWebhook } from '@/lib/webhook-processor';
+import { processWebhook } from '@/lib/webhook-processor';
 
 // This endpoint simulates receiving a webhook from a third-party background check provider.
 export async function POST(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     //   return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     // }
 
-    await processBackgroundCheckWebhook(payload);
+    await processWebhook('background-check', payload);
 
     return NextResponse.json({ received: true });
 

@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { processBackgroundCheckWebhook } from './webhook-processor';
+import { processWebhook } from './webhook-processor';
 
 // This is a mock service that simulates a third-party background check provider like Checkr.
 // In a real application, this would make API calls to the provider.
@@ -66,7 +66,7 @@ class BackgroundCheckService {
       // Instead of a network request, we now call the processor directly.
       // This is more reliable for local simulation.
             // We pass the userId directly to our processor to avoid race conditions in dev.
-      await processBackgroundCheckWebhook(payload, userId);
+      await processWebhook('background-check', { ...payload, userId });
     } catch (error) {
             console.error('❌ [BackgroundCheckService] CRITICAL: Error sending simulated webhook:', error);
     }

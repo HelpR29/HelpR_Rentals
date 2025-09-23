@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    // Enable better error reporting
-    serverComponentsExternalPackages: [],
-  },
+  serverExternalPackages: [],
   webpack: (config, { dev, isServer }) => {
     // Force single React instance
     if (!isServer) {
