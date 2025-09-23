@@ -16,11 +16,11 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Invalid or expired verification token', { status: 400 });
     }
 
-    const { userId } = verificationData;
+    const { email } = verificationData;
 
     // Mark user's email as verified
     await prisma.user.update({
-      where: { id: userId },
+      where: { email },
       data: { emailVerified: true },
     });
 

@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     // For email, send a verification link instead of auto-approving
     if (verificationType === 'email' && data.email === user.email) {
-      const token = await generateEmailVerificationToken(user.id, user.email);
+      const token = generateEmailVerificationToken(user.email);
       const host = request.headers.get('host')!;
       const protocol = host.includes('localhost') ? 'http' : 'https';
       const baseUrl = `${protocol}://${host}`;
