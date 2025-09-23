@@ -13,6 +13,8 @@ import GoogleMap from '@/components/ui/GoogleMap'
 import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
 import { useToast } from '@/components/ui/Toast'
 import { formatWinnipegAddress, getWinnipegCoordinates, extractStreetAddress } from '@/lib/address-utils'
+import Link from 'next/link'
+import Input from '@/components/ui/Input'
 
 interface Listing {
   id: string
@@ -661,7 +663,10 @@ export default function ListingDetailPage() {
                     {/* Show rating only if host has reviews */}
                     {listing.owner._count?.receivedReviews && listing.owner._count.receivedReviews > 0 && (
                       <div className="mt-1">
-                        <AverageRating rating={4.8} count={listing.owner._count.receivedReviews} size="sm" />
+                        <div className="flex items-center space-x-1">
+                          <span className="text-yellow-400">★★★★★</span>
+                          <span className="text-sm text-gray-600">4.8 ({listing.owner._count.receivedReviews} reviews)</span>
+                        </div>
                       </div>
                     )}
                   </div>
