@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 
     // Parse city from address and count
     const cityCounts: { [key: string]: number } = {}
-    listingsByCity.forEach(item => {
+    listingsByCity.forEach((item: typeof listingsByCity[0]) => {
       const cityMatch = item.address.match(/,\s*([^,]+),\s*[^,]+\s*\d{5}/)
       if (cityMatch) {
         const city = cityMatch[1].trim()
