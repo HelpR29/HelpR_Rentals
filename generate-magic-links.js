@@ -3,7 +3,11 @@
 // Simple script to generate magic links for testing
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production-12345';
+// Load environment variables the same way Next.js does
+require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env' });
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-for-development-only-change-in-production';
 
 function generateMagicToken(email) {
   const payload = {
