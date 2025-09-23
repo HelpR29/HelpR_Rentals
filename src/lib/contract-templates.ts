@@ -25,8 +25,7 @@ export class ContractTemplateManager {
       name: 'Manitoba Residential Lease Agreement',
       type: 'lease',
       jurisdiction: 'manitoba',
-      content: `
-RESIDENTIAL TENANCY AGREEMENT
+      content: `RESIDENTIAL TENANCY AGREEMENT
 Province of Manitoba
 
 This agreement is made between:
@@ -86,7 +85,7 @@ TERMS AND CONDITIONS:
 
 8. TERMINATION
    - {{terminationNotice}} days written notice required
-   - Early termination fee: {{earlyTerminationFee}}
+   - Early termination fee: ${{earlyTerminationFee}}
 
 9. LEGAL COMPLIANCE
    This agreement is governed by the Manitoba Residential Tenancies Act and regulations.
@@ -99,8 +98,7 @@ Landlord: _________________________ Date: _________
 Tenant: _________________________ Date: _________
 {{tenantName}}
 
-Witness: _________________________ Date: _________
-`,
+Witness: _________________________ Date: _________`,
       variables: [
         { name: 'landlordName', type: 'text', required: true, description: 'Full name of landlord' },
         { name: 'landlordAddress', type: 'text', required: true, description: 'Landlord contact address' },
@@ -149,8 +147,7 @@ Witness: _________________________ Date: _________
       name: 'Rental Application Form',
       type: 'application',
       jurisdiction: 'manitoba',
-      content: `
-RENTAL APPLICATION
+      content: `RENTAL APPLICATION
 {{propertyAddress}}
 
 APPLICANT INFORMATION:
@@ -186,8 +183,7 @@ PETS:
 I certify that the information provided is true and complete.
 
 Signature: _________________________ Date: _________
-{{applicantName}}
-`,
+{{applicantName}}`,
       variables: [
         { name: 'propertyAddress', type: 'text', required: true, description: 'Property being applied for' },
         { name: 'applicantName', type: 'text', required: true, description: 'Full name of applicant' },
@@ -219,132 +215,6 @@ Signature: _________________________ Date: _________
     }
   }
 
-  // 🔧 MAINTENANCE REQUEST TEMPLATE
-  static getMaintenanceRequestTemplate(): ContractTemplate {
-    return {
-      id: 'maintenance-request',
-      name: 'Maintenance Request Form',
-      type: 'maintenance',
-      jurisdiction: 'manitoba',
-      content: `
-MAINTENANCE REQUEST
-Property: {{propertyAddress}}
-Unit: {{unitNumber}}
-Date: {{requestDate}}
-
-TENANT INFORMATION:
-Name: {{tenantName}}
-Phone: {{tenantPhone}}
-Email: {{tenantEmail}}
-
-REQUEST DETAILS:
-Issue Description: {{issueDescription}}
-Location in Unit: {{issueLocation}}
-Urgency Level: {{urgencyLevel}}
-When Issue Started: {{issueStartDate}}
-
-ACCESSIBILITY:
-Best Times for Access: {{accessTimes}}
-Special Instructions: {{specialInstructions}}
-
-TENANT SIGNATURE: _________________________ Date: _________
-
-FOR OFFICE USE:
-Work Order #: {{workOrderNumber}}
-Assigned to: {{assignedContractor}}
-Estimated Cost: ${{estimatedCost}}
-Completion Date: {{completionDate}}
-`,
-      variables: [
-        { name: 'propertyAddress', type: 'text', required: true, description: 'Property address' },
-        { name: 'unitNumber', type: 'text', required: false, description: 'Unit number' },
-        { name: 'requestDate', type: 'date', required: true, description: 'Date of request' },
-        { name: 'tenantName', type: 'text', required: true, description: 'Tenant name' },
-        { name: 'tenantPhone', type: 'text', required: true, description: 'Tenant phone' },
-        { name: 'tenantEmail', type: 'text', required: true, description: 'Tenant email' },
-        { name: 'issueDescription', type: 'text', required: true, description: 'Detailed description of issue' },
-        { name: 'issueLocation', type: 'text', required: true, description: 'Where in unit is the issue' },
-        { name: 'urgencyLevel', type: 'text', required: true, description: 'Low, Medium, High, Emergency' },
-        { name: 'issueStartDate', type: 'date', required: false, description: 'When issue first noticed' },
-        { name: 'accessTimes', type: 'text', required: true, description: 'When tenant is available' },
-        { name: 'specialInstructions', type: 'text', required: false, description: 'Any special access instructions' },
-        { name: 'workOrderNumber', type: 'text', required: false, description: 'Internal work order number' },
-        { name: 'assignedContractor', type: 'text', required: false, description: 'Contractor assigned' },
-        { name: 'estimatedCost', type: 'currency', required: false, description: 'Estimated repair cost' },
-        { name: 'completionDate', type: 'date', required: false, description: 'When work was completed' }
-      ],
-      legalReferences: [
-        'Manitoba Residential Tenancies Act - Maintenance Obligations'
-      ],
-      lastUpdated: new Date()
-    }
-  }
-
-  // 🏁 LEASE TERMINATION TEMPLATE
-  static getLeaseTerminationTemplate(): ContractTemplate {
-    return {
-      id: 'lease-termination',
-      name: 'Lease Termination Notice',
-      type: 'termination',
-      jurisdiction: 'manitoba',
-      content: `
-NOTICE TO TERMINATE TENANCY
-Manitoba Residential Tenancies Act
-
-TO: {{tenantName}}
-TENANT(S) IN POSSESSION OF: {{propertyAddress}}
-
-FROM: {{landlordName}}
-LANDLORD
-
-NOTICE DATE: {{noticeDate}}
-TERMINATION DATE: {{terminationDate}}
-
-REASON FOR TERMINATION:
-{{terminationReason}}
-
-DETAILS:
-{{terminationDetails}}
-
-This notice is served under section {{actSection}} of the Manitoba Residential Tenancies Act.
-
-You have the right to dispute this notice by filing an application with the Residential Tenancies Branch within {{disputePeriod}} days of receiving this notice.
-
-LANDLORD SIGNATURE: _________________________ Date: _________
-{{landlordName}}
-
-SERVICE OF NOTICE:
-☐ Delivered personally to tenant
-☐ Left with adult person at rental unit
-☐ Posted in conspicuous place
-☐ Sent by registered mail
-
-Method used: {{serviceMethod}}
-Date served: {{serviceDate}}
-Served by: {{servedBy}}
-`,
-      variables: [
-        { name: 'tenantName', type: 'text', required: true, description: 'Tenant name' },
-        { name: 'propertyAddress', type: 'text', required: true, description: 'Rental property address' },
-        { name: 'landlordName', type: 'text', required: true, description: 'Landlord name' },
-        { name: 'noticeDate', type: 'date', required: true, description: 'Date notice is given' },
-        { name: 'terminationDate', type: 'date', required: true, description: 'Date tenancy ends' },
-        { name: 'terminationReason', type: 'text', required: true, description: 'Reason for termination' },
-        { name: 'terminationDetails', type: 'text', required: true, description: 'Detailed explanation' },
-        { name: 'actSection', type: 'text', required: true, description: 'Relevant section of Act' },
-        { name: 'disputePeriod', type: 'number', required: true, description: 'Days to dispute', defaultValue: '15' },
-        { name: 'serviceMethod', type: 'text', required: true, description: 'How notice was served' },
-        { name: 'serviceDate', type: 'date', required: true, description: 'Date notice was served' },
-        { name: 'servedBy', type: 'text', required: true, description: 'Who served the notice' }
-      ],
-      legalReferences: [
-        'Manitoba Residential Tenancies Act - Termination Provisions',
-        'Residential Tenancies Branch Procedures'
-      ],
-      lastUpdated: new Date()
-    }
-  }
-
   // 🔄 TEMPLATE PROCESSING
   static processTemplate(template: ContractTemplate, variables: Record<string, any>): string {
     let processedContent = template.content
@@ -353,7 +223,7 @@ Served by: {{servedBy}}
     template.variables.forEach(variable => {
       const value = variables[variable.name] || variable.defaultValue || ''
       const placeholder = `{{${variable.name}}}`
-      processedContent = processedContent.replace(new RegExp(placeholder, 'g'), value.toString())
+      processedContent = processedContent.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), value.toString())
     })
 
     // Process conditional statements
@@ -364,7 +234,7 @@ Served by: {{servedBy}}
 
   private static processConditionals(content: string, variables: Record<string, any>): string {
     // Handle {{#if variable}} ... {{else}} ... {{/if}} blocks
-    const ifRegex = /{{#if\s+(\w+)}}([\s\S]*?)(?:{{else}}([\s\S]*?))?{{\/if}}/g
+    const ifRegex = /\{\{#if\s+(\w+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g
     
     return content.replace(ifRegex, (match, variable, ifContent, elseContent = '') => {
       const value = variables[variable]
@@ -375,7 +245,5 @@ Served by: {{servedBy}}
 
 export const contractTemplates = {
   residentialLease: ContractTemplateManager.getResidentialLeaseTemplate(),
-  rentalApplication: ContractTemplateManager.getRentalApplicationTemplate(),
-  maintenanceRequest: ContractTemplateManager.getMaintenanceRequestTemplate(),
-  leaseTermination: ContractTemplateManager.getLeaseTerminationTemplate()
+  rentalApplication: ContractTemplateManager.getRentalApplicationTemplate()
 }
