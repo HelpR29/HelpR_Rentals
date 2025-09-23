@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/auth'
 
 // Store active connections (in production, use Redis or similar)
-const activeConnections = new Map<string, Set<WritableStreamDefaultWriter>>()
+const activeConnections = new Map<string, Set<ReadableStreamDefaultController>>()
 const messageQueues = new Map<string, any[]>()
 
 export async function GET(request: NextRequest) {
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         const encoder = new TextEncoder()
         connections.forEach(controller => {
           try {
-            controller.write(encoder.encode(`data: ${JSON.stringify(fullMessage)}\n\n`))
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(fullMessage)}\n\n`))
           } catch (error) {
             console.error('Failed to send to connection:', error)
             connections.delete(controller)
