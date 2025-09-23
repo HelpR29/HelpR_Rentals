@@ -181,9 +181,9 @@ export default async function CommunicationPage({ searchParams }: CommunicationP
             currentUser={{
               id: user.id,
               email: user.email,
-              name: user.name || user.email.split('@')[0],
+              name: user.email.split('@')[0],
               role: user.role,
-              verified: user.verified
+              verified: true
             }}
             listing={selectedListing || undefined}
             applicationId={searchParams.applicationId}
