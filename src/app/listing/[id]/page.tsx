@@ -531,13 +531,13 @@ export default function ListingDetailPage() {
                   Public Transit
                 </h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Subway Station</span>
-                    <span className="text-sm text-blue-600 font-semibold">0.3 km</span>
+                  <div className="flex justify-between items-center p-3 bg-blue-100 rounded-lg border border-blue-200">
+                    <span className="text-sm font-semibold text-gray-900">Transit Station</span>
+                    <span className="text-sm text-blue-800 font-bold">0.3 km</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Bus Stop</span>
-                    <span className="text-sm text-green-600 font-semibold">0.1 km</span>
+                  <div className="flex justify-between items-center p-3 bg-green-100 rounded-lg border border-green-200">
+                    <span className="text-sm font-semibold text-gray-900">Bus Stop</span>
+                    <span className="text-sm text-green-800 font-bold">0.1 km</span>
                   </div>
                 </div>
               </div>
@@ -549,13 +549,13 @@ export default function ListingDetailPage() {
                   Nearby Amenities
                 </h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Grocery Store</span>
-                    <span className="text-sm text-orange-600 font-semibold">0.2 km</span>
+                  <div className="flex justify-between items-center p-3 bg-orange-100 rounded-lg border border-orange-200">
+                    <span className="text-sm font-semibold text-gray-900">Grocery Store</span>
+                    <span className="text-sm text-orange-800 font-bold">0.2 km</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Pharmacy</span>
-                    <span className="text-sm text-purple-600 font-semibold">0.4 km</span>
+                  <div className="flex justify-between items-center p-3 bg-purple-100 rounded-lg border border-purple-200">
+                    <span className="text-sm font-semibold text-gray-900">Pharmacy</span>
+                    <span className="text-sm text-purple-800 font-bold">0.4 km</span>
                   </div>
                 </div>
               </div>
@@ -567,13 +567,13 @@ export default function ListingDetailPage() {
                   Education
                 </h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Elementary School</span>
-                    <span className="text-sm text-yellow-600 font-semibold">0.6 km</span>
+                  <div className="flex justify-between items-center p-3 bg-yellow-100 rounded-lg border border-yellow-200">
+                    <span className="text-sm font-semibold text-gray-900">Elementary School</span>
+                    <span className="text-sm text-yellow-800 font-bold">0.6 km</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-indigo-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">University</span>
-                    <span className="text-sm text-indigo-600 font-semibold">2.1 km</span>
+                  <div className="flex justify-between items-center p-3 bg-indigo-100 rounded-lg border border-indigo-200">
+                    <span className="text-sm font-semibold text-gray-900">University</span>
+                    <span className="text-sm text-indigo-800 font-bold">2.1 km</span>
                   </div>
                 </div>
               </div>
@@ -585,13 +585,13 @@ export default function ListingDetailPage() {
                   Healthcare
                 </h3>
                 <div className="space-y-2">
-                  <div className="flex justify-between items-center p-3 bg-red-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Hospital</span>
-                    <span className="text-sm text-red-600 font-semibold">1.2 km</span>
+                  <div className="flex justify-between items-center p-3 bg-red-100 rounded-lg border border-red-200">
+                    <span className="text-sm font-semibold text-gray-900">Hospital</span>
+                    <span className="text-sm text-red-800 font-bold">1.2 km</span>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-teal-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-800">Walk-in Clinic</span>
-                    <span className="text-sm text-teal-600 font-semibold">0.8 km</span>
+                  <div className="flex justify-between items-center p-3 bg-teal-100 rounded-lg border border-teal-200">
+                    <span className="text-sm font-semibold text-gray-900">Walk-in Clinic</span>
+                    <span className="text-sm text-teal-800 font-bold">0.8 km</span>
                   </div>
                 </div>
               </div>
