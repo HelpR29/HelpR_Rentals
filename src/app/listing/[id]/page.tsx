@@ -85,6 +85,7 @@ export default function ListingDetailPage() {
 
   // Helper function to generate consistent coordinates for this listing
   const getListingCoordinates = () => {
+    if (!listing) return { lat: 49.8951, lng: -97.1384 }; // Default Winnipeg coordinates
     const seed = listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return {
       lat: 49.8951 + ((seed % 100) - 50) * 0.001, // Winnipeg area coordinates
