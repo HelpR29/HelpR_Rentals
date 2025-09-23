@@ -83,6 +83,15 @@ export default function ListingDetailPage() {
   const [isCalculatingCommute, setIsCalculatingCommute] = useState(false);
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
 
+  // Helper function to generate consistent coordinates for this listing
+  const getListingCoordinates = () => {
+    const seed = listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    return {
+      lat: 49.8951 + ((seed % 100) - 50) * 0.001, // Winnipeg area coordinates
+      lng: -97.1384 + ((seed % 100) - 50) * 0.001
+    };
+  };
+
   useEffect(() => {
     fetchListing();
     fetchUser();
@@ -225,9 +234,12 @@ export default function ListingDetailPage() {
 
     const directionsService = new google.maps.DirectionsService();
 
+    // Use consistent coordinates that match the map marker location
+    const propertyCoordinates = getListingCoordinates();
+
     directionsService.route(
       {
-        origin: listing.address,
+        origin: propertyCoordinates,
         destination: commuteDestination,
         travelMode: google.maps.TravelMode.DRIVING,
       },
@@ -438,17 +450,17 @@ export default function ListingDetailPage() {
             <div className="mb-6">
               <GoogleMap
                 center={{
-                  // Generate mock coordinates around Toronto for demo
-                  lat: 43.6532 + (Math.random() - 0.5) * 0.02,
-                  lng: -79.3832 + (Math.random() - 0.5) * 0.02
+                  // Generate consistent coordinates based on listing ID
+                  lat: 49.8951 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001,
+                  lng: -97.1384 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001
                 }}
                 zoom={directions ? 12 : 15} // Zoom out to show the full route
                 height="400px"
                 markers={directions ? [] : [{ // Hide marker when showing route
                   id: listing.id,
                   position: {
-                    lat: 43.6532 + (Math.random() - 0.5) * 0.02,
-                    lng: -79.3832 + (Math.random() - 0.5) * 0.02
+                    lat: 49.8951 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001,
+                    lng: -97.1384 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001
                   },
                   title: listing.title,
                   price: `$${listing.rent}`
