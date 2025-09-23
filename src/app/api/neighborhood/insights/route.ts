@@ -27,16 +27,16 @@ export async function GET(request: NextRequest) {
         score: Math.floor(Math.random() * 40) + 60, // 60-100
         nearbyStations: [
           {
-            type: 'subway',
-            name: 'Bloor-Yonge Station',
+            type: 'bus',
+            name: 'Portage & Main (Winnipeg Transit Hub)',
             distance: Math.floor(Math.random() * 800) + 200,
-            lines: ['Line 1', 'Line 2']
+            routes: ['11 Portage', '16 Selkirk-Osborne', '20 Academy-Watt']
           },
           {
             type: 'bus',
-            name: 'Bay St at Bloor St',
+            name: 'Osborne Station (Southbound)',
             distance: Math.floor(Math.random() * 300) + 50,
-            routes: ['6 Bay', '94 Wellesley']
+            routes: ['60 Pembina', '66 Grant', '185 Osborne Village']
           }
         ]
       },
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
             rating: 4.2
           },
           {
-            name: 'Loblaws',
+            name: 'Safeway',
             type: 'Supermarket', 
             distance: Math.floor(Math.random() * 800) + 300,
             rating: 4.0
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
         ],
         healthcare: [
           {
-            name: 'Toronto General Hospital',
+            name: 'Health Sciences Centre Winnipeg',
             type: 'Hospital',
             distance: Math.floor(Math.random() * 2000) + 500,
             rating: 4.5
@@ -75,13 +75,13 @@ export async function GET(request: NextRequest) {
         ],
         education: [
           {
-            name: 'University of Toronto',
+            name: 'University of Winnipeg',
             type: 'University',
             distance: Math.floor(Math.random() * 3000) + 1000,
             rating: 4.8
           },
           {
-            name: 'Jesse Ketchum Public School',
+            name: 'Kelvin High School',
             type: 'Elementary School',
             distance: Math.floor(Math.random() * 800) + 200,
             rating: 4.3
@@ -89,13 +89,13 @@ export async function GET(request: NextRequest) {
         ],
         entertainment: [
           {
-            name: 'Royal Ontario Museum',
-            type: 'Museum',
+            name: 'The Forks Market',
+            type: 'Market & Public Space',
             distance: Math.floor(Math.random() * 1500) + 500,
             rating: 4.6
           },
           {
-            name: 'Yorkville Park',
+            name: 'Assiniboine Park',
             type: 'Park',
             distance: Math.floor(Math.random() * 600) + 200,
             rating: 4.4

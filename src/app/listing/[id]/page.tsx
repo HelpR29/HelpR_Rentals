@@ -10,6 +10,7 @@ import Button from '@/components/ui/Button'
 import VerificationBadge from '@/components/ui/VerificationBadge'
 import NeighborhoodInsights from '@/components/ui/NeighborhoodInsights'
 import GoogleMap from '@/components/ui/GoogleMap'
+import { getGoogleMapsLoader } from '@/lib/google-maps-loader'
 import AddressAutocomplete from '@/components/ui/AddressAutocomplete'
 import { useToast } from '@/components/ui/Toast'
 import { formatWinnipegAddress, getWinnipegCoordinates, extractStreetAddress } from '@/lib/address-utils'
@@ -84,11 +85,16 @@ export default function ListingDetailPage() {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [isCalculatingCommute, setIsCalculatingCommute] = useState(false);
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
+  // Geocoded coordinates of the listing address (authoritative when available)
+  const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
 
-  // Helper function to generate consistent coordinates for this listing
+  // Helper: generate consistent Winnipeg coordinates seeded by ADDRESS (so map matches the address shown)
   const getListingCoordinates = () => {
     if (!listing) return getWinnipegCoordinates();
-    return getWinnipegCoordinates(listing.id);
+    // Prefer precise geocoded coordinates if we have them
+    if (geoCoords) return geoCoords;
+    const seed = listing.address && listing.address.trim().length > 0 ? listing.address : listing.id;
+    return getWinnipegCoordinates(seed);
   };
 
   useEffect(() => {
@@ -101,6 +107,53 @@ export default function ListingDetailPage() {
       setMainImage(listing.photos[0]);
     }
   }, [listing]);
+
+  // Geocode the listing address precisely (Winnipeg-biased)
+  useEffect(() => {
+    const doGeocode = async () => {
+      if (!listing?.address) return;
+
+      const setFromFallback = async () => {
+        try {
+          const res = await fetch(`/api/geocode?address=${encodeURIComponent(listing.address)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.lat && data?.lng) {
+              setGeoCoords({ lat: data.lat, lng: data.lng });
+            }
+          }
+        } catch (err) {
+          console.warn('Fallback geocoding failed', err);
+        }
+      };
+
+      try {
+        const loader = getGoogleMapsLoader();
+        await loader.load();
+        const geocoder = new google.maps.Geocoder();
+        const formatted = formatWinnipegAddress(listing.address);
+        geocoder.geocode(
+          {
+            address: formatted,
+            componentRestrictions: { country: 'CA', locality: 'Winnipeg' }
+          },
+          async (results, status) => {
+            if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+              const loc = results[0].geometry.location;
+              setGeoCoords({ lat: loc.lat(), lng: loc.lng() });
+            } else {
+              // Unauthorized or failure -> use server-side fallback (OSM)
+              await setFromFallback();
+            }
+          }
+        );
+      } catch (e) {
+        // Maps not authorized or not available -> use server-side fallback
+        await setFromFallback();
+      }
+    };
+    doGeocode();
+  }, [listing?.address]);
 
   useEffect(() => {
     // Scroll to commute section if hash is present

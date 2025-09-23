@@ -152,19 +152,19 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
               <div className={`text-2xl font-bold mb-1 ${getScoreColor(insights.transit.score)}`}>
                 {insights.transit.score}
               </div>
-              <div className="text-sm font-medium text-gray-700">Transit Score</div>
+              <div className="text-sm font-semibold text-gray-900">Transit Score</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className={`text-2xl font-bold mb-1 ${getScoreColor(insights.walkability.score)}`}>
                 {insights.walkability.score}
               </div>
-              <div className="text-sm font-medium text-gray-700">Walk Score</div>
+              <div className="text-sm font-semibold text-gray-900">Walk Score</div>
             </div>
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <div className={`text-2xl font-bold mb-1 ${getScoreColor(insights.safety.score)}`}>
                 {insights.safety.score}
               </div>
-              <div className="text-sm font-medium text-gray-700">Safety Score</div>
+              <div className="text-sm font-semibold text-gray-900">Safety Score</div>
             </div>
           </div>
 
@@ -173,16 +173,16 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
             <h4 className="font-semibold text-gray-900 mb-3">Demographics</h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Average Age:</span>
-                <span className="font-medium">{insights.demographics.averageAge} years</span>
+                <span className="text-gray-900 font-medium">Average Age:</span>
+                <span className="font-semibold text-gray-900">{insights.demographics.averageAge} years</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Median Income:</span>
-                <span className="font-medium">${insights.demographics.medianIncome.toLocaleString()}</span>
+                <span className="text-gray-900 font-medium">Median Income:</span>
+                <span className="font-semibold text-gray-900">${insights.demographics.medianIncome.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Density:</span>
-                <span className="font-medium">{insights.demographics.populationDensity}</span>
+                <span className="text-gray-900 font-medium">Density:</span>
+                <span className="font-semibold text-gray-900">{insights.demographics.populationDensity}</span>
               </div>
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
           {/* Safety */}
           <div>
             <h4 className="font-semibold text-gray-900 mb-2">Safety</h4>
-            <p className="text-sm text-gray-600">{insights.safety.description}</p>
+            <p className="text-sm text-gray-800">{insights.safety.description}</p>
           </div>
         </div>
       )}
@@ -211,16 +211,16 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
               </h4>
               <div className="space-y-2">
                 {places.slice(0, 3).map((place, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="flex justify-between items-center p-3 bg-white rounded-lg border border-gray-200">
                     <div>
-                      <div className="font-medium text-sm">{place.name}</div>
-                      <div className="text-xs text-gray-500">{place.type}</div>
+                      <div className="font-semibold text-sm text-gray-900">{place.name}</div>
+                      <div className="text-xs text-gray-700">{place.type}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-medium text-blue-600">
+                      <div className="text-sm font-semibold text-blue-700">
                         {formatDistance(place.distance)}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-700">
                         ⭐ {place.rating}
                       </div>
                     </div>

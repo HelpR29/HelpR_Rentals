@@ -58,8 +58,8 @@ export default function ListingBrowser() {
   const [selectedListing, setSelectedListing] = useState<string | undefined>()
 
   // Helper function to generate consistent coordinates for each listing
-  const getListingCoordinates = (listingId: string) => {
-    return getWinnipegCoordinates(listingId);
+  const getListingCoordinates = (seed: string) => {
+    return getWinnipegCoordinates(seed);
   };
 
   useEffect(() => {
@@ -147,7 +147,8 @@ export default function ListingBrowser() {
               title: listing.title,
               price: listing.rent,
               address: formatWinnipegAddress(listing.address),
-              coordinates: getListingCoordinates(listing.id),
+              // Seed by address so map aligns with displayed address
+              coordinates: getListingCoordinates(listing.address || listing.id),
               bedrooms: 2, // Mock data - you'd extract this from description or add to schema
               bathrooms: 1,
               images: listing.photos
@@ -223,7 +224,7 @@ export default function ListingBrowser() {
                           </div>
 
                           {/* Address */}
-                          <p className="text-gray-700 text-sm mb-2 overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+                          <p className="text-gray-800 text-sm mb-2 overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
                             📍 {formatWinnipegAddress(listing.address)}
                           </p>
 
