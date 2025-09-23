@@ -450,19 +450,12 @@ export default function ListingDetailPage() {
             {/* Interactive Map */}
             <div className="mb-6">
               <GoogleMap
-                center={{
-                  // Generate consistent coordinates based on listing ID
-                  lat: 49.8951 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001,
-                  lng: -97.1384 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001
-                }}
+                center={getListingCoordinates()}
                 zoom={directions ? 12 : 15} // Zoom out to show the full route
                 height="400px"
                 markers={directions ? [] : [{ // Hide marker when showing route
                   id: listing.id,
-                  position: {
-                    lat: 49.8951 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001,
-                    lng: -97.1384 + ((listing.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 100) - 50) * 0.001
-                  },
+                  position: getListingCoordinates(),
                   title: listing.title,
                   price: `$${listing.rent}`
                 }]}
@@ -556,8 +549,8 @@ export default function ListingDetailPage() {
             {/* AI-Powered Neighborhood Insights */}
             <div className="mt-6">
               <NeighborhoodInsights 
-                address={listing.address}
-                existingInsights={listing.neighborhoodInsights}
+                coordinates={getListingCoordinates()}
+                className=""
               />
             </div>
 
