@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
 
 interface VideoCallProps {
   currentUser: {
@@ -26,7 +26,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
-  const callDurationInterval = useRef<NodeJS.Timeout>()
+  const callDurationInterval = useRef<NodeJS.Timeout | null>(null)
 
   // Mock video call functionality - in a real implementation, this would use WebRTC
   useEffect(() => {
