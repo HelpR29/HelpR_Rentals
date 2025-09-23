@@ -1,18 +1,12 @@
 'use client';
-
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import Card from '@/components/ui/Card';
-import SmartSearch from '@/components/search/SmartSearch';
-import { ListingGridSkeleton } from '@/components/ui/LoadingStates';
-import { ErrorBoundary, ErrorMessage } from '@/components/ui/ErrorBoundary';
+import { useRouter } from 'next/navigation'
+import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
-import VerificationBadge from '@/components/ui/VerificationBadge'
 import PropertyMap from '@/components/ui/PropertyMap'
-// import { useAuth } from '@/lib/auth-context'
-// import { useToast } from '@/lib/toast-context'
+import { useToast } from '@/components/ui/Toast'
+import { formatWinnipegAddress, getWinnipegCoordinates } from '@/lib/address-utils'
 
 interface Listing {
   id: string
@@ -59,11 +53,7 @@ export default function ListingBrowser() {
 
   // Helper function to generate consistent coordinates for each listing
   const getListingCoordinates = (listingId: string) => {
-    const seed = listingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return {
-      lat: 49.8951 + ((seed % 100) - 50) * 0.001, // Winnipeg area coordinates
-      lng: -97.1384 + ((seed % 100) - 50) * 0.001
-    };
+    return getWinnipegCoordinates(listingId);
   };
 
   useEffect(() => {
@@ -150,7 +140,7 @@ export default function ListingBrowser() {
               id: listing.id,
               title: listing.title,
               price: listing.rent,
-              address: listing.address,
+              address: formatWinnipegAddress(listing.address),
               coordinates: getListingCoordinates(listing.id),
               bedrooms: 2, // Mock data - you'd extract this from description or add to schema
               bathrooms: 1,
@@ -228,7 +218,7 @@ export default function ListingBrowser() {
 
                           {/* Address */}
                           <p className="text-gray-700 text-sm mb-2 overflow-hidden text-ellipsis whitespace-nowrap font-medium">
-                            📍 {listing.address}
+                            📍 {formatWinnipegAddress(listing.address)}
                           </p>
 
                           {/* Host Info */}

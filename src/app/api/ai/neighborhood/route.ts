@@ -19,12 +19,13 @@ export async function POST(request: NextRequest) {
     const prompt = `You are a professional real estate researcher and neighborhood analyst specializing in Canadian cities. Analyze the neighborhood for this address: "${formattedAddress}"
 
 IMPORTANT: This address is in WINNIPEG, MANITOBA, CANADA. Base your analysis on factual, research-based information about this specific Winnipeg neighborhood. Consider:
-- Actual transit lines and stations near this address
-- Real demographic data for this neighborhood
-- Documented crime statistics and safety records  
-- Verified local amenities and businesses
-- Actual walkability factors (sidewalks, traffic, distance to services)
-- Real estate market trends for this area
+- Winnipeg Transit bus routes and major transit hubs near this address
+- Real demographic data for this Winnipeg neighborhood
+- Winnipeg Police Service crime statistics and safety records  
+- Verified local Winnipeg amenities and businesses
+- Actual walkability factors specific to Winnipeg (sidewalks, traffic, distance to services)
+- Winnipeg real estate market trends for this area
+- Proximity to major Winnipeg landmarks (The Forks, Exchange District, Assiniboine River, etc.)
 
 If you don't have specific factual data about this exact location, clearly indicate this and provide general context for the city instead of making up specific details.
 
