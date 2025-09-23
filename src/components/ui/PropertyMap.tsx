@@ -36,7 +36,7 @@ export default function PropertyMap({
   height = '500px',
   showControls = true
 }: PropertyMapProps) {
-  const [mapCenter, setMapCenter] = useState(center || { lat: 43.6532, lng: -79.3832 })
+  const [mapCenter, setMapCenter] = useState(center || { lat: 49.8951, lng: -97.1384 }) // Default to Winnipeg
   const [selectedPropertyData, setSelectedPropertyData] = useState<Property | null>(null)
   const [showNearbyAmenities, setShowNearbyAmenities] = useState(false);
   const [isCommuteMode, setIsCommuteMode] = useState(false);
