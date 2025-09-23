@@ -34,7 +34,9 @@ async function main() {
     },
   });
   console.log(`Created host user: ${host.email}`);
-    // WINNIPEG LISTINGS (Primary Launch City)
+
+  // WINNIPEG LISTINGS (Primary Launch City)
+  const listingsData = [
     {
       title: 'Downtown Exchange District Loft',
       description: 'Historic brick loft in the heart of Winnipeg\'s Exchange District. Walking distance to The Forks and cultural venues.',
@@ -68,7 +70,7 @@ async function main() {
       petsAllowed: false,
       photos: JSON.stringify(['https://picsum.photos/seed/5/800/600', 'https://picsum.photos/seed/6/800/600']),
     },
-    
+
     // TORONTO LISTINGS (Demo purposes only)
     {
       title: '[DEMO] Toronto Financial District Condo',

@@ -140,9 +140,9 @@ export default function ListingBrowser() {
               price: listing.rent,
               address: listing.address,
               coordinates: {
-                // Generate mock coordinates around Toronto for demo
-                lat: 43.6532 + (Math.random() - 0.5) * 0.1,
-                lng: -79.3832 + (Math.random() - 0.5) * 0.1
+                // Generate mock coordinates around Winnipeg, Manitoba
+                lat: 49.8951 + (Math.random() - 0.5) * 0.1,
+                lng: -97.1384 + (Math.random() - 0.5) * 0.1
               },
               bedrooms: 2, // Mock data - you'd extract this from description or add to schema
               bathrooms: 1,
@@ -169,8 +169,9 @@ export default function ListingBrowser() {
               <p className="text-gray-700 font-medium mb-2">Try searching for:</p>
               <div className="flex flex-wrap justify-center gap-2 mb-4">
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Osborne Village</span>
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Downtown</span>
                 <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Exchange District</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">St. Boniface</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Corydon Village</span>
               </div>
               <p className="text-gray-600">Or try adjusting your filters and search again.</p>
             </Card>
@@ -202,7 +203,11 @@ export default function ListingBrowser() {
                         <div>
                           {/* Title & Rent */}
                           <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors overflow-hidden" style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical'
+                            }}>
                               {listing.title}
                             </h3>
                             <div className="ml-3 text-right">
@@ -214,7 +219,7 @@ export default function ListingBrowser() {
                           </div>
 
                           {/* Address */}
-                          <p className="text-gray-700 text-sm mb-2 line-clamp-1 font-medium">
+                          <p className="text-gray-700 text-sm mb-2 overflow-hidden text-ellipsis whitespace-nowrap font-medium">
                             📍 {listing.address}
                           </p>
 
