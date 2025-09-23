@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Parse photos JSON strings to arrays
-    const listingsWithParsedPhotos = listings.map(listing => ({
+    const listingsWithParsedPhotos = listings.map((listing: typeof listings[0]) => ({
       ...listing,
       photos: typeof listing.photos === 'string' 
         ? JSON.parse(listing.photos) 
