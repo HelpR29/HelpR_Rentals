@@ -58,8 +58,8 @@ export default function GooglePlacesInput({
     const script = document.createElement('script')
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     
-    if (!apiKey) {
-      console.warn('Google Maps API key not found. Address autocomplete will not work.')
+    if (!apiKey || apiKey === 'demo-key-for-development') {
+      console.warn('Google Maps API key not found or is demo key. Address autocomplete will not work. Input will work as regular text field.')
       setIsLoaded(true) // Set as loaded so input still works
       return
     }
