@@ -41,7 +41,7 @@ export class AIPropertyManager {
       const application = await prisma.application.findUnique({
         where: { id: applicationId },
         include: {
-          user: true,
+          applicant: true,
           listing: true
         }
       })
@@ -51,10 +51,10 @@ export class AIPropertyManager {
       const prompt = `
         As an AI property manager, analyze this rental application:
         
-        Applicant: ${application.user.email}
-        Monthly Income: ${application.monthlyIncome || 'Not provided'}
-        Employment: ${application.employment || 'Not provided'}
-        References: ${application.references || 'Not provided'}
+        Applicant: ${application.applicant.email}
+        Monthly Income: Not provided (field not in schema)
+        Employment: Not provided (field not in schema)
+        References: Not provided (field not in schema)
         Rent Amount: $${application.listing.rent}
         
         Provide a comprehensive screening analysis including:
@@ -70,12 +70,14 @@ export class AIPropertyManager {
       const result = await this.model.generateContent(prompt)
       const analysis = JSON.parse(result.response.text())
 
-      // Store screening result
+      // Store screening result in aiSummary field (closest available field)
       await prisma.application.update({
         where: { id: applicationId },
         data: {
-          aiScreeningScore: analysis.score,
-          aiScreeningNotes: JSON.stringify(analysis)
+          aiSummary: JSON.stringify({
+            score: analysis.score,
+            analysis: analysis
+          })
         }
       })
 
