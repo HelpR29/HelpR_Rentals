@@ -6,7 +6,8 @@ const MAX_FILE_SIZES = {
   image: 5 * 1024 * 1024,    // 5MB
   document: 10 * 1024 * 1024, // 10MB
   audio: 25 * 1024 * 1024,    // 25MB
-  video: 100 * 1024 * 1024    // 100MB
+  video: 100 * 1024 * 1024,   // 100MB
+  contract: 10 * 1024 * 1024  // 10MB
 }
 
 const ALLOWED_TYPES = {
