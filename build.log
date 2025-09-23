@@ -6,3 +6,4 @@
    - Environments: .env.local, .env
 
    Creating an optimized production build ...
+ ✓ Finished writing to disk in 280ms

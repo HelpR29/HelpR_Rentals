@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useSession } from 'next-auth/react'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import Button from '@/components/ui/Button'
 
 interface Message {
   id: string
@@ -203,7 +202,7 @@ export default function EnhancedChat({ currentUser, otherUser, listingId, applic
 
         <div className="flex items-center space-x-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={requestVideoCall}
             className="flex items-center space-x-2"
@@ -215,7 +214,7 @@ export default function EnhancedChat({ currentUser, otherUser, listingId, applic
           </Button>
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="sm"
             onClick={requestBooking}
             className="flex items-center space-x-2"
