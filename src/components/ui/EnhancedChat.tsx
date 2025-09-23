@@ -37,7 +37,7 @@ export default function EnhancedChat({ currentUser, otherUser, listingId, applic
   const [showVideoCall, setShowVideoCall] = useState(false)
   const [showBookingModal, setShowBookingModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
