@@ -10,20 +10,22 @@ interface UserPayload {
 export async function getServerUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
-  console.log('Auth Token (from "session" cookie):', token ? 'Found' : 'Not Found');
 
   if (!token) {
-    console.log('No token, returning null.');
     return null;
   }
 
-  console.log('JWT_SECRET available:', process.env.JWT_SECRET ? 'Yes' : 'No');
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error('JWT_SECRET is not defined in the environment variables');
+    return null;
+  }
+
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
+    const decoded = jwt.verify(token, secret) as UserPayload;
     return decoded;
   } catch (error) {
     console.error('Invalid token:', error);
-    console.log('Token verification failed, returning null.');
     return null;
   }
 }

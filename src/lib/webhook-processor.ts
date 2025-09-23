@@ -1,16 +1,34 @@
 import { prisma } from './prisma';
 
-export async function processBackgroundCheckWebhook(payload: any, userId?: string) {
-  if (payload.type === 'report.completed') {
-    const checkId = payload.data.object.id;
-    const result = payload.data.object.status; // 'clear' or 'consider'
+interface WebhookData {
+  type: string;
+  data?: {
+    object?: {
+      id?: string;
+      status?: string;
+    };
+  };
+  userId?: string;
+}
+
+export async function processWebhook(event: string, data: Record<string, unknown>): Promise<void> {
+  const webhookData = data as unknown as WebhookData;
+  
+  if (webhookData.type === 'report.completed') {
+    const checkId = webhookData.data?.object?.id;
+    const result = webhookData.data?.object?.status; // 'clear' or 'consider'
+
+    if (!checkId || !result) {
+      console.warn('[WebhookProcessor] Missing checkId or result in webhook data');
+      return;
+    }
 
     console.log(`[WebhookProcessor] Processing background check result for ${checkId}: ${result}`);
 
     // If a userId is passed directly (from our mock service), use it for a guaranteed lookup.
     // Otherwise, fall back to the checkId search for real webhooks.
-    const userToUpdate = userId
-      ? await prisma.user.findUnique({ where: { id: userId } })
+    const userToUpdate = webhookData.userId
+      ? await prisma.user.findUnique({ where: { id: webhookData.userId } })
       : await prisma.user.findFirst({
           where: {
             verificationData: {
@@ -20,7 +38,7 @@ export async function processBackgroundCheckWebhook(payload: any, userId?: strin
         });
 
     if (userToUpdate) {
-      const verificationData = JSON.parse(userToUpdate.verificationData!);
+      const verificationData = JSON.parse(userToUpdate.verificationData || '{}');
       const isClear = result === 'clear';
 
       verificationData.background = {
@@ -43,6 +61,6 @@ export async function processBackgroundCheckWebhook(payload: any, userId?: strin
       console.warn(`[WebhookProcessor] Could not find user for check ID: ${checkId}`);
     }
   } else {
-    console.log(`[WebhookProcessor] Received webhook of type ${payload.type}, ignoring.`);
+    console.log(`[WebhookProcessor] Received webhook of type ${webhookData.type}, ignoring.`);
   }
 }

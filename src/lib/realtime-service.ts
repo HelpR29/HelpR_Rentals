@@ -3,7 +3,7 @@ import { EventEmitter } from 'events'
 interface RealTimeMessage {
   id: string
   type: 'message' | 'typing' | 'presence' | 'notification' | 'booking'
-  payload: any
+  payload: Record<string, unknown>
   timestamp: Date
   userId: string
   chatId?: string

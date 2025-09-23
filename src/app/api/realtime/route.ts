@@ -3,7 +3,7 @@ import { getCurrentUser } from '@/lib/auth'
 
 // Store active connections (in production, use Redis or similar)
 const activeConnections = new Map<string, Set<ReadableStreamDefaultController>>()
-const messageQueues = new Map<string, any[]>()
+const messageQueues = new Map<string, Record<string, unknown>[]>()
 
 export async function GET(request: NextRequest) {
   const user = await getCurrentUser()
