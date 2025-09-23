@@ -20,7 +20,7 @@ interface MapProps {
 }
 
 export default function GoogleMap({
-  center = { lat: 43.6532, lng: -79.3832 }, // Toronto default
+  center = { lat: 49.8951, lng: -97.1384 }, // Winnipeg default
   zoom = 12,
   height = '400px',
   markers = [],
