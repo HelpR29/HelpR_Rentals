@@ -178,7 +178,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
           <div className="flex items-center justify-center space-x-4">
             {/* Mute/Unmute */}
             <Button
-              variant={isMuted ? "destructive" : "ghost"}
+              variant={isMuted ? "danger" : "ghost"}
               size="lg"
               onClick={toggleMute}
               className="rounded-full w-14 h-14 p-0"
@@ -197,7 +197,7 @@ export default function VideoCall({ currentUser, otherUser, onClose }: VideoCall
 
             {/* Video On/Off */}
             <Button
-              variant={!isVideoOn ? "destructive" : "outline"}
+              variant={!isVideoOn ? "danger" : "ghost"}
               size="lg"
               onClick={toggleVideo}
               className="rounded-full w-14 h-14 p-0"
