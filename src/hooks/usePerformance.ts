@@ -82,7 +82,7 @@ export function useLazyImage(src: string) {
 
 // Performance monitoring
 export function usePerformanceMonitor() {
-  const startTime = useRef<number>()
+  const startTime = useRef<number>(0)
 
   const startMeasure = useCallback((name: string) => {
     startTime.current = performance.now()
