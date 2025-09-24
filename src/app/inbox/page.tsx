@@ -165,7 +165,9 @@ export default function InboxPage() {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation || sending) return
     
+    console.log('Sending message:', { conversationId: selectedConversation, body: newMessage.trim() })
     setSending(true)
+    
     try {
       const response = await fetch('/api/chat/messages', {
         method: 'POST',
@@ -176,10 +178,16 @@ export default function InboxPage() {
         })
       })
       
+      console.log('Send response status:', response.status)
+      const data = await response.json()
+      console.log('Send response data:', data)
+      
       if (response.ok) {
         setNewMessage('')
         fetchMessages(selectedConversation)
         fetchConversations()
+      } else {
+        console.error('Send failed:', data)
       }
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -308,7 +316,7 @@ export default function InboxPage() {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   placeholder="Type a message..."
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button
                   onClick={sendMessage}
