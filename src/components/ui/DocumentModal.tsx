@@ -16,14 +16,36 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
     tenantName: '',
     propertyAddress: '',
     monthlyRent: '',
-    checklistType: 'move-in'
+    checklistType: 'move-in',
+    paymentMethod: '',
+    petsAllowed: 'no',
+    smokingAllowed: 'no',
+    signatureDate: '',
+    landlordSignatureDataUrl: '' as string,
+    tenantSignatureDataUrl: '' as string,
   })
+
+  const [landlordSigPreview, setLandlordSigPreview] = useState<string>('')
+  const [tenantSigPreview, setTenantSigPreview] = useState<string>('')
 
   if (!isOpen) return null
 
   const handleGenerate = () => {
     onGenerate(selectedType, formData)
     onClose()
+  }
+
+  const handleSignatureUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'landlordSignatureDataUrl' | 'tenantSignatureDataUrl') => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      setFormData((prev) => ({ ...prev, [field]: dataUrl }))
+      if (field === 'landlordSignatureDataUrl') setLandlordSigPreview(dataUrl)
+      if (field === 'tenantSignatureDataUrl') setTenantSigPreview(dataUrl)
+    }
+    reader.readAsDataURL(file)
   }
 
   return (
@@ -73,13 +95,81 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
               className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             {selectedType === 'contract' && (
-              <input
-                type="number"
-                placeholder="Monthly Rent ($)"
-                value={formData.monthlyRent}
-                onChange={(e) => setFormData({...formData, monthlyRent: e.target.value})}
-                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+              <>
+                <input
+                  type="number"
+                  placeholder="Monthly Rent ($)"
+                  value={formData.monthlyRent}
+                  onChange={(e) => setFormData({...formData, monthlyRent: e.target.value})}
+                  className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <input
+                  type="text"
+                  placeholder="Payment Method (e.g., e-Transfer, PAD, Cheques)"
+                  value={formData.paymentMethod}
+                  onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+                  className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-800 mb-1">Pets Allowed?</label>
+                    <select
+                      value={formData.petsAllowed}
+                      onChange={(e) => setFormData({...formData, petsAllowed: e.target.value})}
+                      className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-gray-900 font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-800 mb-1">Smoking Allowed?</label>
+                    <select
+                      value={formData.smokingAllowed}
+                      onChange={(e) => setFormData({...formData, smokingAllowed: e.target.value})}
+                      className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-gray-900 font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value="no">No</option>
+                      <option value="yes">Yes</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-800 mb-1">Landlord Signature (PNG/JPG)</label>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={(e) => handleSignatureUpload(e, 'landlordSignatureDataUrl')}
+                      className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                    />
+                    {landlordSigPreview && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={landlordSigPreview} alt="Landlord signature preview" className="mt-2 h-16 object-contain" />
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-800 mb-1">Tenant Signature (PNG/JPG)</label>
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg"
+                      onChange={(e) => handleSignatureUpload(e, 'tenantSignatureDataUrl')}
+                      className="w-full border-2 border-gray-400 rounded-lg px-3 py-2 text-gray-900 bg-white"
+                    />
+                    {tenantSigPreview && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={tenantSigPreview} alt="Tenant signature preview" className="mt-2 h-16 object-contain" />
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Signature Date (e.g., 2025-09-24)"
+                  value={formData.signatureDate}
+                  onChange={(e) => setFormData({...formData, signatureDate: e.target.value})}
+                  className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </>
             )}
             {selectedType === 'checklist' && (
               <select
