@@ -193,7 +193,7 @@ export default function InboxPage() {
     setSending(true)
     
     try {
-      const response = await fetch('/api/chat/messages', {
+      const response = await fetch('/api/chat/messages/simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
