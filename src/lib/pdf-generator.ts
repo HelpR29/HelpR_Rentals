@@ -26,7 +26,19 @@ export function generateManitobaContractPDF(data: ContractData): jsPDF {
   const margin = 20
   let yPosition = 30
 
-  // Header
+  // Header with Logo
+  doc.setFontSize(16)
+  doc.setFont('helvetica', 'bold')
+  doc.setTextColor(59, 130, 246) // Blue color for Helpr
+  doc.text('Helpr', margin, yPosition)
+  doc.setTextColor(0, 0, 0) // Reset to black
+  
+  doc.setFontSize(10)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Smart Rentals', margin, yPosition + 8)
+  yPosition += 25
+
+  // Main Title
   doc.setFontSize(18)
   doc.setFont('helvetica', 'bold')
   doc.text('RESIDENTIAL TENANCY AGREEMENT', pageWidth / 2, yPosition, { align: 'center' })

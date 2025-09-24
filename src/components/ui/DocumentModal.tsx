@@ -38,13 +38,13 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
           <div className="flex space-x-2 mb-4">
             <button
               onClick={() => setSelectedType('contract')}
-              className={`flex-1 p-3 border rounded ${selectedType === 'contract' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+              className={`flex-1 p-3 border rounded ${selectedType === 'contract' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-900'} font-semibold text-base hover:bg-gray-50`}
             >
               📄 Contract
             </button>
             <button
               onClick={() => setSelectedType('checklist')}
-              className={`flex-1 p-3 border rounded ${selectedType === 'checklist' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+              className={`flex-1 p-3 border rounded ${selectedType === 'checklist' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-900'} font-semibold text-base hover:bg-gray-50`}
             >
               📋 Checklist
             </button>
