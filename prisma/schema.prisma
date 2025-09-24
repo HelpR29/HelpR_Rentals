@@ -43,6 +43,12 @@ model User {
   receivedMessages Message[] @relation("MessageReceiver")
   givenReviews     Review[] @relation("ReviewAuthor")
   receivedReviews  Review[] @relation("ReviewTarget")
+
+  // Chat / Notifications back-relations
+  chatParticipants ChatParticipant[]
+  chatMessagesSent ChatMessage[]    @relation("ChatMessageSender")
+  chatReads        ChatRead[]
+  notifications    Notification[]
 }
 
 model Listing {
@@ -152,7 +158,7 @@ model ChatMessage {
   id             String           @id @default(cuid())
   conversation   ChatConversation @relation(fields: [conversationId], references: [id])
   conversationId String
-  sender         User             @relation(fields: [senderId], references: [id])
+  sender         User             @relation("ChatMessageSender", fields: [senderId], references: [id])
   senderId       String
   body           String
   attachmentUrl  String?
