@@ -186,26 +186,47 @@ export default function InboxPage() {
 
   const handleGenerateDocument = async (type: string, options: any) => {
     try {
-      let pdfUrl = ''
       if (type === 'contract') {
-        const params = new URLSearchParams({
-          landlordName: options.landlordName || 'Host',
-          tenantName: options.tenantName || 'Tenant',
-          propertyAddress: options.propertyAddress || 'Address',
-          monthlyRent: options.monthlyRent || '1200'
+        // POST the full payload including signatures and options
+        const response = await fetch('/api/ai/generate-pdf-contract', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            landlordName: options.landlordName || 'Host',
+            tenantName: options.tenantName || 'Tenant',
+            propertyAddress: options.propertyAddress || 'Address',
+            monthlyRent: options.monthlyRent || '1200',
+            paymentMethod: options.paymentMethod || undefined,
+            petsAllowed: options.petsAllowed || undefined,
+            smokingAllowed: options.smokingAllowed || undefined,
+            landlordSignatureDataUrl: options.landlordSignatureDataUrl || undefined,
+            tenantSignatureDataUrl: options.tenantSignatureDataUrl || undefined,
+            signatureDate: options.signatureDate || undefined,
+          })
         })
-        pdfUrl = `/api/ai/generate-pdf-contract?${params.toString()}`
-      } else {
-        const params = new URLSearchParams({ type: options.checklistType || 'move-in' })
-        pdfUrl = `/api/ai/generate-pdf-checklist?${params.toString()}`
-      }
 
-      const link = document.createElement('a')
-      link.href = pdfUrl
-      link.download = type === 'contract' ? 'Contract.pdf' : 'Checklist.pdf'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+        if (!response.ok) throw new Error('Failed to generate contract PDF')
+
+        const blob = await response.blob()
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'Contract.pdf'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+      } else {
+        // Keep GET for checklist
+        const params = new URLSearchParams({ type: options.checklistType || 'move-in' })
+        const pdfUrl = `/api/ai/generate-pdf-checklist?${params.toString()}`
+        const link = document.createElement('a')
+        link.href = pdfUrl
+        link.download = 'Checklist.pdf'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
     } catch (error) {
       console.error('Failed to generate document:', error)
     }
