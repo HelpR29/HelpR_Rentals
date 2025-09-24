@@ -8,17 +8,25 @@ import { sendEmail } from '@/lib/email'
 // body: { conversationId: string, body: string, attachmentUrl?: string }
 export async function POST(req: NextRequest) {
   try {
+    console.log('📨 Messages API called')
     const user = await getCurrentUser()
+    console.log('👤 Current user:', user?.email || 'none')
     if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+    
     const { conversationId, body, attachmentUrl } = await req.json()
+    console.log('📝 Request data:', { conversationId, body, attachmentUrl })
+    
     if (!conversationId || (!body && !attachmentUrl)) {
       return NextResponse.json({ error: 'conversationId and body or attachmentUrl required' }, { status: 400 })
     }
 
     // Ensure membership
+    console.log('🔍 Checking membership for user:', user.id, 'in conversation:', conversationId)
     const member = await prisma.chatParticipant.findFirst({ where: { conversationId, userId: user.id } })
+    console.log('👥 Member found:', !!member)
     if (!member) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
 
+    console.log('💾 Creating message...')
     const message = await prisma.chatMessage.create({
       data: {
         conversationId,
@@ -67,15 +75,16 @@ export async function POST(req: NextRequest) {
           await sendEmail({
             to: recipient.email,
             subject: `New message on Helpr`,
-            html: `<p>You have a new message from ${user.name || user.email}.</p><p>Open your inbox to reply.</p>`
+            html: `<p>You have a new message from ${user.email}.</p><p>Open your inbox to reply.</p>`
           })
         } catch {}
       }
     }
 
+    console.log('✅ Message sent successfully:', message.id)
     return NextResponse.json({ ok: true, message })
   } catch (e) {
-    console.error('messages POST error', e)
+    console.error('❌ messages POST error', e)
     return NextResponse.json({ error: 'server_error' }, { status: 500 })
   }
 }
