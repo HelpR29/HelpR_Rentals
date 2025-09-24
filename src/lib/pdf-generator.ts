@@ -18,6 +18,9 @@ export interface ContractData {
   utilitiesIncluded?: string
   tenantUtilities?: string
   additionalTerms?: string
+  landlordSignatureDataUrl?: string
+  tenantSignatureDataUrl?: string
+  signatureDate?: string
 }
 
 export function generateManitobaContractPDF(data: ContractData): jsPDF {
