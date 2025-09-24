@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import MessagesBadge from '@/components/ui/MessagesBadge'
+import DocumentModal from '@/components/ui/DocumentModal'
 
 interface User {
   id: string
@@ -37,8 +39,9 @@ export default function InboxPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
-  const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [showDocumentModal, setShowDocumentModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -58,12 +61,100 @@ export default function InboxPage() {
     }
   }, [selectedConversation])
 
+  const fetchUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const userData = await response.json()
+        setUser(userData.user)
+      } else {
+        router.push('/auth/login')
+      }
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
+      router.push('/auth/login')
+    }
+  }
+
+  const fetchConversations = async () => {
+    try {
+      console.log('Fetching conversations...')
+      const response = await fetch('/api/chat/conversations')
+      console.log('Conversations response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Conversations data:', data)
+        setConversations(data.conversations || [])
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to fetch conversations:', errorData)
+      }
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/chat/conversations/${conversationId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data.messages || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+  }
+
+  const markAsRead = async (conversationId: string) => {
+    try {
+      await fetch('/api/chat/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId })
+      })
+    } catch (error) {
+      console.error('Failed to mark as read:', error)
+    }
+  }
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+      // Subscribe to conversation channels when selected
+      if (selectedConversation) {
+        const conversationChannel = pusher.subscribe(`conversation:${selectedConversation}`)
+        
+        conversationChannel.bind('message:new', (data: any) => {
+          console.log('New message:', data)
+          fetchMessages(selectedConversation)
+          fetchConversations()
+        })
+
+        conversationChannel.bind('message:read', (data: any) => {
+          console.log('Message read:', data)
+          fetchMessages(selectedConversation)
+          fetchConversations()
+        })
+      }
+
+      return () => {
+        pusher.unsubscribe(`user:${user.id}`)
+        if (selectedConversation) {
+          pusher.unsubscribe(`conversation:${selectedConversation}`)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to setup realtime subscriptions:', error)
+    }
   }
 
   const fetchUser = async () => {
@@ -83,10 +174,17 @@ export default function InboxPage() {
 
   const fetchConversations = async () => {
     try {
+      console.log('Fetching conversations...')
       const response = await fetch('/api/chat/conversations')
+      console.log('Conversations response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Conversations data:', data)
         setConversations(data.conversations || [])
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to fetch conversations:', errorData)
       }
     } catch (error) {
       console.error('Failed to fetch conversations:', error)
@@ -120,11 +218,30 @@ export default function InboxPage() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || sending) return
+    console.log('sendMessage called - newMessage:', newMessage)
+    console.log('sendMessage called - selectedConversation:', selectedConversation)
+    console.log('sendMessage called - sending:', sending)
     
+    if (!newMessage.trim()) {
+      console.log('No message text, aborting')
+      return
+    }
+    
+    if (!selectedConversation) {
+      console.log('No conversation selected, aborting')
+      return
+    }
+    
+    if (sending) {
+      console.log('Already sending, aborting')
+      return
+    }
+    
+    console.log('Sending message:', { conversationId: selectedConversation, body: newMessage.trim() })
     setSending(true)
+    
     try {
-      const response = await fetch('/api/chat/messages', {
+      const response = await fetch('/api/chat/messages/simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -133,10 +250,28 @@ export default function InboxPage() {
         })
       })
       
+      console.log('Send response status:', response.status)
+      console.log('Send response headers:', Object.fromEntries(response.headers.entries()))
+      
+      const responseText = await response.text()
+      console.log('Send response text:', responseText)
+      
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', responseText)
+        return
+      }
+      
+      console.log('Send response data:', data)
+      
       if (response.ok) {
         setNewMessage('')
         fetchMessages(selectedConversation)
         fetchConversations()
+      } else {
+        console.error('Send failed:', response.status, data)
       }
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -147,6 +282,66 @@ export default function InboxPage() {
 
   const formatTime = (dateString: string) => {
     return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const generateDocument = async (type: 'contract' | 'checklist') => {
+    if (!selectedConversation) return
+
+    try {
+      let pdfUrl = ''
+      let documentMessage = ''
+
+      if (type === 'contract') {
+        // Generate prefilled contract PDF
+        const contractParams = new URLSearchParams({
+          landlordEmail: 'host@test.com',
+          tenantEmail: 'tenant@test.com',
+          propertyAddress: 'Property Address (to be filled)',
+          monthlyRent: '1200',
+          securityDeposit: '600',
+          leaseTerm: '12 months',
+          propertyType: 'Apartment',
+          bedrooms: '2',
+          bathrooms: '1'
+        })
+        
+        pdfUrl = `/api/ai/generate-pdf-contract?${contractParams.toString()}`
+        documentMessage = `📄 **Manitoba Rental Contract (PDF)**\n\n✅ Professional PDF contract generated\n✅ Manitoba Residential Tenancies Act compliant\n✅ Prefilled with available information\n✅ Ready for signatures\n\n[Download PDF Contract](${pdfUrl})`
+      } else {
+        // Generate checklist PDF
+        const checklistParams = new URLSearchParams({
+          type: 'move-in'
+        })
+        
+        pdfUrl = `/api/ai/generate-pdf-checklist?${checklistParams.toString()}`
+        documentMessage = `📋 **Manitoba Move-In Checklist (PDF)**\n\n✅ Complete move-in checklist\n✅ Manitoba-specific requirements\n✅ Printable PDF format\n✅ Checkboxes for easy completion\n\n[Download PDF Checklist](${pdfUrl})`
+      }
+
+      // Send the document link as a message
+      await fetch('/api/chat/messages/simple', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: selectedConversation,
+          body: documentMessage
+        })
+      })
+
+      // Also trigger PDF download
+      const link = document.createElement('a')
+      link.href = pdfUrl
+      link.download = type === 'contract' ? 'Manitoba_Rental_Contract.pdf' : 'Manitoba_Move_In_Checklist.pdf'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      // Refresh messages
+      fetchMessages(selectedConversation)
+      fetchConversations()
+
+    } catch (error) {
+      console.error('Failed to generate document:', error)
+    }
   }
 
   const getOtherParticipant = (conversation: Conversation) => {
@@ -174,7 +369,10 @@ export default function InboxPage() {
               return (
                 <div
                   key={conversation.id}
-                  onClick={() => setSelectedConversation(conversation.id)}
+                  onClick={() => {
+                    console.log('Selecting conversation:', conversation.id)
+                    setSelectedConversation(conversation.id)
+                  }}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
                     selectedConversation === conversation.id ? 'bg-blue-50' : ''
                   }`}
@@ -258,6 +456,32 @@ export default function InboxPage() {
 
             {/* Message Composer */}
             <div className="p-4 border-t border-gray-200 bg-white">
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2 mb-3 flex-wrap">
+                <button 
+                  onClick={() => setShowDocumentModal(true)}
+                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span>Generate PDF</span>
+                </button>
+                <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  <span>Call</span>
+                </button>
+                <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span>Video Call</span>
+                </button>
+              </div>
+              
+              {/* Message Input */}
               <div className="flex space-x-2">
                 <input
                   type="text"
@@ -265,7 +489,7 @@ export default function InboxPage() {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   placeholder="Type a message..."
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button
                   onClick={sendMessage}
@@ -292,384 +516,51 @@ export default function InboxPage() {
           </div>
         )}
       </div>
+
+      {/* Document Modal */}
+      <DocumentModal
+        isOpen={showDocumentModal}
+        onClose={() => setShowDocumentModal(false)}
+        onGenerate={handleGenerateDocument}
+      />
     </div>
   )
 }
-          const hostId = app.listing.owner.id
-          // For clean testing, don't show fake notifications
-          newUnreadMessages[hostId] = 0
-        })
-        setUnreadMessages(newUnreadMessages)
-        console.log('📬 Inbox: Tenant unread messages set:', newUnreadMessages)
-        console.log('📬 Inbox: Last message check:', new Date(lastMessageCheck).toLocaleTimeString())
-        console.log('📬 Inbox: Time since last check:', Math.round(timeSinceLastCheck / 1000), 'seconds')
-      } else if (user?.role === 'host') {
-        const newUnreadMessages = {
-          'tenant_1': (clearedMessages['tenant_1'] && clearedMessages['tenant_1'] > oneHourAgo) ? 0 : 1,
-          'tenant_2': 0
-        }
-        setUnreadMessages(newUnreadMessages)
-        console.log('Host unread messages set:', newUnreadMessages, 'Cleared:', clearedMessages)
-      }
-    } catch (error) {
-      console.error('Failed to fetch unread message counts:', error)
-    }
-  }
 
-  const handleApplicationAction = async (applicationId: string, status: 'accepted' | 'declined') => {
-    setProcessingApp(applicationId)
-    try {
-      const response = await fetch(`/api/applications/${applicationId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status }),
+const handleGenerateDocument = async (type: string, options: any) => {
+  try {
+    let pdfUrl = ''
+
+    if (type === 'contract') {
+      const contractParams = new URLSearchParams({
+        landlordName: options.landlordName || 'Host Name',
+        tenantName: options.tenantName || 'Tenant Name',
+        propertyAddress: options.propertyAddress || 'Property Address',
+        monthlyRent: options.monthlyRent || '1200',
+        securityDeposit: options.securityDeposit || '600',
+        leaseTerm: '12 months',
+        bedrooms: options.bedrooms || '2',
+        bathrooms: options.bathrooms || '1'
       })
-
-      if (response.ok) {
-        addToast({
-          type: 'success',
-          title: `Application ${status === 'accepted' ? 'Accepted' : 'Declined'}!`,
-          message: `The applicant has been notified of your decision.`
-        })
-        fetchApplications() // Refresh the list
-      } else {
-        const data = await response.json()
-        addToast({
-          type: 'error',
-          title: 'Update Failed',
-          message: data.error || 'Failed to update application. Please try again.'
-        })
-      }
-    } catch (error) {
-      addToast({
-        type: 'error',
-        title: 'Network Error',
-        message: 'Unable to update application. Please check your connection and try again.'
+      
+      pdfUrl = `/api/ai/generate-pdf-contract?${contractParams.toString()}`
+    } else {
+      const checklistParams = new URLSearchParams({
+        type: options.checklistType || 'move-in'
       })
-    } finally {
-      setProcessingApp(null)
+      
+      pdfUrl = `/api/ai/generate-pdf-checklist?${checklistParams.toString()}`
     }
+
+    // Trigger PDF download
+    const link = document.createElement('a')
+    link.href = pdfUrl
+    link.download = type === 'contract' ? 'Manitoba_Rental_Contract.pdf' : 'Manitoba_Checklist.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+  } catch (error) {
+    console.error('Failed to generate document:', error)
   }
-
-  const requestDocuments = async (applicationId: string, documentTypes: string[]) => {
-    console.log('📄 Request Documents clicked for application:', applicationId, 'Documents:', documentTypes)
-    setProcessingApp(applicationId)
-    try {
-      console.log('📄 Sending request to API...')
-      const response = await fetch(`/api/applications/${applicationId}/request-documents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ documentTypes }),
-      })
-      console.log('📄 API response status:', response.status)
-
-      if (response.ok) {
-        addToast({
-          type: 'success',
-          title: 'Documents Requested',
-          message: 'The applicant has been notified to provide the requested documents.'
-        })
-        fetchApplications()
-      } else {
-        addToast({
-          type: 'error',
-          title: 'Request Failed',
-          message: 'Failed to request documents. Please try again.'
-        })
-      }
-    } catch (error) {
-      addToast({
-        type: 'error',
-        title: 'Network Error',
-        message: 'Unable to request documents. Please try again.'
-      })
-    } finally {
-      setProcessingApp(null)
-    }
-  }
-
-  const startChat = (applicantId: string, applicantEmail: string) => {
-    // Clear unread messages for this user immediately and persistently
-    setUnreadMessages(prev => ({
-      ...prev,
-      [applicantId]: 0
-    }))
-    
-    // Persist cleared state in localStorage with timestamp
-    const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
-    clearedMessages[applicantId] = Date.now() // Store timestamp instead of boolean
-    localStorage.setItem('clearedMessages', JSON.stringify(clearedMessages))
-    
-    console.log('Clearing messages for:', applicantId, 'New state:', {
-      ...unreadMessages,
-      [applicantId]: 0
-    })
-    
-    // Navigate to chat with the applicant
-    router.push(`/chat/${applicantId}?email=${encodeURIComponent(applicantEmail)}`)
-  }
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'accepted':
-        return 'bg-green-100 text-green-800'
-      case 'declined':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-yellow-100 text-yellow-800'
-    }
-  }
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'accepted':
-        return 'Accepted'
-      case 'declined':
-        return 'Declined'
-      default:
-        return 'Pending'
-    }
-  }
-
-  if (!user) {
-    return null
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Inbox</h1>
-        <p className="mt-2 text-gray-600">
-          {user.role === 'host' 
-            ? 'Manage applications for your listings' 
-            : 'Track your rental applications'
-          }
-        </p>
-      </div>
-
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </Card>
-          ))}
-        </div>
-      ) : applications.length === 0 ? (
-        <Card className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
-          <p className="text-gray-500 mb-6">
-            {user.role === 'host' 
-              ? 'Applications for your listings will appear here.' 
-              : 'Your rental applications will appear here.'
-            }
-          </p>
-          {user.role === 'host' ? (
-            <Link href="/post">
-              <Button>Post a Listing</Button>
-            </Link>
-          ) : (
-            <Link href="/">
-              <Button>Browse Listings</Button>
-            </Link>
-          )}
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {applications.map((application) => (
-            <Card key={application.id}>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-3">
-                    <Link 
-                      href={`/listing/${application.listing.id}`}
-                      className="text-lg font-semibold text-blue-600 hover:text-blue-700"
-                    >
-                      {application.listing.title}
-                    </Link>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(application.status)}`}>
-                      {getStatusText(application.status)}
-                    </span>
-                  </div>
-
-                  <p className="text-gray-600 text-sm mb-2">{application.listing.address}</p>
-                  <p className="text-gray-900 font-medium mb-3">${application.listing.rent}/month</p>
-
-                  {user.role === 'host' ? (
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-gray-900">Applicant Details</h4>
-                        <VerificationBadge 
-                          verified={application.applicant.verified || false} 
-                          size="sm"
-                        />
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Email:</strong> {application.applicant.email}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Move-in Date:</strong> {new Date(application.moveInDate).toLocaleDateString()}
-                      </p>
-                      <p className="text-sm text-gray-600 mb-1">
-                        <strong>Duration:</strong> {application.duration}
-                      </p>
-                      {application.aiSummary && (
-                        <p className="text-sm text-gray-600 mb-2">
-                          <strong>AI Summary:</strong> {application.aiSummary}
-                        </p>
-                      )}
-                      <div className="mt-3">
-                        <p className="text-sm text-gray-600 mb-1"><strong>Reason:</strong></p>
-                        <p className="text-sm text-gray-700">{application.reason}</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="bg-gray-50 rounded-lg p-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Your Application</h4>
-                        <p className="text-sm text-gray-600 mb-1">
-                          <strong>Move-in Date:</strong> {new Date(application.moveInDate).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-gray-600 mb-1">
-                          <strong>Duration:</strong> {application.duration}
-                        </p>
-                        <p className="text-sm text-gray-600 mb-1">
-                          <strong>Submitted:</strong> {new Date(application.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                      
-                      {/* Tenant Actions */}
-                      <div className="flex space-x-3">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => startChat(application.listing.owner.id, application.listing.owner.email)}
-                          className="relative"
-                        >
-                          💬 Message Host
-                          {unreadMessages[application.listing.owner.id] > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
-                              {unreadMessages[application.listing.owner.id]}
-                            </span>
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => router.push('/verification')}
-                        >
-                          📄 Upload Documents
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => router.push('/notifications')}
-                        >
-                          🔔 View Updates
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {user.role === 'host' && (
-                    <div className="space-y-3">
-                      {/* Chat and Document Request Actions */}
-                      <div className="flex space-x-3">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => startChat(application.applicant.id, application.applicant.email)}
-                          className="relative"
-                        >
-                          💬 Chat
-                          {unreadMessages[application.applicant.id] > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold animate-pulse">
-                              {unreadMessages[application.applicant.id]}
-                            </span>
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => requestDocuments(application.id, ['references', 'id', 'income'])}
-                          loading={processingApp === application.id}
-                          disabled={processingApp !== null}
-                        >
-                          📄 Request Docs
-                        </Button>
-                        <Link href={`/profile/${application.applicant.id}`}>
-                          <Button size="sm" variant="secondary">
-                            👤 View Profile
-                          </Button>
-                        </Link>
-                      </div>
-                      
-                      {/* Accept/Decline Actions */}
-                      {application.status === 'submitted' && (
-                        <div className="flex space-x-3">
-                          <Button
-                            size="sm"
-                            onClick={() => handleApplicationAction(application.id, 'accepted')}
-                            loading={processingApp === application.id}
-                            disabled={processingApp !== null}
-                          >
-                            ✅ Accept
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() => handleApplicationAction(application.id, 'declined')}
-                            loading={processingApp === application.id}
-                            disabled={processingApp !== null}
-                          >
-                            ❌ Decline
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {application.listing.photos && application.listing.photos.length > 0 ? (
-                  <div className="ml-4 flex-shrink-0">
-                    <img
-                      src={application.listing.photos[0]}
-                      alt={application.listing.title}
-                      className="h-20 w-20 object-cover rounded-lg"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        target.nextElementSibling?.classList.remove('hidden');
-                      }}
-                    />
-                    <div className="hidden h-20 w-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="ml-4 flex-shrink-0">
-                    <div className="h-20 w-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
-      </div>
-    </div>
-  )
 }

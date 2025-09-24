@@ -51,7 +51,6 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchConversations()
-      setupRealtimeSubscriptions()
     }
   }, [user])
 
@@ -62,24 +61,73 @@ export default function InboxPage() {
     }
   }, [selectedConversation])
 
+  const fetchUser = async () => {
+    try {
+      const response = await fetch('/api/auth/me')
+      if (response.ok) {
+        const userData = await response.json()
+        setUser(userData.user)
+      } else {
+        router.push('/auth/login')
+      }
+    } catch (error) {
+      console.error('Failed to fetch user:', error)
+      router.push('/auth/login')
+    }
+  }
+
+  const fetchConversations = async () => {
+    try {
+      console.log('Fetching conversations...')
+      const response = await fetch('/api/chat/conversations')
+      console.log('Conversations response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Conversations data:', data)
+        setConversations(data.conversations || [])
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to fetch conversations:', errorData)
+      }
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/chat/conversations/${conversationId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data.messages || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+  }
+
+  const markAsRead = async (conversationId: string) => {
+    try {
+      await fetch('/api/chat/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId })
+      })
+    } catch (error) {
+      console.error('Failed to mark as read:', error)
+    }
+  }
+
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  const setupRealtimeSubscriptions = () => {
-    if (!user) return
-
-    try {
-      const setupRealtimeSubscriptions = () => {
-        try {
-          // Realtime subscriptions would go here when Pusher is configured
-          console.log('Realtime subscriptions setup (Pusher not configured)')
-        } catch (error) {
-          console.log('Realtime not available:', error)
-        }
-      }
+  }
 
       // Subscribe to conversation channels when selected
       if (selectedConversation) {
