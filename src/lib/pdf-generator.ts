@@ -196,6 +196,78 @@ export function generateManitobaContractPDF(data: ContractData): jsPDF {
   doc.text('The first month\'s rent is due on or before the commencement of the tenancy.', margin, yPosition)
   yPosition += 20
 
+  // 5. Method of Rent Payment
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('5. Method of Rent Payment', margin, yPosition)
+  yPosition += 12
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  doc.text('The following payment methods may be used (check applicable):', margin, yPosition)
+  yPosition += 10
+  doc.text('☐ e-Transfer to: ____________________________', margin, yPosition)
+  yPosition += 8
+  doc.text('☐ Pre-authorized debit    ☐ Post-dated cheques', margin, yPosition)
+  yPosition += 8
+  doc.text('☐ Online portal           ☐ Other: ____________________________', margin, yPosition)
+  yPosition += 8
+  doc.setFontSize(9)
+  doc.text('Note: Tenant is entitled to a rent receipt upon request. Keep receipts for all payments.', margin, yPosition)
+  yPosition += 16
+
+  // 6. Maintenance and Repairs
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('6. Maintenance and Repairs', margin, yPosition)
+  yPosition += 12
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  const maintIntro = 'The landlord must keep the rental unit in good repair and comply with health, building and housing standards. The tenant must keep the unit reasonably clean, promptly report needed repairs, and not cause damage or permit damage by others.'
+  let maintLines = doc.splitTextToSize(maintIntro, pageWidth - 2 * margin)
+  doc.text(maintLines, margin, yPosition)
+  yPosition += maintLines.length * 6 + 6
+
+  doc.setFont('helvetica', 'bold')
+  doc.text('Tenant Responsibilities include:', margin, yPosition)
+  yPosition += 8
+  doc.setFont('helvetica', 'normal')
+  const tenantResp = [
+    '• Keeping the unit clean and sanitary',
+    '• Replacing light bulbs and smoke detector batteries where accessible',
+    '• Notifying the landlord in a timely manner of issues requiring repair',
+    '• Using appliances and fixtures reasonably and safely'
+  ]
+  tenantResp.forEach(item => { doc.text(item, margin + 5, yPosition); yPosition += 6 })
+  yPosition += 6
+
+  doc.setFont('helvetica', 'bold')
+  doc.text('Landlord Responsibilities include:', margin, yPosition)
+  yPosition += 8
+  doc.setFont('helvetica', 'normal')
+  const landlordResp = [
+    '• Repairing structural elements, plumbing, heating and electrical systems',
+    '• Maintaining provided appliances in working order',
+    '• Ensuring compliance with health, safety and housing standards',
+    '• Providing and maintaining smoke/carbon monoxide detectors as required'
+  ]
+  landlordResp.forEach(item => { doc.text(item, margin + 5, yPosition); yPosition += 6 })
+  yPosition += 14
+
+  // 7. Pets and Smoking Policies
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('7. Pets and Smoking Policies', margin, yPosition)
+  yPosition += 12
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Pets: ☐ Allowed    ☐ Not Allowed   (If allowed, a pet damage deposit may be required where permitted by law)', margin, yPosition)
+  yPosition += 8
+  doc.text('Smoking/Vaping: ☐ Allowed    ☐ Not Allowed   (Restrictions may apply pursuant to posted building rules/bylaws)', margin, yPosition)
+  yPosition += 18
+
   // Check if we need a new page
   if (yPosition > 250) {
     doc.addPage()
@@ -313,15 +385,26 @@ export function generateManitobaContractPDF(data: ContractData): jsPDF {
     yPosition = 30
   }
 
-  // Signatures
+  // Signatures and E‑Sign Support
   doc.setFont('helvetica', 'bold')
-  doc.text('SIGNATURES', margin, yPosition)
-  yPosition += 20
-  
+  doc.text('SIGNATURES AND ACKNOWLEDGMENTS', margin, yPosition)
+  yPosition += 14
+
   doc.setFont('helvetica', 'normal')
-  doc.text('Landlord Signature: ________________________________    Date: ___________', margin, yPosition)
-  yPosition += 20
-  doc.text('Tenant Signature: ________________________________    Date: ___________', margin, yPosition)
+  const sigDate = data.signatureDate || '____________'
+
+  // Landlord signature box
+  doc.text('Landlord Signature:', margin, yPosition)
+  doc.rect(margin + 48, yPosition - 6, 60, 20)
+  try { if (data.landlordSignatureDataUrl) doc.addImage(data.landlordSignatureDataUrl, undefined as any, margin + 50, yPosition - 5, 56, 16) } catch {}
+  doc.text(`Date: ${sigDate}`, margin + 115, yPosition + 10)
+  yPosition += 28
+
+  // Tenant signature box
+  doc.text('Tenant Signature:', margin, yPosition)
+  doc.rect(margin + 48, yPosition - 6, 60, 20)
+  try { if (data.tenantSignatureDataUrl) doc.addImage(data.tenantSignatureDataUrl, undefined as any, margin + 50, yPosition - 5, 56, 16) } catch {}
+  doc.text(`Date: ${sigDate}`, margin + 115, yPosition + 10)
   yPosition += 30
 
   // Footer
