@@ -217,13 +217,13 @@ export default function InboxPage() {
     <div className="h-screen bg-gray-50 flex">
       <div className="w-1/3 bg-white border-r">
         <div className="p-4 border-b">
-          <h1 className="text-xl font-semibold">Messages</h1>
+          <h1 className="text-xl font-bold text-gray-900">Messages</h1>
         </div>
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="p-4 text-center">Loading...</div>
+            <div className="p-4 text-center text-gray-900 font-semibold">Loading...</div>
           ) : conversations.length === 0 ? (
-            <div className="p-4 text-center">No conversations</div>
+            <div className="p-4 text-center text-gray-900 font-semibold">No conversations</div>
           ) : (
             conversations.map((conversation) => {
               const other = conversation.participants.find(p => p.id !== user.id)
@@ -240,7 +240,7 @@ export default function InboxPage() {
                       {other?.email[0].toUpperCase()}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">{other?.email}</p>
+                      <p className="font-bold text-gray-900">{other?.email}</p>
                     </div>
                   </div>
                 </div>
@@ -254,20 +254,60 @@ export default function InboxPage() {
         {selectedConversation ? (
           <>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.senderId === user.id ? 'justify-end' : 'justify-start'}`}
-                >
+              {messages.map((message) => {
+                const isSelf = message.senderId === user.id
+                // Detect attachment pattern: [Download File](<url>)
+                const downloadMatch = message.body.match(/\[Download File\]\(([^)]+)\)/)
+                const attachmentUrl = downloadMatch ? downloadMatch[1] : null
+                const fileNameMatch = message.body.match(/File Shared\*\*:\s*([^\n]+)/)
+                const fileName = fileNameMatch ? fileNameMatch[1].trim() : undefined
+                const isImage = attachmentUrl ? /(\.png|\.jpg|\.jpeg|\.gif|\.webp|\.bmp|\.svg)$/i.test(attachmentUrl) : false
+
+                return (
                   <div
-                    className={`max-w-md px-4 py-2 rounded-lg ${
-                      message.senderId === user.id ? 'bg-blue-500 text-white' : 'bg-gray-200'
-                    }`}
+                    key={message.id}
+                    className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{message.body}</p>
+                    <div
+                      className={`max-w-md px-4 py-2 rounded-lg ${
+                        isSelf ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-900'
+                      }`}
+                    >
+                      {attachmentUrl ? (
+                        <div className="space-y-2">
+                          {isImage ? (
+                            <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={attachmentUrl}
+                                alt={fileName || 'Shared image'}
+                                className="max-w-xs rounded-md border border-gray-300"
+                              />
+                            </a>
+                          ) : (
+                            <div className={`p-3 rounded-md ${isSelf ? 'bg-blue-600/40' : 'bg-white/60 border border-gray-300'}`}>
+                              <div className="flex items-center space-x-2">
+                                <span>📎</span>
+                                <span className="text-sm font-semibold truncate">{fileName || 'File attachment'}</span>
+                              </div>
+                            </div>
+                          )}
+                          <a
+                            href={attachmentUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`${isSelf ? 'text-white underline' : 'text-blue-700 underline'} text-sm`}
+                          >
+                            Download File
+                          </a>
+                        </div>
+                      ) : (
+                        <p className="text-sm font-semibold whitespace-pre-wrap">{message.body}</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
               <div ref={messagesEndRef} />
             </div>
 
@@ -277,8 +317,8 @@ export default function InboxPage() {
                 <div className="mb-3 p-3 bg-gray-50 rounded-lg border">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">📎 {selectedFile.name}</span>
-                      <span className="text-xs text-gray-500">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
+                      <span className="text-sm font-bold text-gray-900">📎 {selectedFile.name}</span>
+                      <span className="text-xs font-semibold text-gray-700">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -313,7 +353,7 @@ export default function InboxPage() {
                 />
                 <button 
                   onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-bold text-gray-900 hover:text-green-700 hover:bg-green-100 rounded-lg transition-colors border border-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
@@ -323,7 +363,7 @@ export default function InboxPage() {
                 
                 <button 
                   onClick={() => setShowDocumentModal(true)}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-bold text-gray-900 hover:text-blue-700 hover:bg-blue-100 rounded-lg transition-colors border border-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -333,7 +373,7 @@ export default function InboxPage() {
 
                 <button 
                   onClick={() => startCall('audio')}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-bold text-gray-900 hover:text-purple-700 hover:bg-purple-100 rounded-lg transition-colors border border-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -343,7 +383,7 @@ export default function InboxPage() {
 
                 <button 
                   onClick={() => startCall('video')}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-bold text-gray-900 hover:text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors border border-gray-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -358,7 +398,7 @@ export default function InboxPage() {
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                   placeholder="Type a message..."
-                  className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <Button onClick={sendMessage} disabled={!newMessage.trim() || sending}>
                   Send
@@ -369,8 +409,8 @@ export default function InboxPage() {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Select a conversation</h3>
-              <p className="text-gray-500">Choose a conversation to start messaging</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Select a conversation</h3>
+              <p className="text-gray-800 font-semibold">Choose a conversation to start messaging</p>
             </div>
           </div>
         )}
