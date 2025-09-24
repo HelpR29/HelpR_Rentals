@@ -119,3 +119,72 @@ model Review {
   type        String   // "host_review" | "tenant_review" | "listing_review"
   createdAt   DateTime @default(now())
 }
+
+// =============================
+// Chat / Messaging (Phase 1)
+// =============================
+
+model ChatConversation {
+  id            String             @id @default(cuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  isGroup       Boolean            @default(false)
+  title         String?
+  lastMessageAt DateTime?          @map("last_message_at")
+
+  participants  ChatParticipant[]
+  messages      ChatMessage[]
+}
+
+model ChatParticipant {
+  id             String           @id @default(cuid())
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  user           User             @relation(fields: [userId], references: [id])
+  userId         String
+  role           String           @default("member") // member | admin
+  joinedAt       DateTime         @default(now())
+
+  @@unique([conversationId, userId])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id])
+  conversationId String
+  sender         User             @relation(fields: [senderId], references: [id])
+  senderId       String
+  body           String
+  attachmentUrl  String?
+  status         String           @default("sent") // sent | delivered | read
+  createdAt      DateTime         @default(now())
+
+  reads          ChatRead[]
+}
+
+model ChatRead {
+  id         String      @id @default(cuid())
+  message    ChatMessage @relation(fields: [messageId], references: [id])
+  messageId  String
+  user       User        @relation(fields: [userId], references: [id])
+  userId     String
+  readAt     DateTime    @default(now())
+
+  @@unique([messageId, userId])
+}
+
+// =============================
+// Notifications
+// =============================
+
+model Notification {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  type      String   // message | application | system
+  payload   String   // JSON
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
+}
