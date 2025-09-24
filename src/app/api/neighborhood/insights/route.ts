@@ -54,6 +54,65 @@ export async function GET(request: NextRequest) {
         .map((p) => ({ ...p, distance: Math.round(distM(ORIGIN, p.coords)) }))
         .sort((a, b) => a.distance - b.distance)
 
+    // Google Places Nearby Search integration
+    const API_KEY = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    type PlaceOut = { name: string; type: string; distance: number; rating?: number }
+    const fetchPlacesByTypes = async (types: string[], labelMap?: Record<string,string>): Promise<PlaceOut[]> => {
+      if (!API_KEY) return []
+      const all: PlaceOut[] = []
+      for (const t of types) {
+        try {
+          const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
+          url.searchParams.set('location', `${lat},${lng}`)
+          url.searchParams.set('radius', '1500')
+          url.searchParams.set('type', t)
+          url.searchParams.set('key', API_KEY)
+          const res = await fetch(url.toString())
+          if (!res.ok) continue
+          const data = await res.json()
+          const results = (data.results || []) as any[]
+          for (const r of results) {
+            const loc = r.geometry?.location
+            if (!loc) continue
+            const d = Math.round(distM(ORIGIN, { lat: loc.lat, lng: loc.lng }))
+            const typeLabel = labelMap?.[t] || t.replace(/_/g, ' ')
+            all.push({ name: r.name, type: typeLabel, distance: d, rating: r.rating })
+          }
+        } catch {}
+      }
+      // de-duplicate by name keeping nearest
+      const dedup = new Map<string, PlaceOut>()
+      for (const p of all) {
+        const cur = dedup.get(p.name)
+        if (!cur || p.distance < cur.distance) dedup.set(p.name, p)
+      }
+      return Array.from(dedup.values()).sort((a,b)=>a.distance-b.distance)
+    }
+
+    // Query places per category, with graceful fallback to curated POIs
+    let groceryPlaces: PlaceOut[] = []
+    let healthcarePlaces: PlaceOut[] = []
+    let educationPlaces: PlaceOut[] = []
+    let entertainmentPlaces: PlaceOut[] = []
+    try {
+      groceryPlaces = await fetchPlacesByTypes(['supermarket','grocery_or_supermarket','convenience_store'], { supermarket: 'Supermarket', grocery_or_supermarket: 'Grocery', convenience_store: 'Convenience Store' })
+      healthcarePlaces = await fetchPlacesByTypes(['hospital','pharmacy','doctor'], { hospital: 'Hospital', pharmacy: 'Pharmacy', doctor: 'Clinic' })
+      educationPlaces = await fetchPlacesByTypes(['school','university'], { school: 'School', university: 'University' })
+      entertainmentPlaces = await fetchPlacesByTypes(['park','tourist_attraction','shopping_mall'], { park: 'Park', tourist_attraction: 'Attraction', shopping_mall: 'Shopping Mall' })
+    } catch {}
+    if (groceryPlaces.length === 0) {
+      groceryPlaces = withDistances(POIS.grocery).map(p=>({ name:p.name, type:p.type, distance:p.distance, rating:p.rating }))
+    }
+    if (healthcarePlaces.length === 0) {
+      healthcarePlaces = withDistances(POIS.healthcare).map(p=>({ name:p.name, type:p.type, distance:p.distance, rating:p.rating }))
+    }
+    if (educationPlaces.length === 0) {
+      educationPlaces = withDistances(POIS.education).map(p=>({ name:p.name, type:p.type, distance:p.distance, rating:p.rating }))
+    }
+    if (entertainmentPlaces.length === 0) {
+      entertainmentPlaces = withDistances(POIS.entertainment).map(p=>({ name:p.name, type:p.type, distance:p.distance, rating:p.rating }))
+    }
+
     // Deterministic neighborhood insights data (Winnipeg-focused)
     const insights = {
       coordinates: { lat, lng },
@@ -67,18 +126,10 @@ export async function GET(request: NextRequest) {
         description: 'Very Walkable - Most errands can be accomplished on foot'
       },
       amenities: {
-        grocery: withDistances([
-          ...POIS.grocery
-        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
-        healthcare: withDistances([
-          ...POIS.healthcare
-        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
-        education: withDistances([
-          ...POIS.education
-        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating })),
-        entertainment: withDistances([
-          ...POIS.entertainment
-        ]).slice(0, 3).map((p) => ({ name: p.name, type: p.type, distance: p.distance, rating: p.rating }))
+        grocery: groceryPlaces.slice(0,3),
+        healthcare: healthcarePlaces.slice(0,3),
+        education: educationPlaces.slice(0,3),
+        entertainment: entertainmentPlaces.slice(0,3)
       },
       safety: {
         score: Math.floor(Math.random() * 20) + 80, // 80-100
