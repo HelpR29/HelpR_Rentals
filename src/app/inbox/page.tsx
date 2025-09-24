@@ -295,9 +295,6 @@ export default function InboxPage() {
     </div>
   )
 }
-        const timeSinceLastCheck = Date.now() - lastMessageCheck
-        
-        applications.forEach(app => {
           const hostId = app.listing.owner.id
           // For clean testing, don't show fake notifications
           newUnreadMessages[hostId] = 0
