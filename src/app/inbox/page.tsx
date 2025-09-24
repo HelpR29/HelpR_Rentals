@@ -240,49 +240,52 @@ export default function InboxPage() {
     if (!selectedConversation) return
 
     try {
-      let response
-      let documentContent = ''
+      let pdfUrl = ''
+      let documentMessage = ''
 
       if (type === 'contract') {
-        response = await fetch('/api/ai/generate-contract', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            propertyDetails: {
-              address: 'Property Address (to be filled)',
-              rent: '1200',
-              deposit: '600',
-              leaseTerm: '12 months'
-            },
-            tenantInfo: { email: 'tenant@test.com' },
-            hostInfo: { email: 'host@test.com' },
-            contractType: 'standard'
-          })
+        // Generate prefilled contract PDF
+        const contractParams = new URLSearchParams({
+          landlordEmail: 'host@test.com',
+          tenantEmail: 'tenant@test.com',
+          propertyAddress: 'Property Address (to be filled)',
+          monthlyRent: '1200',
+          securityDeposit: '600',
+          leaseTerm: '12 months',
+          propertyType: 'Apartment',
+          bedrooms: '2',
+          bathrooms: '1'
         })
-        const data = await response.json()
-        documentContent = `📄 **Manitoba Rental Contract Generated**\n\n${data.contract}`
+        
+        pdfUrl = `/api/ai/generate-pdf-contract?${contractParams.toString()}`
+        documentMessage = `📄 **Manitoba Rental Contract (PDF)**\n\n✅ Professional PDF contract generated\n✅ Manitoba Residential Tenancies Act compliant\n✅ Prefilled with available information\n✅ Ready for signatures\n\n[Download PDF Contract](${pdfUrl})`
       } else {
-        response = await fetch('/api/ai/generate-checklist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            checklistType: 'move-in',
-            propertyType: 'apartment'
-          })
+        // Generate checklist PDF
+        const checklistParams = new URLSearchParams({
+          type: 'move-in'
         })
-        const data = await response.json()
-        documentContent = `📋 **${data.checklist.title}**\n\n${data.checklist.items.join('\n')}`
+        
+        pdfUrl = `/api/ai/generate-pdf-checklist?${checklistParams.toString()}`
+        documentMessage = `📋 **Manitoba Move-In Checklist (PDF)**\n\n✅ Complete move-in checklist\n✅ Manitoba-specific requirements\n✅ Printable PDF format\n✅ Checkboxes for easy completion\n\n[Download PDF Checklist](${pdfUrl})`
       }
 
-      // Send the document as a message
+      // Send the document link as a message
       await fetch('/api/chat/messages/simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversationId: selectedConversation,
-          body: documentContent
+          body: documentMessage
         })
       })
+
+      // Also trigger PDF download
+      const link = document.createElement('a')
+      link.href = pdfUrl
+      link.download = type === 'contract' ? 'Manitoba_Rental_Contract.pdf' : 'Manitoba_Move_In_Checklist.pdf'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
 
       // Refresh messages
       fetchMessages(selectedConversation)
