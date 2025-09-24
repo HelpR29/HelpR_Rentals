@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { getCurrentUser } from '@/lib/auth'
-import { getPusherClient } from '@/lib/realtime-client'
 import Button from '@/components/ui/Button'
 
 interface User {
@@ -50,7 +48,6 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchConversations()
-      setupRealtimeSubscriptions()
     }
   }, [user])
 
@@ -65,53 +62,8 @@ export default function InboxPage() {
     scrollToBottom()
   }, [messages])
 
-  useEffect(() => {
-    if (user) {
-      const initializeInbox = async () => {
-        // Only clear message-related localStorage, not all localStorage
-        localStorage.removeItem('clearedMessages')
-        
-        await fetchApplications()
-        fetchUnreadMessageCounts()
-        // Mark notifications as read and refresh count when inbox is viewed
-        markNotificationsAsRead()
-      }
-      
-      initializeInbox()
-      
-      // Set up real-time polling for message updates
-      const interval = setInterval(() => {
-        fetchUnreadMessageCounts()
-      }, 5000) // Check every 5 seconds for real-time feel
-      
-      return () => clearInterval(interval)
-    }
-  }, [user])
-
-  // Update unread messages when applications change
-  useEffect(() => {
-    if (user && applications.length > 0) {
-      fetchUnreadMessageCounts()
-    }
-  }, [applications, user])
-
-  const markNotificationsAsRead = async () => {
-    try {
-      // Mark the current time as last inbox visit in localStorage
-      if (typeof window !== 'undefined' && user) {
-        localStorage.setItem(`lastInboxVisit_${user.id}`, new Date().toISOString())
-      }
-      
-      // Call the mark-read endpoint
-      await fetch('/api/applications/mark-read', { method: 'POST' })
-      
-      // Refresh notification count after marking as read
-      if (typeof window !== 'undefined' && (window as any).refreshNotificationCount) {
-        setTimeout(() => (window as any).refreshNotificationCount(), 500)
-      }
-    } catch (error) {
-      console.error('Failed to mark notifications as read:', error)
-    }
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   const fetchUser = async () => {
@@ -129,20 +81,79 @@ export default function InboxPage() {
     }
   }
 
-  const fetchApplications = async () => {
+  const fetchConversations = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/applications')
+      const response = await fetch('/api/chat/conversations')
       if (response.ok) {
         const data = await response.json()
-        setApplications(data.applications)
+        setConversations(data.conversations || [])
       }
     } catch (error) {
-      console.error('Failed to fetch applications:', error)
+      console.error('Failed to fetch conversations:', error)
     } finally {
       setLoading(false)
     }
   }
+
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const response = await fetch(`/api/chat/conversations/${conversationId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data.messages || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+  }
+
+  const markAsRead = async (conversationId: string) => {
+    try {
+      await fetch('/api/chat/messages/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId })
+      })
+    } catch (error) {
+      console.error('Failed to mark as read:', error)
+    }
+  }
+
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedConversation || sending) return
+    
+    setSending(true)
+    try {
+      const response = await fetch('/api/chat/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          conversationId: selectedConversation,
+          body: newMessage.trim()
+        })
+      })
+      
+      if (response.ok) {
+        setNewMessage('')
+        fetchMessages(selectedConversation)
+        fetchConversations()
+      }
+    } catch (error) {
+      console.error('Failed to send message:', error)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const formatTime = (dateString: string) => {
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const getOtherParticipant = (conversation: Conversation) => {
+    return conversation.participants.find(p => p.id !== user?.id)
+  }
+
+  if (!user) return null
 
   const fetchUnreadMessageCounts = async () => {
     try {
