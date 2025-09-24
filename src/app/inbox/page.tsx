@@ -295,14 +295,6 @@ export default function InboxPage() {
     </div>
   )
 }
-      const clearedMessages = JSON.parse(localStorage.getItem('clearedMessages') || '{}')
-      const now = Date.now()
-      const oneHourAgo = now - 60 * 60 * 1000 // 1 hour window for cleared messages
-      
-      if (user?.role === 'tenant') {
-        // Check for unread messages using same logic as header
-        const newUnreadMessages: { [key: string]: number } = {}
-        const lastMessageCheck = parseInt(localStorage.getItem('lastMessageCheck') || '0')
         const timeSinceLastCheck = Date.now() - lastMessageCheck
         
         applications.forEach(app => {
