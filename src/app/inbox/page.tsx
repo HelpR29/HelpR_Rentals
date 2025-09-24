@@ -170,7 +170,24 @@ export default function InboxPage() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConversation || sending) return
+    console.log('sendMessage called - newMessage:', newMessage)
+    console.log('sendMessage called - selectedConversation:', selectedConversation)
+    console.log('sendMessage called - sending:', sending)
+    
+    if (!newMessage.trim()) {
+      console.log('No message text, aborting')
+      return
+    }
+    
+    if (!selectedConversation) {
+      console.log('No conversation selected, aborting')
+      return
+    }
+    
+    if (sending) {
+      console.log('Already sending, aborting')
+      return
+    }
     
     console.log('Sending message:', { conversationId: selectedConversation, body: newMessage.trim() })
     setSending(true)
@@ -186,7 +203,19 @@ export default function InboxPage() {
       })
       
       console.log('Send response status:', response.status)
-      const data = await response.json()
+      console.log('Send response headers:', Object.fromEntries(response.headers.entries()))
+      
+      const responseText = await response.text()
+      console.log('Send response text:', responseText)
+      
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (e) {
+        console.error('Failed to parse response as JSON:', responseText)
+        return
+      }
+      
       console.log('Send response data:', data)
       
       if (response.ok) {
@@ -194,7 +223,7 @@ export default function InboxPage() {
         fetchMessages(selectedConversation)
         fetchConversations()
       } else {
-        console.error('Send failed:', data)
+        console.error('Send failed:', response.status, data)
       }
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -232,7 +261,10 @@ export default function InboxPage() {
               return (
                 <div
                   key={conversation.id}
-                  onClick={() => setSelectedConversation(conversation.id)}
+                  onClick={() => {
+                    console.log('Selecting conversation:', conversation.id)
+                    setSelectedConversation(conversation.id)
+                  }}
                   className={`p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
                     selectedConversation === conversation.id ? 'bg-blue-50' : ''
                   }`}
