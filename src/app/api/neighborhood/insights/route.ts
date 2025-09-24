@@ -75,14 +75,19 @@ export async function GET(request: NextRequest) {
       return false
     }
 
-    const fetchPlacesByTypes = async (types: string[], labelMap?: Record<string,string>, options?: { category?: 'grocery'|'healthcare'|'education'|'entertainment' }): Promise<PlaceOut[]> => {
+    const fetchPlacesByTypes = async (
+      types: string[],
+      labelMap?: Record<string,string>,
+      options?: { category?: 'grocery'|'healthcare'|'education'|'entertainment', radius?: number }
+    ): Promise<PlaceOut[]> => {
       if (!API_KEY) return []
       const all: PlaceOut[] = []
       for (const t of types) {
         try {
           const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
           url.searchParams.set('location', `${lat},${lng}`)
-          url.searchParams.set('radius', '2000')
+          const r = options?.radius ?? 2000
+          url.searchParams.set('radius', String(r))
           url.searchParams.set('type', t)
           url.searchParams.set('key', API_KEY)
           const res = await fetch(url.toString())
@@ -117,23 +122,29 @@ export async function GET(request: NextRequest) {
     let educationPlaces: PlaceOut[] = []
     let entertainmentPlaces: PlaceOut[] = []
     try {
+      // Grocery: close radius, supermarkets only
       groceryPlaces = await fetchPlacesByTypes(
         ['supermarket','grocery_or_supermarket'],
         { supermarket: 'Supermarket', grocery_or_supermarket: 'Grocery' },
-        { category: 'grocery' }
+        { category: 'grocery', radius: 1200 }
       )
+      // Healthcare: hospitals & pharmacies only, medium radius
       healthcarePlaces = await fetchPlacesByTypes(
-        ['hospital','pharmacy','doctor','clinic'],
-        { hospital: 'Hospital', pharmacy: 'Pharmacy', doctor: 'Clinic', clinic: 'Clinic' },
-        { category: 'healthcare' }
+        ['hospital','pharmacy'],
+        { hospital: 'Hospital', pharmacy: 'Pharmacy' },
+        { category: 'healthcare', radius: 2000 }
       )
+      // Education: schools & universities, medium radius
       educationPlaces = await fetchPlacesByTypes(
         ['primary_school','secondary_school','school','university'],
-        { primary_school: 'Primary School', secondary_school: 'Secondary School', school: 'School', university: 'University' }
+        { primary_school: 'Primary School', secondary_school: 'Secondary School', school: 'School', university: 'University' },
+        { category: 'education', radius: 2500 }
       )
+      // Entertainment: parks and major attractions, wider radius
       entertainmentPlaces = await fetchPlacesByTypes(
-        ['park','tourist_attraction','shopping_mall'],
-        { park: 'Park', tourist_attraction: 'Attraction', shopping_mall: 'Shopping Mall' }
+        ['park','tourist_attraction'],
+        { park: 'Park', tourist_attraction: 'Attraction' },
+        { category: 'entertainment', radius: 3000 }
       )
     } catch {}
     if (groceryPlaces.length === 0) {
