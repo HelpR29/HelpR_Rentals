@@ -57,14 +57,32 @@ export async function GET(request: NextRequest) {
     // Google Places Nearby Search integration
     const API_KEY = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     type PlaceOut = { name: string; type: string; distance: number; rating?: number }
-    const fetchPlacesByTypes = async (types: string[], labelMap?: Record<string,string>): Promise<PlaceOut[]> => {
+    const normalizeName = (s: string) => (s || '').toLowerCase()
+    const bannedGrocery = ['gas', 'petro', 'shell', 'esso', 'cannabis', 'vape', 'tobacco', 'liquor', 'beer', 'wine']
+    const isAllowedGrocery = (name: string, types: string[]) => {
+      const n = normalizeName(name)
+      if (types.includes('supermarket') || types.includes('grocery_or_supermarket')) {
+        return !bannedGrocery.some((b) => n.includes(b))
+      }
+      // otherwise, reject
+      return false
+    }
+    const isAllowedHealthcare = (types: string[], name: string) => {
+      const t = new Set(types)
+      if (t.has('hospital') || t.has('pharmacy') || t.has('doctor') || t.has('clinic')) return true
+      // Explicitly exclude dentists from healthcare list
+      if (t.has('dentist') || normalizeName(name).includes('dental')) return false
+      return false
+    }
+
+    const fetchPlacesByTypes = async (types: string[], labelMap?: Record<string,string>, options?: { category?: 'grocery'|'healthcare'|'education'|'entertainment' }): Promise<PlaceOut[]> => {
       if (!API_KEY) return []
       const all: PlaceOut[] = []
       for (const t of types) {
         try {
           const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
           url.searchParams.set('location', `${lat},${lng}`)
-          url.searchParams.set('radius', '1500')
+          url.searchParams.set('radius', '2000')
           url.searchParams.set('type', t)
           url.searchParams.set('key', API_KEY)
           const res = await fetch(url.toString())
@@ -76,6 +94,10 @@ export async function GET(request: NextRequest) {
             if (!loc) continue
             const d = Math.round(distM(ORIGIN, { lat: loc.lat, lng: loc.lng }))
             const typeLabel = labelMap?.[t] || t.replace(/_/g, ' ')
+            const typesArr: string[] = r.types || []
+            // Category-specific filtering
+            if (options?.category === 'grocery' && !isAllowedGrocery(r.name, typesArr)) continue
+            if (options?.category === 'healthcare' && !isAllowedHealthcare(typesArr, r.name)) continue
             all.push({ name: r.name, type: typeLabel, distance: d, rating: r.rating })
           }
         } catch {}
@@ -95,10 +117,24 @@ export async function GET(request: NextRequest) {
     let educationPlaces: PlaceOut[] = []
     let entertainmentPlaces: PlaceOut[] = []
     try {
-      groceryPlaces = await fetchPlacesByTypes(['supermarket','grocery_or_supermarket','convenience_store'], { supermarket: 'Supermarket', grocery_or_supermarket: 'Grocery', convenience_store: 'Convenience Store' })
-      healthcarePlaces = await fetchPlacesByTypes(['hospital','pharmacy','doctor'], { hospital: 'Hospital', pharmacy: 'Pharmacy', doctor: 'Clinic' })
-      educationPlaces = await fetchPlacesByTypes(['school','university'], { school: 'School', university: 'University' })
-      entertainmentPlaces = await fetchPlacesByTypes(['park','tourist_attraction','shopping_mall'], { park: 'Park', tourist_attraction: 'Attraction', shopping_mall: 'Shopping Mall' })
+      groceryPlaces = await fetchPlacesByTypes(
+        ['supermarket','grocery_or_supermarket'],
+        { supermarket: 'Supermarket', grocery_or_supermarket: 'Grocery' },
+        { category: 'grocery' }
+      )
+      healthcarePlaces = await fetchPlacesByTypes(
+        ['hospital','pharmacy','doctor','clinic'],
+        { hospital: 'Hospital', pharmacy: 'Pharmacy', doctor: 'Clinic', clinic: 'Clinic' },
+        { category: 'healthcare' }
+      )
+      educationPlaces = await fetchPlacesByTypes(
+        ['primary_school','secondary_school','school','university'],
+        { primary_school: 'Primary School', secondary_school: 'Secondary School', school: 'School', university: 'University' }
+      )
+      entertainmentPlaces = await fetchPlacesByTypes(
+        ['park','tourist_attraction','shopping_mall'],
+        { park: 'Park', tourist_attraction: 'Attraction', shopping_mall: 'Shopping Mall' }
+      )
     } catch {}
     if (groceryPlaces.length === 0) {
       groceryPlaces = withDistances(POIS.grocery).map(p=>({ name:p.name, type:p.type, distance:p.distance, rating:p.rating }))
