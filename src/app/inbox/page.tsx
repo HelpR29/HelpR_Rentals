@@ -411,22 +411,13 @@ export default function InboxPage() {
               {/* Action Buttons */}
               <div className="flex items-center space-x-2 mb-3 flex-wrap">
                 <button 
-                  onClick={() => generateDocument('contract')}
+                  onClick={() => setShowDocumentModal(true)}
                   className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  <span>MB Contract</span>
-                </button>
-                <button 
-                  onClick={() => generateDocument('checklist')}
-                  className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                  <span>MB Checklist</span>
+                  <span>Generate PDF</span>
                 </button>
                 <button className="flex items-center space-x-1 px-3 py-1 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -477,6 +468,51 @@ export default function InboxPage() {
           </div>
         )}
       </div>
+
+      {/* Document Modal */}
+      <DocumentModal
+        isOpen={showDocumentModal}
+        onClose={() => setShowDocumentModal(false)}
+        onGenerate={handleGenerateDocument}
+      />
     </div>
   )
+}
+
+const handleGenerateDocument = async (type: string, options: any) => {
+  try {
+    let pdfUrl = ''
+
+    if (type === 'contract') {
+      const contractParams = new URLSearchParams({
+        landlordName: options.landlordName || 'Host Name',
+        tenantName: options.tenantName || 'Tenant Name',
+        propertyAddress: options.propertyAddress || 'Property Address',
+        monthlyRent: options.monthlyRent || '1200',
+        securityDeposit: options.securityDeposit || '600',
+        leaseTerm: '12 months',
+        bedrooms: options.bedrooms || '2',
+        bathrooms: options.bathrooms || '1'
+      })
+      
+      pdfUrl = `/api/ai/generate-pdf-contract?${contractParams.toString()}`
+    } else {
+      const checklistParams = new URLSearchParams({
+        type: options.checklistType || 'move-in'
+      })
+      
+      pdfUrl = `/api/ai/generate-pdf-checklist?${checklistParams.toString()}`
+    }
+
+    // Trigger PDF download
+    const link = document.createElement('a')
+    link.href = pdfUrl
+    link.download = type === 'contract' ? 'Manitoba_Rental_Contract.pdf' : 'Manitoba_Checklist.pdf'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+  } catch (error) {
+    console.error('Failed to generate document:', error)
+  }
 }
