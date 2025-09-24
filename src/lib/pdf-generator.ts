@@ -32,74 +32,165 @@ export function generateManitobaContractPDF(data: ContractData): jsPDF {
   doc.setTextColor(59, 130, 246) // Blue color for Helpr
   doc.text('Helpr', margin, yPosition)
   doc.setTextColor(0, 0, 0) // Reset to black
-  
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.text('Smart Rentals', margin, yPosition + 8)
   yPosition += 25
 
-  // Main Title
-  doc.setFontSize(18)
+  // Official Manitoba Form Header
+  doc.setFontSize(14)
   doc.setFont('helvetica', 'bold')
-  doc.text('RESIDENTIAL TENANCY AGREEMENT', pageWidth / 2, yPosition, { align: 'center' })
-  yPosition += 10
+  doc.text('SCHEDULE', pageWidth / 2, yPosition, { align: 'center' })
+  yPosition += 15
+  
+  doc.setFontSize(12)
+  doc.text('Form 1', pageWidth / 2, yPosition, { align: 'center' })
+  yPosition += 15
   
   doc.setFontSize(14)
-  doc.text('Province of Manitoba', pageWidth / 2, yPosition, { align: 'center' })
+  doc.text('Standard Residential Tenancy Agreement', pageWidth / 2, yPosition, { align: 'center' })
   yPosition += 20
 
-  // Date
-  doc.setFontSize(12)
+  // Legal Preamble (from official form)
+  doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Date: ${new Date().toLocaleDateString()}`, margin, yPosition)
+  const preamble = 'This form of Tenancy Agreement is prescribed under The Residential Tenancies Act (the Act) and applies to all residential tenancies in Manitoba, other than tenancies that include tenant services or tenancies respecting a mobile home, mobile home site, or both. Two copies must be signed by both landlord and tenant. One copy must be given to the tenant within 21 days after it is signed.'
+  const preambleLines = doc.splitTextToSize(preamble, pageWidth - 2 * margin)
+  doc.text(preambleLines, margin, yPosition)
+  yPosition += preambleLines.length * 5 + 15
+
+  doc.text('This Tenancy Agreement is made in duplicate between:', margin, yPosition)
   yPosition += 20
 
-  // Parties Section
-  doc.setFont('helvetica', 'bold')
-  doc.text('PARTIES', margin, yPosition)
-  yPosition += 10
+  // Parties Section (Official Form Format)
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
   
-  doc.setFont('helvetica', 'normal')
-  doc.text(`Landlord/Host: ${data.landlordName || '_'.repeat(40)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Email: ${data.landlordEmail || '_'.repeat(40)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Phone: ${data.landlordPhone || '_'.repeat(40)}`, margin, yPosition)
+  // Landlord line with underline
+  const landlordText = `${data.landlordName || '_'.repeat(50)}, the Landlord`
+  doc.text(landlordText, margin, yPosition)
+  doc.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2) // Underline
+  yPosition += 10
+  doc.setFontSize(9)
+  doc.text('(Legal name, address and telephone number of landlord(s))', margin, yPosition)
+  yPosition += 20
+
+  doc.setFontSize(11)
+  doc.text('and', pageWidth / 2, yPosition, { align: 'center' })
+  yPosition += 20
+
+  // Tenant line with underline
+  const tenantText = `${data.tenantName || '_'.repeat(50)}, the Tenant`
+  doc.text(tenantText, margin, yPosition)
+  doc.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2) // Underline
+  yPosition += 10
+  doc.setFontSize(9)
+  doc.text('Name of tenant(s)', margin, yPosition)
+  yPosition += 25
+
+  // 1. Rental Unit Section (Official Form)
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('1. Rental Unit', margin, yPosition)
   yPosition += 15
 
-  doc.text(`Tenant: ${data.tenantName || '_'.repeat(40)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Email: ${data.tenantEmail || '_'.repeat(40)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Phone: ${data.tenantPhone || '_'.repeat(40)}`, margin, yPosition)
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  doc.text('The landlord agrees to rent to the tenant the rental unit at the following location:', margin, yPosition)
+  yPosition += 15
+
+  // Property address with underline
+  const addressText = data.propertyAddress || '_'.repeat(60)
+  doc.text(addressText, margin, yPosition)
+  doc.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2) // Full width underline
+  yPosition += 10
+  doc.setFontSize(9)
+  doc.text('Address', pageWidth / 2, yPosition, { align: 'center' })
   yPosition += 20
 
-  // Property Details
+  // Condominium checkbox
+  doc.setFontSize(11)
+  doc.text('The unit is registered as a condominium', margin, yPosition)
+  doc.rect(margin + 85, yPosition - 4, 4, 4) // Yes checkbox
+  doc.text('Yes', margin + 95, yPosition)
+  doc.rect(margin + 115, yPosition - 4, 4, 4) // No checkbox  
+  doc.text('No', margin + 125, yPosition)
+  yPosition += 15
+
+  // Condominium note
+  doc.setFontSize(9)
+  const condoNote = 'Note: If the unit is registered as a condominium, the unit may be sold. If it is sold and the purchaser wants to move in, the tenant may be given notice to move, subject to this agreement and any rights or covenants living in the unit the tenant may have under The Residential Tenancies Act or The Condominium Act.'
+  const condoNoteLines = doc.splitTextToSize(condoNote, pageWidth - 2 * margin)
+  doc.text(condoNoteLines, margin, yPosition)
+  yPosition += condoNoteLines.length * 4 + 20
+
+  // 2. Term of Tenancy (Official Form)
+  doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
-  doc.text('PROPERTY DETAILS', margin, yPosition)
-  yPosition += 10
-  
+  doc.text('2. Term of Tenancy', margin, yPosition)
+  yPosition += 15
+
+  doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Address: ${data.propertyAddress || '_'.repeat(50)}`, margin, yPosition)
+  doc.text('Complete either (a) or (b), but not both:', margin, yPosition)
+  yPosition += 15
+
+  // (a) Fixed Term Tenancy
+  doc.setFont('helvetica', 'bold')
+  doc.text('(a) Fixed Term Tenancy', margin, yPosition)
+  yPosition += 10
+
+  doc.setFont('helvetica', 'normal')
+  const startDate = data.leaseStartDate || '_'.repeat(15)
+  const endDate = '_'.repeat(15)
+  doc.text(`The tenancy is for a fixed term beginning on ${startDate}, 20___ and ending on ${endDate}, 20___`, margin, yPosition)
   yPosition += 8
-  doc.text(`Type: ${data.propertyType || '_'.repeat(30)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Bedrooms: ${data.bedrooms || '___'}    Bathrooms: ${data.bathrooms || '___'}`, margin, yPosition)
+
+  const renewalText = 'Unless the tenancy has been terminated in accordance with the Act, the landlord shall offer the tenant a renewal of this agreement at least three months before the date the agreement ends. If the tenant does not sign and return the renewal at least two months before the date this agreement ends, this agreement will expire on that date.'
+  const renewalLines = doc.splitTextToSize(renewalText, pageWidth - 2 * margin)
+  doc.text(renewalLines, margin, yPosition)
+  yPosition += renewalLines.length * 5 + 15
+
+  // (b) Periodic Tenancy
+  doc.setFont('helvetica', 'bold')
+  doc.text('(b) Periodic Tenancy', margin, yPosition)
+  yPosition += 10
+
+  doc.setFont('helvetica', 'normal')
+  doc.text(`The tenancy is periodic, beginning on ${startDate}, 20___ and continuing from (week to week, month to month, or other period)`, margin, yPosition)
   yPosition += 20
 
-  // Rental Terms
+  // 3. Deposit Required
+  doc.setFontSize(12)
   doc.setFont('helvetica', 'bold')
-  doc.text('RENTAL TERMS', margin, yPosition)
-  yPosition += 10
-  
+  doc.text('3. Deposit Required (maximum = ½ month\'s Rent Payable for security deposit, 1 month\'s Rent Payable for pet damage deposit)', margin, yPosition)
+  yPosition += 15
+
+  doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
-  doc.text(`Monthly Rent: $${data.monthlyRent || '_'.repeat(10)}`, margin, yPosition)
+  doc.text('The landlord acknowledges receipt from the tenant of:', margin, yPosition)
+  yPosition += 10
+
+  const securityAmount = data.securityDeposit || '_'.repeat(10)
+  doc.text(`☐ a security deposit of $ ${securityAmount} on ____________, 20___`, margin, yPosition)
   yPosition += 8
-  doc.text(`Security Deposit: $${data.securityDeposit || '_'.repeat(10)} (Max 1/2 month rent - MB law)`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Lease Term: ${data.leaseTerm || '_'.repeat(20)}`, margin, yPosition)
-  yPosition += 8
-  doc.text(`Start Date: ${data.leaseStartDate || '_'.repeat(20)}`, margin, yPosition)
+  doc.text(`☐ a pet damage deposit of $ ____________ on ____________, 20___`, margin, yPosition)
+  yPosition += 20
+
+  // 4. Rent Payable
+  doc.setFontSize(12)
+  doc.setFont('helvetica', 'bold')
+  doc.text('4. Rent Payable', margin, yPosition)
+  yPosition += 15
+
+  doc.setFontSize(11)
+  doc.setFont('helvetica', 'normal')
+  const monthlyRent = data.monthlyRent || '_'.repeat(10)
+  doc.text(`The tenant agrees to pay rent in the amount of $ ${monthlyRent} per month.`, margin, yPosition)
+  yPosition += 10
+  doc.text('Rent is payable in advance on the first day of each month.', margin, yPosition)
+  yPosition += 10
+  doc.text('The first month\'s rent is due on or before the commencement of the tenancy.', margin, yPosition)
   yPosition += 20
 
   // Check if we need a new page
