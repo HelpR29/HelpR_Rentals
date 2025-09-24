@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
     const fetchPlacesByTypes = async (
       types: string[],
       labelMap?: Record<string,string>,
-      options?: { category?: 'grocery'|'healthcare'|'education'|'entertainment', radius?: number }
+      options?: { category?: 'grocery'|'healthcare'|'education'|'entertainment', radius?: number, mode?: 'distance'|'radius', maxDistance?: number }
     ): Promise<PlaceOut[]> => {
       if (!API_KEY) return []
       const all: PlaceOut[] = []
@@ -86,8 +86,13 @@ export async function GET(request: NextRequest) {
         try {
           const url = new URL('https://maps.googleapis.com/maps/api/place/nearbysearch/json')
           url.searchParams.set('location', `${lat},${lng}`)
-          const r = options?.radius ?? 2000
-          url.searchParams.set('radius', String(r))
+          const useDistance = options?.mode === 'distance'
+          if (useDistance) {
+            url.searchParams.set('rankby', 'distance')
+          } else {
+            const r = options?.radius ?? 2000
+            url.searchParams.set('radius', String(r))
+          }
           url.searchParams.set('type', t)
           url.searchParams.set('key', API_KEY)
           const res = await fetch(url.toString())
@@ -103,6 +108,7 @@ export async function GET(request: NextRequest) {
             // Category-specific filtering
             if (options?.category === 'grocery' && !isAllowedGrocery(r.name, typesArr)) continue
             if (options?.category === 'healthcare' && !isAllowedHealthcare(typesArr, r.name)) continue
+            if (options?.maxDistance && d > options.maxDistance) continue
             all.push({ name: r.name, type: typeLabel, distance: d, rating: r.rating })
           }
         } catch {}
@@ -126,25 +132,25 @@ export async function GET(request: NextRequest) {
       groceryPlaces = await fetchPlacesByTypes(
         ['supermarket','grocery_or_supermarket'],
         { supermarket: 'Supermarket', grocery_or_supermarket: 'Grocery' },
-        { category: 'grocery', radius: 1200 }
+        { category: 'grocery', mode: 'distance', maxDistance: 2000 }
       )
       // Healthcare: hospitals & pharmacies only, medium radius
       healthcarePlaces = await fetchPlacesByTypes(
         ['hospital','pharmacy'],
         { hospital: 'Hospital', pharmacy: 'Pharmacy' },
-        { category: 'healthcare', radius: 2000 }
+        { category: 'healthcare', mode: 'distance', maxDistance: 3000 }
       )
       // Education: schools & universities, medium radius
       educationPlaces = await fetchPlacesByTypes(
         ['primary_school','secondary_school','school','university'],
         { primary_school: 'Primary School', secondary_school: 'Secondary School', school: 'School', university: 'University' },
-        { category: 'education', radius: 2500 }
+        { category: 'education', mode: 'distance', maxDistance: 4000 }
       )
       // Entertainment: parks and major attractions, wider radius
       entertainmentPlaces = await fetchPlacesByTypes(
         ['park','tourist_attraction'],
         { park: 'Park', tourist_attraction: 'Attraction' },
-        { category: 'entertainment', radius: 3000 }
+        { category: 'entertainment', mode: 'distance', maxDistance: 5000 }
       )
     } catch {}
     if (groceryPlaces.length === 0) {

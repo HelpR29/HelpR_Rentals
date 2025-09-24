@@ -71,7 +71,8 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
     try {
       setLoading(true)
       const response = await fetch(
-        `/api/neighborhood/insights?lat=${coordinates.lat}&lng=${coordinates.lng}`
+        `/api/neighborhood/insights?lat=${coordinates.lat}&lng=${coordinates.lng}&v=${Date.now()}`,
+        { cache: 'no-store' }
       )
       
       if (response.ok) {
