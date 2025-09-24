@@ -108,47 +108,86 @@ export function generateManitobaContractPDF(data: ContractData): jsPDF {
     yPosition = 30
   }
 
-  // Manitoba Compliance
+  // Manitoba Legal Compliance - Detailed
   doc.setFont('helvetica', 'bold')
-  doc.text('MANITOBA TENANCY ACT COMPLIANCE', margin, yPosition)
+  doc.text('MANITOBA RESIDENTIAL TENANCIES ACT COMPLIANCE', margin, yPosition)
   yPosition += 10
   
   doc.setFont('helvetica', 'normal')
-  doc.text('This agreement is governed by The Residential Tenancies Act of Manitoba.', margin, yPosition)
+  doc.text('This agreement is governed by The Residential Tenancies Act (C.C.S.M. c. R119) of Manitoba.', margin, yPosition)
+  yPosition += 8
+  doc.text('For disputes: Residential Tenancies Branch - Phone: 204-945-2476', margin, yPosition)
   yPosition += 15
 
   doc.setFont('helvetica', 'bold')
-  doc.text('Key Manitoba Tenant Rights:', margin, yPosition)
+  doc.text('MANDATORY MANITOBA TENANT RIGHTS:', margin, yPosition)
   yPosition += 8
   
   doc.setFont('helvetica', 'normal')
   const tenantRights = [
-    '• Right to peaceful enjoyment of the premises',
-    '• Protection against unreasonable rent increases (90 days notice required)',
-    '• Right to proper notice for entry (24 hours minimum)',
-    '• Protection against illegal eviction'
+    '• Right to peaceful enjoyment without unreasonable interference',
+    '• Protection against rent increases without 90 days written notice',
+    '• Right to 24 hours written notice before landlord entry (except emergencies)',
+    '• Protection against illegal eviction - proper legal process required',
+    '• Right to written rent receipts upon request',
+    '• Security deposit limited to maximum 1/2 month rent',
+    '• Right to have security deposit held in trust account',
+    '• Protection under Manitoba Human Rights Code against discrimination'
   ]
   
   tenantRights.forEach(right => {
-    doc.text(right, margin + 5, yPosition)
-    yPosition += 6
+    const splitText = doc.splitTextToSize(right, pageWidth - 2 * margin - 10)
+    doc.text(splitText, margin + 5, yPosition)
+    yPosition += splitText.length * 6 + 2
   })
   yPosition += 10
 
   doc.setFont('helvetica', 'bold')
-  doc.text('Key Landlord Rights:', margin, yPosition)
+  doc.text('MANDATORY LANDLORD OBLIGATIONS:', margin, yPosition)
   yPosition += 8
   
   doc.setFont('helvetica', 'normal')
   const landlordRights = [
-    '• Right to collect rent on time',
-    '• Right to inspect property with proper notice',
-    '• Right to evict for cause with proper legal process'
+    '• Maintain property in good repair and fit for habitation',
+    '• Provide essential services (heat, water, electricity as applicable)',
+    '• Respect tenant privacy - proper notice required for entry',
+    '• Return security deposit within 14 days of tenancy end (if no damages)',
+    '• Provide written notice for rent increases (90 days minimum)',
+    '• Follow legal eviction procedures through Residential Tenancies Branch',
+    '• Maintain common areas in safe and clean condition'
   ]
   
   landlordRights.forEach(right => {
-    doc.text(right, margin + 5, yPosition)
-    yPosition += 6
+    const splitText = doc.splitTextToSize(right, pageWidth - 2 * margin - 10)
+    doc.text(splitText, margin + 5, yPosition)
+    yPosition += splitText.length * 6 + 2
+  })
+  yPosition += 15
+
+  // Check if we need a new page
+  if (yPosition > 250) {
+    doc.addPage()
+    yPosition = 30
+  }
+
+  // Legal Notice Requirements
+  doc.setFont('helvetica', 'bold')
+  doc.text('NOTICE REQUIREMENTS (Manitoba Law):', margin, yPosition)
+  yPosition += 8
+  
+  doc.setFont('helvetica', 'normal')
+  const noticeReqs = [
+    '• Tenant to Landlord: 1 month notice to terminate monthly tenancy',
+    '• Landlord to Tenant: 3 months notice to terminate monthly tenancy',
+    '• Rent Increase: 90 days written notice required',
+    '• Entry for Inspection: 24 hours written notice required',
+    '• Entry for Repairs: Reasonable notice required'
+  ]
+  
+  noticeReqs.forEach(req => {
+    const splitText = doc.splitTextToSize(req, pageWidth - 2 * margin - 10)
+    doc.text(splitText, margin + 5, yPosition)
+    yPosition += splitText.length * 6 + 2
   })
   yPosition += 20
 

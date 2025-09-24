@@ -38,13 +38,13 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
           <div className="flex space-x-2 mb-4">
             <button
               onClick={() => setSelectedType('contract')}
-              className={`flex-1 p-3 border rounded ${selectedType === 'contract' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-900'} font-semibold text-base hover:bg-gray-50`}
+              className={`flex-1 p-3 border-2 rounded-lg ${selectedType === 'contract' ? 'border-blue-500 bg-blue-100 text-blue-800' : 'border-gray-400 text-gray-800 bg-white'} font-bold text-base hover:bg-gray-100 transition-colors`}
             >
               📄 Contract
             </button>
             <button
               onClick={() => setSelectedType('checklist')}
-              className={`flex-1 p-3 border rounded ${selectedType === 'checklist' ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-300 text-gray-900'} font-semibold text-base hover:bg-gray-50`}
+              className={`flex-1 p-3 border-2 rounded-lg ${selectedType === 'checklist' ? 'border-blue-500 bg-blue-100 text-blue-800' : 'border-gray-400 text-gray-800 bg-white'} font-bold text-base hover:bg-gray-100 transition-colors`}
             >
               📋 Checklist
             </button>
@@ -56,21 +56,21 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
               placeholder="Landlord Name"
               value={formData.landlordName}
               onChange={(e) => setFormData({...formData, landlordName: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
+              className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <input
               type="text"
               placeholder="Tenant Name"
               value={formData.tenantName}
               onChange={(e) => setFormData({...formData, tenantName: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
+              className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             <input
               type="text"
               placeholder="Property Address"
               value={formData.propertyAddress}
               onChange={(e) => setFormData({...formData, propertyAddress: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
+              className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
             {selectedType === 'contract' && (
               <input
@@ -78,14 +78,14 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
                 placeholder="Monthly Rent ($)"
                 value={formData.monthlyRent}
                 onChange={(e) => setFormData({...formData, monthlyRent: e.target.value})}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
+                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base placeholder-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             )}
             {selectedType === 'checklist' && (
               <select
                 value={formData.checklistType}
                 onChange={(e) => setFormData({...formData, checklistType: e.target.value})}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base"
+                className="w-full border-2 border-gray-400 rounded-lg px-4 py-3 text-gray-900 font-bold text-base bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="move-in">Move-In Checklist</option>
                 <option value="move-out">Move-Out Checklist</option>
