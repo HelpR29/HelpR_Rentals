@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
+import { getPusherClient } from '@/lib/realtime-client'
 
 interface User {
   id: string
@@ -48,6 +49,7 @@ export default function InboxPage() {
   useEffect(() => {
     if (user) {
       fetchConversations()
+      setupRealtimeSubscriptions()
     }
   }, [user])
 
@@ -64,6 +66,47 @@ export default function InboxPage() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const setupRealtimeSubscriptions = () => {
+    if (!user) return
+
+    try {
+      const pusher = getPusherClient()
+      
+      // Subscribe to user channel for notifications
+      const userChannel = pusher.subscribe(`user:${user.id}`)
+      userChannel.bind('notifications:update', (data: any) => {
+        console.log('Notifications update:', data)
+        fetchConversations() // Refresh to get updated unread counts
+      })
+
+      // Subscribe to conversation channels when selected
+      if (selectedConversation) {
+        const conversationChannel = pusher.subscribe(`conversation:${selectedConversation}`)
+        
+        conversationChannel.bind('message:new', (data: any) => {
+          console.log('New message:', data)
+          fetchMessages(selectedConversation)
+          fetchConversations()
+        })
+
+        conversationChannel.bind('message:read', (data: any) => {
+          console.log('Message read:', data)
+          fetchMessages(selectedConversation)
+          fetchConversations()
+        })
+      }
+
+      return () => {
+        pusher.unsubscribe(`user:${user.id}`)
+        if (selectedConversation) {
+          pusher.unsubscribe(`conversation:${selectedConversation}`)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to setup realtime subscriptions:', error)
+    }
   }
 
   const fetchUser = async () => {
