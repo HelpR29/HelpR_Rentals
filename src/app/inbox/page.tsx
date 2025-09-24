@@ -1,60 +1,69 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import Card from '@/components/ui/Card'
+import { getCurrentUser } from '@/lib/auth'
+import { getPusherClient } from '@/lib/realtime-client'
 import Button from '@/components/ui/Button'
-import { useToast } from '@/components/ui/Toast'
-import VerificationBadge from '@/components/ui/VerificationBadge'
 
 interface User {
   id: string
   email: string
-  role: string
+  name?: string
+  avatar?: string
 }
 
-interface Application {
+interface Conversation {
   id: string
-  moveInDate: string
-  duration: string
-  reason: string
-  status: string
-  aiSummary?: string
+  isGroup: boolean
+  title?: string
+  lastMessageAt?: string
+  participants: { id: string; name?: string; email: string }[]
+  lastMessage?: { id: string; body: string; senderId: string; createdAt: string }
+  unreadCount: number
+}
+
+interface Message {
+  id: string
+  body: string
+  senderId: string
   createdAt: string
-  listing: {
-    id: string
-    title: string
-    address: string
-    rent: number
-    photos: string[]
-    owner: {
-      id: string
-      email: string
-    }
-  }
-  applicant: {
-    id: string
-    email: string
-    verified?: boolean
-    emailVerified?: boolean
-    phoneVerified?: boolean
-    idVerified?: boolean
-  }
+  reads: { userId: string }[]
+  sender: { id: string; name?: string; email: string; avatar?: string }
 }
 
 export default function InboxPage() {
   const router = useRouter()
-  const { addToast } = useToast()
   const [user, setUser] = useState<User | null>(null)
-  const [applications, setApplications] = useState<Application[]>([])
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(true)
-  const [processingApp, setProcessingApp] = useState<string | null>(null)
-  const [unreadMessages, setUnreadMessages] = useState<{[key: string]: number}>({})
+  const [sending, setSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchUser()
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      fetchConversations()
+      setupRealtimeSubscriptions()
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation)
+      markAsRead(selectedConversation)
+    }
+  }, [selectedConversation])
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
 
   useEffect(() => {
     if (user) {
