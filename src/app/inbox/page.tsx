@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Button from '@/components/ui/Button'
-import { getPusherClient } from '@/lib/realtime-client'
+import MessagesBadge from '@/components/ui/MessagesBadge'
+import DocumentModal from '@/components/ui/DocumentModal'
 
 interface User {
   id: string
@@ -38,8 +39,9 @@ export default function InboxPage() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
-  const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [showDocumentModal, setShowDocumentModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -66,20 +68,18 @@ export default function InboxPage() {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
   const setupRealtimeSubscriptions = () => {
     if (!user) return
 
     try {
-      const pusher = getPusherClient()
-      
-      // Subscribe to user channel for notifications
-      const userChannel = pusher.subscribe(`user:${user.id}`)
-      userChannel.bind('notifications:update', (data: any) => {
-        console.log('Notifications update:', data)
-        fetchConversations() // Refresh to get updated unread counts
-      })
+      const setupRealtimeSubscriptions = () => {
+        try {
+          // Realtime subscriptions would go here when Pusher is configured
+          console.log('Realtime subscriptions setup (Pusher not configured)')
+        } catch (error) {
+          console.log('Realtime not available:', error)
+        }
+      }
 
       // Subscribe to conversation channels when selected
       if (selectedConversation) {
