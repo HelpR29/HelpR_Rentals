@@ -1,11 +1,15 @@
 import sgMail from '@sendgrid/mail'
+import { Resend } from 'resend'
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY
-const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@helpr.app'
+const RESEND_API_KEY = process.env.RESEND_API_KEY
+const FROM_EMAIL = process.env.EMAIL_FROM || process.env.FROM_EMAIL || 'helprcanada@gmail.com'
 
+// Initialize providers if keys are present
 if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY)
 }
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null
 
 export async function sendMagicLinkEmail(email: string, magicLink: string): Promise<boolean> {
   const subject = 'Sign in to Helpr'
@@ -20,35 +24,7 @@ export async function sendMagicLinkEmail(email: string, magicLink: string): Prom
       <p>If you didn't request this, you can safely ignore this email.</p>
     </div>
   `
-
-  if (SENDGRID_API_KEY) {
-    try {
-      await sgMail.send({
-        to: email,
-        from: FROM_EMAIL,
-        subject,
-        html
-      })
-      return true
-    } catch (error) {
-      console.error('SendGrid error:', error)
-      // Fall back to console logging
-      console.log('\n=== MAGIC LINK EMAIL (SendGrid failed) ===')
-      console.log(`To: ${email}`)
-      console.log(`Subject: ${subject}`)
-      console.log(`Magic Link: ${magicLink}`)
-      console.log('==========================================\n')
-      return true
-    }
-  } else {
-    // Development fallback - log to console
-    console.log('\n=== MAGIC LINK EMAIL (Development Mode) ===')
-    console.log(`To: ${email}`)
-    console.log(`Subject: ${subject}`)
-    console.log(`Magic Link: ${magicLink}`)
-    console.log('===========================================\n')
-    return true
-  }
+  return await sendEmail({ to: email, subject, html })
 }
 
 export async function sendApplicationNotification(
@@ -97,25 +73,38 @@ interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html }: EmailOptions): Promise<boolean> {
+  // Prefer Resend if available
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: FROM_EMAIL,
+        to,
+        subject,
+        html,
+      })
+      return true
+    } catch (error) {
+      console.error('Resend error:', error)
+      // fall through to SendGrid
+    }
+  }
+
+  // Fallback to SendGrid if configured
   if (SENDGRID_API_KEY) {
     try {
-            await sgMail.send({ to, from: FROM_EMAIL, subject, html });
+      await sgMail.send({ to, from: FROM_EMAIL, subject, html })
       return true
     } catch (error) {
       console.error('SendGrid error:', error)
-      console.log(`\n=== EMAIL (SendGrid failed) ===`)
-      console.log(`To: ${to}`)
-      console.log(`Subject: ${subject}`)
-      console.log(`Body: ${html}`)
-      console.log('===============================\n')
-      return true
     }
-  } else {
-    console.log(`\n=== EMAIL (Development Mode) ===`)
-    console.log(`To: ${to}`)
-    console.log(`Subject: ${subject}`)
-    console.log(`Body: ${html}`)
-    console.log('================================\n')
-    return true
   }
+
+  // Final dev fallback - log to console
+  console.log(`\n=== EMAIL (Dev Fallback) ===`)
+  console.log(`From: ${FROM_EMAIL}`)
+  console.log(`To: ${to}`)
+  console.log(`Subject: ${subject}`)
+  console.log(`Body: ${html}`)
+  console.log('============================\n')
+  return true
 }
