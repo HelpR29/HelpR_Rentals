@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import VerificationBadge from '@/components/ui/VerificationBadge';
+import MessagesBadge from '@/components/ui/MessagesBadge';
 import { useUser } from '@/hooks/useUser'; // Import the new hook
 
 // Simplified User interface for the header
@@ -117,13 +118,9 @@ export default function Header() {
             )}
             {headerUser && (
               <>
-                <Link href="/inbox" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">
-                  Inbox
-                  {unreadMessages > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {unreadMessages > 9 ? '9+' : unreadMessages}
-                    </span>
-                  )}
+                <Link href="/inbox" className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium flex items-center space-x-1">
+                  <span>Inbox</span>
+                  <MessagesBadge userId={headerUser.id} className="ml-1" />
                 </Link>
                 <Link href="/verification" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Verification</Link>
                 <Link href="/privacy" className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium">Privacy</Link>
