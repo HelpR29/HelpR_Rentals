@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
 import Image from 'next/image'
 import Card from '@/components/ui/Card'
 import { getCurrentUser } from '@/lib/auth'
@@ -87,6 +87,8 @@ export default function ListingDetailPage() {
   const [routeInfo, setRouteInfo] = useState<{ distance: string; duration: string } | null>(null);
   // Geocoded coordinates of the listing address (authoritative when available)
   const [geoCoords, setGeoCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const searchParams = useSearchParams();
+  const debugMode = searchParams?.get('debug') === '1';
 
   // Helper: generate consistent Winnipeg coordinates seeded by ADDRESS (so map matches the address shown)
   const getListingCoordinates = () => {
@@ -513,6 +515,25 @@ export default function ListingDetailPage() {
                 directions={directions}
                 className="rounded-lg border border-gray-200"
               />
+              {debugMode && (
+                <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-gray-900">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold">Origin:</span>
+                      {` ${getListingCoordinates().lat.toFixed(6)}, ${getListingCoordinates().lng.toFixed(6)}`}
+                      <span className="ml-2">(source: {geoCoords ? 'geocoded' : 'seeded'})</span>
+                    </div>
+                    <a
+                      href={`https://www.google.com/maps/?q=${getListingCoordinates().lat},${getListingCoordinates().lng}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-700 font-semibold"
+                    >
+                      Open in Google Maps ↗
+                    </a>
+                  </div>
+                </div>
+              )}
               {routeInfo && (
                 <div className="mt-4 p-3 bg-blue-100 border border-blue-200 rounded-lg text-center">
                   <p className="text-sm font-semibold text-blue-800">
