@@ -56,21 +56,21 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
               placeholder="Landlord Name"
               value={formData.landlordName}
               onChange={(e) => setFormData({...formData, landlordName: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
             />
             <input
               type="text"
               placeholder="Tenant Name"
               value={formData.tenantName}
               onChange={(e) => setFormData({...formData, tenantName: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
             />
             <input
               type="text"
               placeholder="Property Address"
               value={formData.propertyAddress}
               onChange={(e) => setFormData({...formData, propertyAddress: e.target.value})}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
             />
             {selectedType === 'contract' && (
               <input
@@ -78,14 +78,14 @@ export default function DocumentModal({ isOpen, onClose, onGenerate }: DocumentM
                 placeholder="Monthly Rent ($)"
                 value={formData.monthlyRent}
                 onChange={(e) => setFormData({...formData, monthlyRent: e.target.value})}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base placeholder-gray-500"
               />
             )}
             {selectedType === 'checklist' && (
               <select
                 value={formData.checklistType}
                 onChange={(e) => setFormData({...formData, checklistType: e.target.value})}
-                className="w-full border border-gray-300 rounded px-3 py-2"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-gray-900 font-medium text-base"
               >
                 <option value="move-in">Move-In Checklist</option>
                 <option value="move-out">Move-Out Checklist</option>
