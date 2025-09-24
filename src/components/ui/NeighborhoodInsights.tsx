@@ -54,10 +54,18 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
   const [insights, setInsights] = useState<InsightsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'amenities' | 'commute'>('overview')
+  const [debugMode, setDebugMode] = useState(false)
 
   useEffect(() => {
     fetchInsights()
   }, [coordinates])
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      setDebugMode(params.get('debug') === '1')
+    } catch {}
+  }, [])
 
   const fetchInsights = async () => {
     try {
@@ -114,6 +122,24 @@ export default function NeighborhoodInsights({ coordinates, className = '' }: Ne
   return (
     <Card className={className}>
       <h3 className="text-xl font-bold text-gray-900 mb-6">Neighborhood Insights</h3>
+
+      {debugMode && (
+        <div className="mb-4 p-2 rounded border border-amber-300 bg-amber-50 text-xs text-gray-900">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-semibold">Origin:</span> {coordinates.lat.toFixed(6)}, {coordinates.lng.toFixed(6)}
+            </div>
+            <a
+              href={`https://www.google.com/maps/?q=${coordinates.lat},${coordinates.lng}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-blue-700 font-semibold"
+            >
+              Open in Google Maps ↗
+            </a>
+          </div>
+        </div>
+      )}
       
       {/* Tab Navigation */}
       <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
